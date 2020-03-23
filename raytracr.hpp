@@ -168,7 +168,6 @@ public:
 
     void Render(bool (* Progress)(unsigned int uDone, unsigned int uTotal, void* lpContext), void* lpContext)
     {
-#define PERSPECTIVE
         const float PI = acos(0.0f)*2.0f;
 
         // initialize pixel buffer
@@ -179,11 +178,8 @@ public:
 
         // image plane setup
         const float nImageSize =
-#ifdef PERSPECTIVE
             tan(PI/180.0f*45.0f)
-#else  /* !PERSPECTIVE = ORTHOGRAPHIC */
-            20.0f
-#endif  /* !PERSPECTIVE */
+            //20.0f
             ;
         const float nImageRatio = static_cast< float >(m_nSceneWidth)/static_cast< float >(m_nSceneHeight);
         const float nImageHeight = nImageSize;
@@ -211,21 +207,15 @@ public:
 
                 // ray
                 const CVector3d rvecRay =
-#ifdef PERSPECTIVE
                     rvecLookAt0+rvecXY
-#else  /* !PERSPECTIVE = ORTHOGRAPHIC */
-                    m_rvecLookAt
-#endif  /* !PERSPECTIVE */
+                    //m_rvecLookAt
                     ;
                 const CVector3d uvecRay = rvecRay.UnitVector();
 
                 // eye
                 const CVector3d ovecEye =
-#ifdef PERSPECTIVE
                     m_ovecEye
-#else  /* !PERSPECTIVE = ORTHOGRAPHIC */
-                    m_ovecEye+rvecImage0+rvecXY;
-#endif  /* !PERSPECTIVE */
+                    //m_ovecEye+rvecImage0+rvecXY;
                     ;
 
                 // primary ray
