@@ -1,29 +1,3 @@
-template< typename T > LRESULT CALLBACK WndProcPP(CONST HWND hWnd, CONST UINT uMsg, CONST WPARAM wParam, CONST LPARAM lParam, LRESULT (T::*WndProc)(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam))
-{
-    T* lpThis = (T*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
-
-    if(lpThis!=NULL)
-    {
-        return (lpThis->WndProc)(hWnd, uMsg, wParam, lParam);
-    }
-    else
-    if(uMsg==WM_NCCREATE)
-    {
-        LPCREATESTRUCT lpCreateStruct = (LPCREATESTRUCT)lParam;
-
-        if(lpCreateStruct->lpCreateParams!=NULL)
-        {
-            lpThis = static_cast< T* >(lpCreateStruct->lpCreateParams);
-
-            SetWindowLongPtr(hWnd, GWLP_USERDATA, (LONG_PTR)lpThis);
-
-            return (lpThis->WndProc)(hWnd, uMsg, wParam, lParam);
-        }
-    }
-
-    return DefWindowProc(hWnd, uMsg, wParam, lParam);
-}
-
 class CSimpleWindow
 {
 private:
@@ -63,11 +37,15 @@ public:
         MoveWindow(hWnd, rcWnd.left, rcWnd.top, rcWnd.right-rcWnd.left, rcWnd.bottom-rcWnd.top, TRUE);
 
         return TRUE;
+        
+        UNREFERENCED_PARAMETER(lpCreateStruct);
     }
 
     virtual VOID WndProcOnDestroy(HWND hWnd)
     {
         PostQuitMessage(EXIT_SUCCESS);
+
+        UNREFERENCED_PARAMETER(hWnd);
     }
 
     virtual VOID WndProcOnCommand(HWND hWnd, INT nId, HWND hWndCtl, UINT uCodeNotify)
@@ -78,6 +56,9 @@ public:
             DestroyWindow(hWnd);
             break;
         }
+
+        UNREFERENCED_PARAMETER(hWndCtl);
+        UNREFERENCED_PARAMETER(uCodeNotify);
     }
 
     virtual LRESULT WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
@@ -94,7 +75,28 @@ public:
 
     static LRESULT CALLBACK WndProcCB(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     {
-        return WndProcPP(hWnd, uMsg, wParam, lParam, &CSelf::WndProc);
+        CSelf* lpThis = (CSelf*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
+    
+        if(lpThis!=NULL)
+        {
+            return lpThis->WndProc(hWnd, uMsg, wParam, lParam);
+        }
+        else
+        if(uMsg==WM_NCCREATE)
+        {
+            LPCREATESTRUCT lpCreateStruct = (LPCREATESTRUCT)lParam;
+    
+            if(lpCreateStruct->lpCreateParams!=NULL)
+            {
+                lpThis = static_cast< CSelf* >(lpCreateStruct->lpCreateParams);
+    
+                SetWindowLongPtr(hWnd, GWLP_USERDATA, (LONG_PTR)lpThis);
+    
+                return lpThis->WndProc(hWnd, uMsg, wParam, lParam);
+            }
+        }
+    
+        return DefWindowProc(hWnd, uMsg, wParam, lParam);
     }
 
 public:

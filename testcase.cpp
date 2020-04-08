@@ -144,12 +144,24 @@ public:
         }
     }
 
+    virtual UINT WndProcOnNCHitTest(HWND hWnd, int nX, int nY)
+    {
+        UINT uHitTest = FORWARD_WM_NCHITTEST(hWnd, nX, nY, DefWindowProc);
+
+        if(uHitTest==HTCLIENT)
+        {
+            uHitTest = HTCAPTION;
+        }
+
+        return uHitTest;
+    }
+
     virtual LRESULT WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     {
         switch(uMsg)
         {
-        HANDLE_MSG(hWnd, WM_CREATE, WndProcOnCreate);
         HANDLE_MSG(hWnd, WM_PAINT, WndProcOnPaint);
+        HANDLE_MSG(hWnd, WM_NCHITTEST, WndProcOnNCHitTest);
         }
 
         return CSuper::WndProc(hWnd, uMsg, wParam, lParam);
@@ -158,9 +170,11 @@ public:
 
 bool TrackProgress(unsigned int uDone, unsigned int uTotal, void* lpContext)
 {
-    printf(".");
+    printf("%3.1f%%\r", uDone*100.0f/uTotal);
 
     return true;
+
+    UNREFERENCED_PARAMETER(lpContext);
 }
 
 HBITMAP BitmapFromPixels(const std::vector< Raytracer::CColor >& aclrPixels, const int nWidth, const int nHeight)
@@ -190,6 +204,49 @@ HBITMAP BitmapFromPixels(const std::vector< Raytracer::CColor >& aclrPixels, con
     return hbmOutput;
 }
 
+HBITMAP BitmapFromPixels2(const std::vector< Raytracer::CColor >& aclrPixels, const int nWidth, const int nHeight)
+{
+    HBITMAP hbmOutput = NULL;
+    BITMAPINFO bmiOutput = { 0 };
+    VOID* lpBits = NULL;
+
+    bmiOutput.bmiHeader.biSize = sizeof(bmiOutput.bmiHeader);
+    bmiOutput.bmiHeader.biWidth = nWidth;
+    bmiOutput.bmiHeader.biHeight = nHeight;  // bottom-up, just like our pixel buffer
+    bmiOutput.bmiHeader.biPlanes = 1;
+    bmiOutput.bmiHeader.biBitCount = 24;
+    bmiOutput.bmiHeader.biCompression = BI_RGB;
+
+    hbmOutput = CreateDIBSection(CGetDC(NULL), &bmiOutput, DIB_RGB_COLORS, &lpBits, NULL, 0);
+
+    if(hbmOutput!=NULL)
+    {
+        BITMAP bmInfo = { 0 };
+
+        GetObject(hbmOutput, sizeof(BITMAP), &bmInfo);
+
+        const int nWidthBytes = bmInfo.bmWidthBytes;
+        const int nPixelBytes = bmInfo.bmBitsPixel/8;
+
+        for(int nY = 0; nY<nHeight; nY++)
+        {
+            for(int nX = 0; nX<nWidth; nX++)
+            {
+                const auto& Px = aclrPixels[nX+nY*nWidth];
+                unsigned char* ucBits = &static_cast< unsigned char* >(lpBits)[nY*nWidthBytes+nX*nPixelBytes];
+
+                ucBits[0] = static_cast< unsigned char >(Px.B()*255U);
+                ucBits[1] = static_cast< unsigned char >(Px.G()*255U);
+                ucBits[2] = static_cast< unsigned char >(Px.R()*255U);
+            }
+        }
+
+        GdiFlush();
+    }
+
+    return hbmOutput;
+}
+
 void AddTriangleStrip(Raytracer& R, const float anVertices[], const size_t uCount, const Raytracer::CColor& clrColor)
 {
     size_t uIdx = 0;
@@ -200,6 +257,21 @@ void AddTriangleStrip(Raytracer& R, const float anVertices[], const size_t uCoun
 
         uIdx+= 3;
     }
+}
+
+HBITMAP RenderJob(Raytracer& R)
+{
+    DWORD dwStart;
+
+    dwStart = GetTickCount();
+    R.Render(&TrackProgress, NULL);
+    printf("%ums", GetTickCount()-dwStart);
+
+    dwStart = GetTickCount();
+    HBITMAP hbmOutput = BitmapFromPixels2(R.GetResult(), R.GetSceneWidth(), R.GetSceneHeight());
+    printf("+%ums\n", GetTickCount()-dwStart);
+
+    return hbmOutput;
 }
 
 int __cdecl main(int nArgc, char** lppszArgv)
@@ -224,19 +296,58 @@ int __cdecl main(int nArgc, char** lppszArgv)
     };
     AddTriangleStrip(R, z_anPyVertices, _countof(z_anPyVertices), Raytracer::CreateColor(0.75f, 0.75f, 0.25f));
 /**/
+    // Dice
+    // Cube: https://stackoverflow.com/questions/28375338/cube-using-single-gl-triangle-strip
+    static const float z_anDcVertices[] =
+    {
+        -1.0f, +2.0f, -5.0f,  // Front-top-left
+        +1.0f, +2.0f, -5.0f,  // Front-top-right
+        -1.0f, +0.0f, -5.0f,  // Front-bottom-left
+        +1.0f, +0.0f, -5.0f,  // Front-bottom-right
+        +1.0f, +0.0f, -7.0f,  // Back-bottom-right
+        +1.0f, +2.0f, -5.0f,  // Front-top-right
+        +1.0f, +2.0f, -7.0f,  // Back-top-right
+        -1.0f, +2.0f, -5.0f,  // Front-top-left
+        -1.0f, +2.0f, -7.0f,  // Back-top-left
+        -1.0f, +0.0f, -5.0f,  // Front-bottom-left
+        -1.0f, +0.0f, -7.0f,  // Back-bottom-left
+        +1.0f, +0.0f, -7.0f,  // Back-bottom-right
+        -1.0f, +2.0f, -7.0f,  // Back-top-left
+        +1.0f, +2.0f, -7.0f,  // Back-top-right
+    };
+    AddTriangleStrip(R, z_anDcVertices, _countof(z_anDcVertices), Raytracer::CreateColor(0.9f, 0.9f, 0.9f));
+    // ooo
+    R.AddObject(Raytracer::CreateSphere(Raytracer::CreateVector3d(-0.5f, +0.5f, -5.0f), 0.1f, Raytracer::CreateColor(0.5f, 0.5f, 0.5f)));
+    R.AddObject(Raytracer::CreateSphere(Raytracer::CreateVector3d(+0.0f, +1.0f, -5.0f), 0.1f, Raytracer::CreateColor(0.5f, 0.5f, 0.5f)));
+    R.AddObject(Raytracer::CreateSphere(Raytracer::CreateVector3d(+0.5f, +1.5f, -5.0f), 0.1f, Raytracer::CreateColor(0.5f, 0.5f, 0.5f)));
+    // oo
+    R.AddObject(Raytracer::CreateSphere(Raytracer::CreateVector3d(+0.5f, +2.0f, -6.5f), 0.1f, Raytracer::CreateColor(0.5f, 0.5f, 0.5f)));
+    R.AddObject(Raytracer::CreateSphere(Raytracer::CreateVector3d(-0.5f, +2.0f, -5.5f), 0.1f, Raytracer::CreateColor(0.5f, 0.5f, 0.5f)));
+    // o
+    R.AddObject(Raytracer::CreateSphere(Raytracer::CreateVector3d(+1.0f, +1.0f, -6.0f), 0.1f, Raytracer::CreateColor(0.5f, 0.0f, 0.0f)));
+/**/
 
+    // Simple objects
     R.AddObject(Raytracer::CreatePlane(Raytracer::CreateVector3d(+0.0f, +0.0f, +0.0f), Raytracer::CreateVector3d(+0.0f, +1.0f, +0.0f), Raytracer::CreateColor(1.0f, 1.0f, 1.0f)));
     R.AddObject(Raytracer::CreatePlane(Raytracer::CreateVector3d(-6.0f, +0.0f, +0.0f), Raytracer::CreateVector3d(+1.0f, +0.0f, +0.0f), Raytracer::CreateColor(0.0f, 0.5f, 0.5f)));
     R.AddObject(Raytracer::CreateSphere(Raytracer::CreateVector3d(+2.0f, +1.0f, -3.0f), 1.0f, Raytracer::CreateColor(0.25f, 0.25f, 0.75f)));
     R.AddObject(Raytracer::CreateSphere(Raytracer::CreateVector3d(-2.0f, +1.0f, -3.0f), 1.0f, Raytracer::CreateColor(0.75f, 0.25f, 0.25f)));
     R.AddObject(Raytracer::CreateSphere(Raytracer::CreateVector3d(+0.0f, +1.0f, -2.0f), 1.0f, Raytracer::CreateColor(0.25f, 0.75f, 0.25f)));
 
-    R.AddObject(Raytracer::CreateLight(Raytracer::CreateVector3d(+9.0f, +9.0f, +9.0f), Raytracer::CreateColor(1.0f, 1.0f, 1.0f), 60.0f));
+    // Lights
+    R.AddObject(Raytracer::CreateLight(Raytracer::CreateVector3d(+9.0f, +9.0f, +0.0f), Raytracer::CreateColor(1.0f, 1.0f, 1.0f), 50.0f));
     //R.AddObject(Raytracer::CreateLight(Raytracer::CreateVector3d(+9.0f, +9.0f, -9.0f), Raytracer::CreateColor(1.0f, 0.0f, 0.0f), 50.0f));
     //R.AddObject(Raytracer::CreateLight(Raytracer::CreateVector3d(+9.0f, +9.0f, +0.0f), Raytracer::CreateColor(0.0f, 1.0f, 0.0f), 50.0f));
     //R.AddObject(Raytracer::CreateLight(Raytracer::CreateVector3d(+9.0f, +9.0f, +9.0f), Raytracer::CreateColor(0.0f, 0.0f, 1.0f), 50.0f));
 
-    R.SetScene(250, 250);
+    if(nArgc>2 && atoi(lppszArgv[1])>0 && atoi(lppszArgv[2])>0)
+    {
+        R.SetScene(atoi(lppszArgv[1])/2, atoi(lppszArgv[2])/2);
+    }
+    else
+    {
+        R.SetScene(GetSystemMetrics(SM_CXSCREEN)/3, GetSystemMetrics(SM_CYSCREEN)/3);
+    }
 
     puts("Rendering...");
 
@@ -249,32 +360,20 @@ int __cdecl main(int nArgc, char** lppszArgv)
     const auto mtxIso = Raytracer::CreateMatrix3d().SetIdentity().AddYRotation(PI/180.0f*45.0f).AddXRotation(PI/180.0f*-45.0f);
 
     // Front
-    CONST DWORD dwStart1 = GetTickCount();
     R.SetCamera(ovecEye.MatrixProduct(mtxFront), ovecTarget.MatrixProduct(mtxFront), uvecUp.MatrixProduct(mtxFront));
-    R.Render(&TrackProgress, NULL);
-    printf("%ums\n", GetTickCount()-dwStart1);
-    HBITMAP hbmOutput1 = BitmapFromPixels(R.GetResult(), R.GetSceneWidth(), R.GetSceneHeight());
+    HBITMAP hbmOutput1 = RenderJob(R);
 
     // Side
-    CONST DWORD dwStart2 = GetTickCount();
     R.SetCamera(ovecEye.MatrixProduct(mtxSide), ovecTarget.MatrixProduct(mtxSide), uvecUp.MatrixProduct(mtxSide));
-    R.Render(&TrackProgress, NULL);
-    printf("%ums\n", GetTickCount()-dwStart2);
-    HBITMAP hbmOutput2 = BitmapFromPixels(R.GetResult(), R.GetSceneWidth(), R.GetSceneHeight());
+    HBITMAP hbmOutput2 = RenderJob(R);
 
     // Top
-    CONST DWORD dwStart3 = GetTickCount();
     R.SetCamera(ovecEye.MatrixProduct(mtxTop), ovecTarget.MatrixProduct(mtxTop), uvecUp.MatrixProduct(mtxTop));
-    R.Render(&TrackProgress, NULL);
-    printf("%ums\n", GetTickCount()-dwStart3);
-    HBITMAP hbmOutput3 = BitmapFromPixels(R.GetResult(), R.GetSceneWidth(), R.GetSceneHeight());
+    HBITMAP hbmOutput3 = RenderJob(R);
 
     // Iso
-    CONST DWORD dwStart4 = GetTickCount();
     R.SetCamera(ovecEye.MatrixProduct(mtxIso), ovecTarget.MatrixProduct(mtxIso), uvecUp.MatrixProduct(mtxIso));
-    R.Render(&TrackProgress, NULL);
-    printf("%ums\n", GetTickCount()-dwStart4);
-    HBITMAP hbmOutput4 = BitmapFromPixels(R.GetResult(), R.GetSceneWidth(), R.GetSceneHeight());
+    HBITMAP hbmOutput4 = RenderJob(R);
 
     puts("Present.");
 
