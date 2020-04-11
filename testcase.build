@@ -7,7 +7,7 @@
 /D_CRT_SECURE_NO_WARNINGS
 /link /RELEASE
 
-testcase.cpp
+testcase3.cpp
 
 user32.lib
 gdi32.lib
