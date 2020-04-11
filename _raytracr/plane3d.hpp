@@ -29,6 +29,33 @@ public:
         return m_uvecNormal.IsParallelTo(plnOther.m_uvecNormal);
     }
 
+    float AngleTo(const CVector3d& vecVector) const
+    {
+        return m_uvecNormal.CrossProduct(vecVector.UnitVector().CrossProduct(m_uvecNormal)).AngleTo(vecVector.UnitVector());
+    }
+
+    float AngleTo(const CSelf& plnOther) const
+    {
+        m_uvecNormal.AngleTo(plnOther.m_uvecNormal);
+    }
+
+    /*
+         L--n->R
+          \ ^ /
+           \|/
+        ----o----
+    */
+    /*r*/CVector3d Reflection(const CVector3d& vecVector) const
+    {
+        const CVector3d rvecLO = -vecVector;
+        const CVector3d rvecON = rvecLO.ProjectionTo(m_uvecNormal);
+        const CVector3d rvecLN = rvecLO-rvecON;
+        const CVector3d rvecNR = rvecLN;
+        const CVector3d rvecOR = rvecON+rvecNR;
+
+        return rvecOR;
+    }
+
     /*o*/CVector3d Intersection(const CVector3d& ovecOrigin, const CVector3d& rvecDirection) const
     {// prerequisites: not-inplane, not-parallel, only point-inplane
         return ovecOrigin+rvecDirection.UnitVector()*(m_uvecNormal.DotProduct(m_ovecOrigin-ovecOrigin)/m_uvecNormal.DotProduct(rvecDirection.UnitVector()));
@@ -38,8 +65,8 @@ public:
     {
         return CSelf(CVector3d
         (
-            (m_uvecNormal.X()*m_ovecOrigin.X()-plnOther.m_uvecNormal.X()*m_ovecOrigin.X())/(m_uvecNormal.X()-plnOther.m_uvecNormal.X())
-            (m_uvecNormal.Y()*m_ovecOrigin.Y()-plnOther.m_uvecNormal.Y()*m_ovecOrigin.Y())/(m_uvecNormal.Y()-plnOther.m_uvecNormal.Y())
+            (m_uvecNormal.X()*m_ovecOrigin.X()-plnOther.m_uvecNormal.X()*m_ovecOrigin.X())/(m_uvecNormal.X()-plnOther.m_uvecNormal.X()),
+            (m_uvecNormal.Y()*m_ovecOrigin.Y()-plnOther.m_uvecNormal.Y()*m_ovecOrigin.Y())/(m_uvecNormal.Y()-plnOther.m_uvecNormal.Y()),
             (m_uvecNormal.Z()*m_ovecOrigin.Z()-plnOther.m_uvecNormal.Z()*m_ovecOrigin.Z())/(m_uvecNormal.Z()-plnOther.m_uvecNormal.Z())
         ), m_uvecNormal.CrossProduct(plnOther.m_uvecNormal));
     }

@@ -34,10 +34,10 @@ int __cdecl main(int nArgc, char** lppszArgv)
     R.AddObject(Raytracer::CreateSphere(Raytracer::CreateVector3d(+2.0f, +1.0f, -3.0f), 1.0f, Raytracer::CreateColor(0.25f, 0.25f, 0.75f)));
     R.AddObject(Raytracer::CreateSphere(Raytracer::CreateVector3d(-2.0f, +1.0f, -3.0f), 1.0f, Raytracer::CreateColor(0.75f, 0.25f, 0.25f)));
     R.AddObject(Raytracer::CreateSphere(Raytracer::CreateVector3d(+0.0f, +1.0f, -2.0f), 1.0f, Raytracer::CreateColor(0.25f, 0.75f, 0.25f)));
-    R.AddObject(Raytracer::CreateLight(Raytracer::CreateVector3d(+9.0f, +9.0f, +0.0f), Raytracer::CreateColor(1.0f, 1.0f, 1.0f), 50.0f));
+    R.AddLight(Raytracer::CreateLight(Raytracer::CreateVector3d(+9.0f, +9.0f, +0.0f), Raytracer::CreateColor(1.0f, 1.0f, 1.0f), 50.0f));
     R.SetScene(700, 500);
     R.SetCamera(Raytracer::CreateVector3d(+0.0f, +1.0f, +10.0f), Raytracer::CreateVector3d(+0.0f, +1.0f, +9.0f), Raytracer::CreateVector3d(+0.0f, +1.0f, +0.0f));
-    R.Render(NULL, NULL);
+    R.Render(NULL);
 
     const auto aclrPixels = R.GetResult();
     const int nWidth = R.GetSceneWidth();
@@ -52,9 +52,9 @@ int __cdecl main(int nArgc, char** lppszArgv)
             const auto& Px = aclrPixels[nX+nY*nWidth];
 
             printf("%u %u %u\n"
-                , static_cast< unsigned char >(Px.B()*255U)
-                , static_cast< unsigned char >(Px.G()*255U)
                 , static_cast< unsigned char >(Px.R()*255U)
+                , static_cast< unsigned char >(Px.G()*255U)
+                , static_cast< unsigned char >(Px.B()*255U)
             );
         }
     }

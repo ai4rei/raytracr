@@ -7,27 +7,27 @@ private:
     const float m_nRadius2;
 
 public:
-    CSphere(const CVector3d& ovecOrigin, const float nRadius, const CColor& clrColor, const float nIntensity = 0.0f)
+    CSphere(const CVector3d& ovecOrigin, const float nRadius, const CColor& clrColor)
         : m_ovecOrigin(ovecOrigin)
         , m_nRadius(nRadius)
         , m_nRadius2(nRadius*nRadius)
-        , CObject(clrColor, nIntensity)
+        , CObject(clrColor)
     {
     }
 
-    virtual CIntersection Intersect(const CVector3d& ovecOrigin, const CVector3d& rvecRay) const
+    virtual CHit3d HitTest(const CRay3d& Ray, const float nDistanceMin, const float nDistanceMax) const
     {// https://en.wikipedia.org/wiki/Line%E2%80%93sphere_intersection
-        const float nVcbs = rvecRay.DotProduct(ovecOrigin-m_ovecOrigin);
+        const float nVcbs = Ray.GetLookAt().DotProduct(Ray.GetEye()-m_ovecOrigin);
 
         // value under square-root
-        const float nVusr = pow(nVcbs, 2)
-                          - (ovecOrigin-m_ovecOrigin).Magnitude2()
+        const float nVusr = nVcbs*nVcbs
+                          - (Ray.GetEye()-m_ovecOrigin).Magnitude2()
                           + m_nRadius2
                           ;
 
         if(nVusr<0)
         {
-            return CIntersection();
+            return CHit3d();
         }
 
         // value before square-root
@@ -38,36 +38,42 @@ public:
             // value of square-root
             const float nVosr = sqrt(nVusr);
 
-            const float nT1 = nVbsr+nVosr;
-            const float nT2 = nVbsr-nVosr;
+            const float nDistance1 = nVbsr+nVosr;
+            const float nDistance2 = nVbsr-nVosr;
 
-            if(nT1<0)
+            if(nDistance1<nDistanceMin || nDistance1>nDistanceMax)
             {
-                if(nT2<0)
+                if(nDistance2<nDistanceMin || nDistance2>nDistanceMax)
                 {
-                    return CIntersection();
+                    return CHit3d();
                 }
-
-                return CIntersection(nT2);
+                else
+                {
+                    return CHit3d(nDistance2, m_clrColor);
+                }
             }
             else
-            if(nT2<0)
             {
-                return CIntersection(nT1);
+                if(nDistance2<nDistanceMin || nDistance2>nDistanceMax)
+                {
+                    return CHit3d(nDistance1, m_clrColor);
+                }
+                else
+                {
+                    return CHit3d(min(nDistance1, nDistance2), m_clrColor);
+                }
             }
-
-            return CIntersection(nT1, nT2);
         }
 
-        return CIntersection(nVbsr);
+        if(nVbsr<nDistanceMin || nVbsr>nDistanceMax)
+        {
+            return CHit3d();
+        }
+
+        return CHit3d(nVbsr, m_clrColor);
     }
 
-    virtual bool IsLight() const
-    {
-        return false;
-    }
-
-    virtual const CVector3d& Origin() const
+    virtual const CVector3d& GetOrigin() const
     {
         return m_ovecOrigin;
     }

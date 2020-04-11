@@ -18,7 +18,6 @@ private:
     float m_nY;
     float m_nZ;
     float m_nMagnitude;
-    float m_nMagnitude2;
 
 public:
     CVector3d(const float nX, const float nY, const float nZ)
@@ -26,7 +25,6 @@ public:
         , m_nY(nY)
         , m_nZ(nZ)
         , m_nMagnitude(-1.0f)
-        , m_nMagnitude2(-1.0f)
     {
     }
 
@@ -40,7 +38,6 @@ public:
 
             // invalidate cache
             m_nMagnitude = -1.0f;
-            m_nMagnitude2 = -1.0f;
         }
 
         return *this;
@@ -132,6 +129,9 @@ public:
         );
     }
 
+    /*
+        cos(theta between a and b) = a.b
+    */
     float DotProduct(const CSelf& vecOther) const
     {// a.b
         return m_nX*vecOther.m_nX+m_nY*vecOther.m_nY+m_nZ*vecOther.m_nZ;
@@ -139,14 +139,7 @@ public:
 
     float Magnitude2() const
     {
-        if(m_nMagnitude2<0)
-        {
-            CSelf* lpThis = const_cast< CSelf* >(this);
-
-            lpThis->m_nMagnitude2 = DotProduct(*this);
-        }
-
-        return m_nMagnitude2;
+        return DotProduct(*this);
     }
 
     float Magnitude() const
@@ -169,6 +162,22 @@ public:
     bool IsParallelTo(const CSelf& vecOther) const
     {
         return UnitVector()==vecOther.UnitVector() || UnitVector()==-vecOther.UnitVector();
+    }
+
+    float AngleTo(const CSelf& vecOther) const
+    {
+        return acos(UnitVector().DotProduct(vecOther.UnitVector()));
+    }
+
+    CVector3d ProjectionTo(const CSelf& vecOther) const
+    {// https://en.wikipedia.org/wiki/Vector_projection
+        //return DotProduct(vecOther.UnitVector())*vecOther.UnitVector();
+        return vecOther*(DotProduct(vecOther)/vecOther.Magnitude2());
+    }
+    
+    CVector3d RejectionTo(const CSelf& vecOther) const
+    {
+        return *this-ProjectionTo(vecOther);
     }
 
     float X() const { return m_nX; }

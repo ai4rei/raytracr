@@ -13,32 +13,27 @@ public:
     {
     }
 
-    virtual CIntersection Intersect(const CVector3d& ovecOrigin, const CVector3d& rvecRay) const
+    virtual CHit3d HitTest(const CRay3d& Ray, const float nDistanceMin, const float nDistanceMax) const
     {
-        const float nC = m_uvecNormal.DotProduct(m_ovecOrigin-ovecOrigin);
-        const float nD = m_uvecNormal.DotProduct(rvecRay);
+        const float nDenominator = m_uvecNormal.DotProduct(Ray.GetLookAt());
 
-        if(nD==0)
-        {
-            return CIntersection();
+        if(nDenominator==0)
+        {// parallel to
+            return CHit3d();
         }
 
-        const float nT = nC/nD;
+        const float nCounter = m_uvecNormal.DotProduct(m_ovecOrigin-Ray.GetEye());
+        const float nDistance = nCounter/nDenominator;
 
-        if(nT<0)
+        if(nDistance<nDistanceMin || nDistance>nDistanceMax)
         {
-            return CIntersection();
+            return CHit3d();
         }
 
-        return CIntersection(nT);
+        return CHit3d(nDistance, m_clrColor);
     }
 
-    virtual bool IsLight() const
-    {
-        return false;
-    }
-
-    virtual const CVector3d& Origin() const
+    virtual const CVector3d& GetOrigin() const
     {
         return m_ovecOrigin;
     }

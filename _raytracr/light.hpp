@@ -1,16 +1,30 @@
 class CLight
-    : public CSphere
 {
 private:
+    const CVector3d m_ovecOrigin;
+    const CColor m_clrColor;
+    const float m_nIntensity;
 
 public:
     CLight(const CVector3d& ovecOrigin, const CColor& clrColor, const float nIntensity)
-        : CSphere(ovecOrigin, 1.0f, clrColor, nIntensity)
+        : m_ovecOrigin(ovecOrigin)
+        , m_clrColor(clrColor)
+        , m_nIntensity(nIntensity)
     {
     }
 
-    virtual bool IsLight() const
+    const CVector3d& GetOrigin() const
     {
-        return true;
+        return m_ovecOrigin;
+    }
+
+    const CColor& GetColor() const
+    {
+        return m_clrColor;
+    }
+
+    float GetIntensity() const
+    {
+        return m_nIntensity;
     }
 };

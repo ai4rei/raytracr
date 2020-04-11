@@ -1,13 +1,11 @@
 class CObject
 {
-private:
+protected:
     const CColor m_clrColor;
-    const float m_nIntensity;
 
 protected:
-    CObject(const CColor& clrColor, const float nIntensity = 0.0f)
+    CObject(const CColor& clrColor)
         : m_clrColor(clrColor)
-        , m_nIntensity(nIntensity)
     {
     }
 
@@ -17,17 +15,6 @@ public:
         return m_clrColor;
     }
 
-    const CObject* GetObject() const
-    {
-        return this;
-    }
-
-    float Intensity() const
-    {
-        return m_nIntensity;
-    }
-
-    virtual CIntersection Intersect(const CVector3d& ovecOrigin, const CVector3d& rvecRay) const = 0;
-    virtual bool IsLight() const = 0;
-    virtual const CVector3d& Origin() const = 0;
+    virtual CHit3d HitTest(const CRay3d& Ray, const float nDistanceMin, const float nDistanceMax) const = 0;
+    virtual const CVector3d& GetOrigin() const = 0;
 };

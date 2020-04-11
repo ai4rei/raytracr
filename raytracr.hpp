@@ -6,17 +6,29 @@ class Raytracer
 public:
     #include "_raytracr/vector3d.hpp"
     #include "_raytracr/matrix3d.hpp"
+    #include "_raytracr/plane3d.hpp"
+    #include "_raytracr/sphere3d.hpp"
+    #include "_raytracr/ray3d.hpp"
+
     #include "_raytracr/color.hpp"
-    #include "_raytracr/intersection.hpp"
+    #include "_raytracr/hit3d.hpp"
+
     #include "_raytracr/object.hpp"
     #include "_raytracr/triangle.hpp"
     #include "_raytracr/plane.hpp"
     #include "_raytracr/sphere.hpp"
-    #include "_raytracr/light.hpp"
-    #include "_raytracr/tracehit.hpp"
+    #include "_raytracr/light.hpp"  // diffuse, ambient, spot light
+    #include "_raytracr/camera.hpp"
 
-    typedef std::vector< std::unique_ptr< CObject > > OBJECTVECTOR;
+    typedef std::vector< std::shared_ptr< CObject > > OBJECTVECTOR;
+    typedef std::vector< std::shared_ptr< CLight > > LIGHTVECTOR;
     typedef std::vector< CColor > PIXELVECTOR;
+    typedef bool (*PROGRESSCB)(const float nR, const float nG, const float nB, const int nX, const int nY, void* lpContext);
+
+    static const float PI;
+#ifndef FLD_MAX
+    #define FLD_MAX 1e37f
+#endif  /* FLD_MAX */
 
     int m_nSceneWidth;
     int m_nSceneHeight;
@@ -27,6 +39,8 @@ public:
     CVector3d m_uvecUp;
     PIXELVECTOR m_aclrPixels;
     OBJECTVECTOR m_aobjObjects;
+    LIGHTVECTOR m_aobjLights;
+    PROGRESSCB m_lpfnProgress;
 
     Raytracer()
         : m_nSceneWidth(0)
@@ -36,12 +50,18 @@ public:
         , m_rvecLookAt(0.0f, 0.0f, 0.0f)
         , m_uvecRight(0.0f, 0.0f, 0.0f)
         , m_uvecUp(0.0f, 0.0f, 0.0f)
+        , m_lpfnProgress(NULL)
     {
     }
 
     template< typename T > void AddObject(const T& objObject)
     {
         m_aobjObjects.emplace_back(new T(objObject));
+    }
+
+    template< typename T > void AddLight(const T& objLight)
+    {
+        m_aobjLights.emplace_back(new T(objLight));
     }
 
     void SetScene(const int nWidth, const int nHeight)
@@ -59,211 +79,76 @@ public:
         m_uvecUp = m_uvecRight.CrossProduct(m_rvecLookAt).UnitVector();  // align the up vector to the camera
     }
 
-    void ForEachObject(bool (Raytracer::*Each)(const std::unique_ptr< CObject >& objObject, void* lpContext), void* lpContext)
+    void SetCallback(PROGRESSCB lpfnProgress)
     {
-        for(auto itObj = m_aobjObjects.cbegin(); itObj!=m_aobjObjects.cend(); itObj++)
-        {
-            const auto& objObject = *itObj;
-
-            if(!(this->*Each)(objObject, lpContext))
-            {
-                break;
-            }
-        }
+        m_lpfnProgress = lpfnProgress;
     }
 
-    void ForEachLight(bool (Raytracer::*Each)(const std::unique_ptr< CObject >& objObject, void* lpContext), void* lpContext)
+    CHit3d HitTest(const CRay3d& Ray, const float nDistanceMin, const float nDistanceMax, const bool bSingleHit = false)
     {
-        for(auto itObj = m_aobjObjects.cbegin(); itObj!=m_aobjObjects.cend(); itObj++)
+        CHit3d ResultHit;
+
+        for(size_t uIdx = 0; uIdx<m_aobjObjects.size(); uIdx++)
         {
-            const auto& objObject = *itObj;
+            const CObject& objObject = *m_aobjObjects[uIdx];
+            const CHit3d Hit = objObject.HitTest(Ray, nDistanceMin, nDistanceMax);
 
-            if(!objObject->IsLight())
+            if(Hit && (!ResultHit || ResultHit.GetDistance()>Hit.GetDistance()))
             {
-                continue;
-            }
+                ResultHit = Hit;
 
-            if(!(this->*Each)(objObject, lpContext))
-            {
-                break;
-            }
-        }
-    }
-
-    bool TracePrimaryRayEach(const std::unique_ptr< CObject >& objObject, void* lpContext)
-    {
-        CTraceHit* const lpTh = static_cast< CTraceHit* >(lpContext);
-        const auto Is = objObject->Intersect(lpTh->Eye(), lpTh->Ray());
-
-        if(!Is.IsEmpty())
-        {
-            for(auto itHit = Is.Hits().cbegin(); itHit!=Is.Hits().cend(); itHit++)
-            {
-                const float nD = *itHit;
-
-                if(lpTh->Dhit()>nD && nD>=lpTh->Dmin())
+                if(bSingleHit)
                 {
-                    lpTh->SetD(nD);
-                    lpTh->SetObject(objObject->GetObject());
+                    break;
                 }
             }
         }
 
-        return true;
-    }
-
-    CTraceHit TracePrimaryRay(const CVector3d& ovecEye, const CVector3d& uvecRay, const float nDmin = 0.0f)
-    {
-        CTraceHit Th(ovecEye, uvecRay, nDmin);
-
-        ForEachObject(&Raytracer::TracePrimaryRayEach, &Th);
-
-        return Th;
-    }
-
-    bool TraceShadowRayEach(const std::unique_ptr< CObject >& objObject, void* lpContext)
-    {
-        if(objObject->IsLight())
-        {// lights do not affect shadow rays
-            return true;
-        }
-
-        CTraceHit* const lpTh = static_cast< CTraceHit* >(lpContext);
-
-        if(objObject->GetObject()==lpTh->HitObject())
-        {// skip the object that was hit by the last ray
-            return true;
-        }
-
-        const auto Is = objObject->Intersect(lpTh->Eye(), lpTh->Ray());
-
-        if(!Is.IsEmpty())
+        if(ResultHit)
         {
-            for(auto itHit = Is.Hits().cbegin(); itHit!=Is.Hits().cend(); itHit++)
-            {
-                const float nD = *itHit;
+            CColor clrLight(0, 0, 0);  // shadow
 
-                if(lpTh->Dhit()>nD && nD>=lpTh->Dmin() && nD<=lpTh->Dmax() /* overshoot beyond the light */)
+            for(size_t uIdx = 0; uIdx<m_aobjLights.size(); uIdx++)
+            {
+                const CLight& Light = *m_aobjLights[uIdx];
+
+                const CVector3d ovecHitPoint = Ray.GetPointAt(ResultHit.GetDistance());
+                const CVector3d rvecDirLight = Light.GetOrigin()-ovecHitPoint;
+                const CRay3d ShadowRay(ovecHitPoint, rvecDirLight.UnitVector());
+                const CHit3d ShadowHit = HitTest(ShadowRay, 0.001f, rvecDirLight.Magnitude(), true);
+
+                if(!ShadowHit)
                 {
-                    lpTh->SetD(nD);
-                    lpTh->SetObject(objObject->GetObject());
-                    return false;
+                    clrLight = clrLight+(Light.GetColor()*(1.0f-(min(rvecDirLight.Magnitude(), Light.GetIntensity())/Light.GetIntensity())));
                 }
             }
+
+            ResultHit = CHit3d(ResultHit.GetDistance(), clrLight-~ResultHit.GetColor());
         }
 
-        return true;
+        return ResultHit;
     }
 
-    CTraceHit TraceShadowRay(const CVector3d& ovecEye, const CVector3d& uvecRay, const float nDmax, const CObject* lpobjWhatToSkip)
+    void Render(void* const lpContext = NULL)
     {
-        CTraceHit Th(ovecEye, uvecRay, 0.0f, nDmax);
-
-        Th.SetObject(lpobjWhatToSkip);
-
-        ForEachObject(&Raytracer::TraceShadowRayEach, &Th);
-
-        return Th;
-    }
-
-    void Render(bool (* Progress)(unsigned int uDone, unsigned int uTotal, void* lpContext), void* lpContext)
-    {
-        const float PI = acos(0.0f)*2.0f;
+        CCamera Cam(m_ovecEye, m_ovecTarget, m_uvecUp, CCamera::TYPE_PERSPECTIVE, 45.0f, m_nSceneWidth/*m_nRenderWidth*/, m_nSceneHeight/*m_nRenderHeight*/);
 
         // initialize pixel buffer
         m_aclrPixels.assign(m_nSceneWidth*m_nSceneHeight, CColor(0.0f, 0.0f, 0.0f));
 
-        // world-to-camera transformation matrix
-        const CMatrix3d mtxW2C = CMatrix3d().SetFromUpVector(m_uvecUp, m_uvecRight);
-
-        // image plane setup
-        const float nImageSize =
-            tan(PI/180.0f*45.0f)
-            //20.0f
-            ;
-        const float nImageRatio = static_cast< float >(m_nSceneWidth)/static_cast< float >(m_nSceneHeight);
-        const float nImageHeight = nImageSize;
-        const float nImageWidth = nImageSize*nImageRatio;
-        const CVector3d rvecImage0 = CVector3d(-nImageWidth/2.0f, -nImageHeight/2.0f, 0.0f).MatrixProduct(mtxW2C);
-        const CVector3d rvecImageW = CVector3d(+nImageWidth/2.0f, -nImageHeight/2.0f, 0.0f).MatrixProduct(mtxW2C);
-        const CVector3d rvecImageH = CVector3d(-nImageWidth/2.0f, +nImageHeight/2.0f, 0.0f).MatrixProduct(mtxW2C);
-        const CVector3d rvecImageX = (rvecImageW-rvecImage0).UnitVector();
-        const CVector3d rvecImageY = (rvecImageH-rvecImage0).UnitVector();
-        const CVector3d rvecLookAt0 = m_rvecLookAt+rvecImage0;
-
-        // process each pixel
         for(int nY = 0; nY<m_nSceneHeight; nY++)
         {
-            const float nImageY = nImageSize*(nY+0.5f)/static_cast< float >(m_nSceneHeight);
-            const CVector3d rvecY = rvecImageY*nImageY;
-
             for(int nX = 0; nX<m_nSceneWidth; nX++)
             {
-                const float nImageX = nImageSize*(nX+0.5f)/static_cast< float >(m_nSceneWidth);
-                const CVector3d rvecX = rvecImageX*nImageX;
+                const CRay3d Ray = Cam.GetRay(nX, nY);
+                const CHit3d Hit = HitTest(Ray, 0.0f, FLD_MAX);
 
-                // point on image plane
-                const CVector3d rvecXY = rvecX+rvecY;
+                m_aclrPixels[m_nSceneWidth*nY+nX] = Hit.GetColor();
 
-                // ray
-                const CVector3d rvecRay =
-                    rvecLookAt0+rvecXY
-                    //m_rvecLookAt
-                    ;
-                const CVector3d uvecRay = rvecRay.UnitVector();
-
-                // eye
-                const CVector3d ovecEye =
-                    m_ovecEye
-                    //m_ovecEye+rvecImage0+rvecXY;
-                    ;
-
-                // primary ray
-                CTraceHit Th = TracePrimaryRay(ovecEye, uvecRay, rvecRay.Magnitude());
-
-                // colors
-                CColor clrObject(0, 0, 0) /* none */, clrLight(0, 0, 0) /* shadow */;
-
-                if(Th.HitObject()==NULL)
-                {// nothing was hit
-                    ;
-                }
-                else
-                if(Th.HitObject()->IsLight())
-                {// light does not interfere with shadow rays
-                    clrObject = Th.HitObject()->GetColor();
-
-                    clrLight = CColor(1, 1, 1);
-                }
-                else
+                //if(m_lpfnProgress!=NULL && !m_lpfnProgress(Hit.GetColor().R(), Hit.GetColor().G(), Hit.GetColor().B(), nX, nY, lpContext))
                 {
-                    clrObject = Th.HitObject()->GetColor();
-
-                    // shadow ray
-                    const CVector3d ovecShadowEye = ovecEye+uvecRay*Th.Dhit();
-
-                    for(auto itLight = m_aobjObjects.cbegin(); itLight!=m_aobjObjects.cend(); itLight++)
-                    {
-                        const auto& objLight = *itLight;
-
-                        if(!objLight->IsLight())
-                        {
-                            continue;
-                        }
-
-                        const CVector3d rvecShadowRay = objLight->Origin()-ovecShadowEye;
-                        const CVector3d uvecShadowRay = rvecShadowRay.UnitVector();
-
-                        CTraceHit Ths = TraceShadowRay(ovecShadowEye, uvecShadowRay, rvecShadowRay.Magnitude(), Th.HitObject());
-
-                        if(Ths.HitObject()==Th.HitObject())
-                        {
-                            clrLight = clrLight+(objLight->GetColor()*(1.0f-(min(rvecShadowRay.Magnitude(), objLight->Intensity())/objLight->Intensity())));
-                        }
-                    }
+                    //break;
                 }
-
-                m_aclrPixels[m_nSceneWidth*nY+nX] = clrLight-~clrObject;
             }
         }
     }
@@ -318,5 +203,7 @@ public:
         return CColor(nR, nG, nB);
     }
 };
+
+const float Raytracer::PI = acos(0.0f)*2.0f;
 
 #endif  /* _SNIPPETS_RAYTRACER_HPP_ */
