@@ -145,9 +145,9 @@ public:
 
                 m_aclrPixels[m_nSceneWidth*nY+nX] = Hit.GetColor();
 
-                //if(m_lpfnProgress!=NULL && !m_lpfnProgress(Hit.GetColor().R(), Hit.GetColor().G(), Hit.GetColor().B(), nX, nY, lpContext))
+                if(m_lpfnProgress!=NULL && !m_lpfnProgress(Hit.GetColor().R(), Hit.GetColor().G(), Hit.GetColor().B(), nX, nY, lpContext))
                 {
-                    //break;
+                    break;
                 }
             }
         }
