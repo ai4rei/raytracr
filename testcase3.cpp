@@ -295,7 +295,7 @@ public:
     {
         if(CSuper::WndProcOnCreate(hWnd, lpCreateStruct))
         {
-            SetWindowText(hWnd, "TestCase (press ESC to exit)");
+            SetWindowText(hWnd, "TestCase (press F1 for help, ESC to exit)");
 
             return TRUE;
         }
@@ -313,13 +313,14 @@ public:
             {
                 HDC hDC = CreateCompatibleDC(NULL);
                 HGDIOBJ hPrevObj;
+                RECT rcWnd;
+
+                GetClientRect(hWnd, &rcWnd);
 
                 if(m_hbmOutput!=NULL)
                 {
                     BITMAP bmInfo;
-                    RECT rcWnd;
 
-                    GetClientRect(hWnd, &rcWnd);
                     GetObject(m_hbmOutput, sizeof(bmInfo), &bmInfo);
 
                     const int nDstW = rcWnd.right-rcWnd.left;
@@ -333,6 +334,27 @@ public:
                 }
 
                 DeleteDC(hDC);
+
+                if(m_bShowHelp)
+                {
+                    const int nSavedTextDC = SaveDC(Ps.hdc);
+
+                    SetTextColor(Ps.hdc, RGB(255, 255, 0));
+                    SetBkColor(Ps.hdc, RGB(0, 0, 255));
+                    SetBkMode(Ps.hdc, TRANSPARENT);
+                    DrawTextEx
+                    (
+                        Ps.hdc,
+                        "Steering mode: 1=XZ 2=XY 3=AB 4=ZOOM\r\n"
+                        "Steering: UP RIGHT DOWN LEFT or WASD\r\n",
+                        -1,
+                        &rcWnd,
+                        DT_WORDBREAK|DT_TOP|DT_LEFT,
+                        NULL
+                    );
+
+                    RestoreDC(Ps.hdc, nSavedTextDC);
+                }
 
                 EndPaint(hWnd, &Ps);
             }
