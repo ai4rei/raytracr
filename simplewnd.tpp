@@ -21,6 +21,21 @@ public:
     {
     }
 
+    virtual BOOL IsAcceleratorMessage(HWND hWnd, LPMSG lpMsg)
+    {
+        return FALSE;
+    }
+
+    virtual VOID WndProcOnCommand(HWND hWnd, INT nId, HWND hWndCtl, UINT uCodeNotify)
+    {
+        switch(nId)
+        {
+        case IDCANCEL:
+            DestroyWindow(hWnd);
+            break;
+        }
+    }
+
     virtual BOOL WndProcOnCreate(HWND hWnd, LPCREATESTRUCT lpCreateStruct)
     {
         RECT rcWnd, rcWA;
@@ -37,37 +52,44 @@ public:
         MoveWindow(hWnd, rcWnd.left, rcWnd.top, rcWnd.right-rcWnd.left, rcWnd.bottom-rcWnd.top, TRUE);
 
         return TRUE;
-        
-        UNREFERENCED_PARAMETER(lpCreateStruct);
     }
 
     virtual VOID WndProcOnDestroy(HWND hWnd)
     {
         PostQuitMessage(EXIT_SUCCESS);
-
-        UNREFERENCED_PARAMETER(hWnd);
     }
 
-    virtual VOID WndProcOnCommand(HWND hWnd, INT nId, HWND hWndCtl, UINT uCodeNotify)
+    virtual UINT WndProcOnNCHitTest(HWND hWnd, int nX, int nY)
     {
-        switch(nId)
-        {
-        case IDCANCEL:
-            DestroyWindow(hWnd);
-            break;
-        }
+        return FORWARD_WM_NCHITTEST(hWnd, nX, nY, DefWindowProc);
+    }
 
-        UNREFERENCED_PARAMETER(hWndCtl);
-        UNREFERENCED_PARAMETER(uCodeNotify);
+    virtual VOID WndProcOnPaint(HWND hWnd)
+    {
+        FORWARD_WM_PAINT(hWnd, DefWindowProc);
+    }
+
+    virtual VOID WndProcOnTimer(HWND hWnd, UINT uId)
+    {
+        FORWARD_WM_TIMER(hWnd, uId, DefWindowProc);
+    }
+
+    virtual VOID WndProcOnWindowPosChanged(HWND hWnd, CONST WINDOWPOS* lpWP)
+    {
+        FORWARD_WM_WINDOWPOSCHANGED(hWnd, lpWP, DefWindowProc);
     }
 
     virtual LRESULT WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     {
         switch(uMsg)
         {
+        HANDLE_MSG(hWnd, WM_COMMAND, WndProcOnCommand);
         HANDLE_MSG(hWnd, WM_CREATE, WndProcOnCreate);
         HANDLE_MSG(hWnd, WM_DESTROY, WndProcOnDestroy);
-        HANDLE_MSG(hWnd, WM_COMMAND, WndProcOnCommand);
+        HANDLE_MSG(hWnd, WM_NCHITTEST, WndProcOnNCHitTest);
+        HANDLE_MSG(hWnd, WM_PAINT, WndProcOnPaint);
+        HANDLE_MSG(hWnd, WM_TIMER, WndProcOnTimer);
+        HANDLE_MSG(hWnd, WM_WINDOWPOSCHANGED, WndProcOnWindowPosChanged);
         }
 
         return DefWindowProc(hWnd, uMsg, wParam, lParam);
@@ -76,7 +98,7 @@ public:
     static LRESULT CALLBACK WndProcCB(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     {
         CSelf* lpThis = (CSelf*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
-    
+
         if(lpThis!=NULL)
         {
             return lpThis->WndProc(hWnd, uMsg, wParam, lParam);
@@ -85,26 +107,26 @@ public:
         if(uMsg==WM_NCCREATE)
         {
             LPCREATESTRUCT lpCreateStruct = (LPCREATESTRUCT)lParam;
-    
+
             if(lpCreateStruct->lpCreateParams!=NULL)
             {
                 lpThis = static_cast< CSelf* >(lpCreateStruct->lpCreateParams);
-    
+
                 SetWindowLongPtr(hWnd, GWLP_USERDATA, (LONG_PTR)lpThis);
-    
+
                 return lpThis->WndProc(hWnd, uMsg, wParam, lParam);
             }
         }
-    
+
         return DefWindowProc(hWnd, uMsg, wParam, lParam);
     }
 
 public:
-    operator int()
+    virtual operator int()
     {
         WNDCLASSEX Wc = { sizeof(Wc) };
 
-        Wc.lpfnWndProc = &WndProcCB;
+        Wc.lpfnWndProc = &CSelf::WndProcCB;
         Wc.hInstance = m_hInstance;
         Wc.lpszClassName = WINDOWCLASSNAME;
         Wc.hIcon = LoadIcon(NULL, MAKEINTRESOURCE(IDI_APPLICATION));
@@ -121,7 +143,7 @@ public:
 
                 while(GetMessage(&Msg, NULL, 0, 0)>0)
                 {
-                    if(!IsDialogMessage(hWnd, &Msg))
+                    if(!IsAcceleratorMessage(hWnd, &Msg) && !IsDialogMessage(hWnd, &Msg))
                     {
                         TranslateMessage(&Msg);
                         DispatchMessage(&Msg);
