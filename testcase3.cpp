@@ -263,6 +263,9 @@ public:
         case IDC_SET_AXES_AB:
             m_nSteeringPlane = AXES_AB;
             break;
+        case IDC_SET_ZOOM:
+            m_nSteeringPlane = ZOOM;
+            break;
         case IDC_STEER_UP:
             SteerUp();
             InvalidateRect(hWnd, NULL, FALSE);
