@@ -1,6 +1,7 @@
-CPPFLAGS = -nologo -EHsc @syslibs
+CPPFLAGS = -nologo -W3 -O2x -GF -Zi -EHsc -D_CRT_SECURE_NO_WARNINGS @linker
+RFLAGS = -nologo
 
-all : @syslibs testcase testcase2 testcase3
+all : @linker testcase testcase2 testcase3
 
 testcase : testcase.exe
 
@@ -14,8 +15,9 @@ testcase2.exe : testcase2.cpp
 
 testcase3.exe : testcase3.cpp testcase3.res
 
-@syslibs :
-    @rem <<syslibs
+@linker :
+    @rem <<linker
+/link /RELEASE
 /link user32.lib
 /link gdi32.lib
 <<
