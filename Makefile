@@ -27,9 +27,6 @@ testcase3.exe : testcase3.obj testcase3.res
 <<
 
 clean :
-    for %%i in (testcase testcase2 testcase3) do @if exist %i.exe del %i.exe
-    for %%i in (testcase testcase2 testcase3) do @if exist %i.obj del %i.obj
-    for %%i in (testcase testcase2 testcase3) do @if exist %i.res del %i.res
-    for %%i in (testcase testcase2 testcase3) do @if exist %i.pdb del %i.pdb
+    for %%i in (testcase testcase2 testcase3) do @for %%j in (exe obj res pdb) do @if exist %i.%j del %i.%j
     if exist vc*.pdb del vc*.pdb
     if exist linker del linker
