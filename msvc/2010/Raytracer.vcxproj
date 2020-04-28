@@ -68,21 +68,21 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="testcase.cpp" />
+    <ClCompile Include="..\..\testcase.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="raytracr.hpp" />
-    <ClInclude Include="_raytracr\color.hpp" />
-    <ClInclude Include="_raytracr\intersection.hpp" />
-    <ClInclude Include="_raytracr\light.hpp" />
-    <ClInclude Include="_raytracr\matrix3d.hpp" />
-    <ClInclude Include="_raytracr\object.hpp" />
-    <ClInclude Include="_raytracr\plane.hpp" />
-    <ClInclude Include="_raytracr\plane3d.hpp" />
-    <ClInclude Include="_raytracr\sphere.hpp" />
-    <ClInclude Include="_raytracr\tracehit.hpp" />
-    <ClInclude Include="_raytracr\triangle.hpp" />
-    <ClInclude Include="_raytracr\vector3d.hpp" />
+    <ClInclude Include="..\..\raytracr.hpp" />
+    <ClInclude Include="..\..\_raytracr\color.hpp" />
+    <ClInclude Include="..\..\_raytracr\intersection.hpp" />
+    <ClInclude Include="..\..\_raytracr\light.hpp" />
+    <ClInclude Include="..\..\_raytracr\matrix3d.hpp" />
+    <ClInclude Include="..\..\_raytracr\object.hpp" />
+    <ClInclude Include="..\..\_raytracr\plane.hpp" />
+    <ClInclude Include="..\..\_raytracr\plane3d.hpp" />
+    <ClInclude Include="..\..\_raytracr\sphere.hpp" />
+    <ClInclude Include="..\..\_raytracr\tracehit.hpp" />
+    <ClInclude Include="..\..\_raytracr\triangle.hpp" />
+    <ClInclude Include="..\..\_raytracr\vector3d.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
