@@ -6,9 +6,9 @@ RFLAGS = -nologo
 
 all : @linker testcase testcase2 testcase3
 
-testcase : testcase.exe
+testcase : @linker testcase.exe
 
-testcase2 : testcase2.exe
+testcase2 : @linker testcase2.exe
 
 testcase3 : testcase3.exe
 
