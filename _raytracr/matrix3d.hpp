@@ -61,6 +61,21 @@ public:
         return *this;
     }
 
+    CSelf& AddXTranslation(const float nOffset)
+    {
+        return *this;
+    }
+
+    CSelf& AddYTranslation(const float nOffset)
+    {
+        return *this;
+    }
+
+    CSelf& AddZTranslation(const float nOffset)
+    {
+        return *this;
+    }
+
     CSelf& AddXRotation(const float nRad)
     {
         const CSelf mtxRoll
