@@ -1,3 +1,3 @@
 @ECHO OFF
-CALL "C:\Program Files\Microsoft Visual Studio 10.0\VC\vcvarsall.bat"
+CALL "C:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\VC\Auxiliary\Build\vcvars32.bat"
 NMAKE CLEAN ALL
