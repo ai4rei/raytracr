@@ -1,20 +1,22 @@
 LINK = link.exe
 
-CPPFLAGS = -nologo -W3 -O2x -GF -Zi -EHsc -D_CRT_SECURE_NO_WARNINGS @linker
+CPPFLAGS = -nologo -W3 -O2x -GF -EHsc -D_CRT_SECURE_NO_WARNINGS
 LFLAGS = -nologo -release user32.lib gdi32.lib
 RFLAGS = -nologo
 
-all : @linker testcase testcase2 testcase3
+all : testcase testcase2 testcase3
 
-testcase : @linker testcase.exe
+testcase : testcase.exe
 
-testcase2 : @linker testcase2.exe
+testcase2 : testcase2.exe
 
 testcase3 : testcase3.exe
 
-testcase.exe : testcase.cpp
+testcase.exe : testcase.obj
+    $(LINK) $(LFLAGS) -out:$@ $**
 
-testcase2.exe : testcase2.cpp
+testcase2.exe : testcase2.obj
+    $(LINK) $(LFLAGS) -out:$@ $**
 
 testcase3.exe : testcase3.obj testcase3.res
     $(LINK) $(LFLAGS) -out:$@ $**
