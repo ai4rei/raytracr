@@ -19,6 +19,4 @@ private:
     {
         return CPlane3d(ovecPointOnSurface, ovecPointOnSurface-m_ovecOrigin).AngleTo(rvecDirection);
     }
-    
-    
 };
