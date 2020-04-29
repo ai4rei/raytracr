@@ -49,7 +49,7 @@ public:
             return CHit3d();
         }
 
-        return CHit3d(nDistance, m_clrColor);
+        return CHit3d(nDistance, m_clrColor, m_uvecNormal);
     }
 
     virtual const CVector3d& GetOrigin() const

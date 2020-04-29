@@ -6,6 +6,14 @@ private:
     const float m_nRadius;
     const float m_nRadius2;
 
+protected:
+    /*u*/CVector3d GetSurfaceNormalForRayPoint(const CRay3d& Ray, const float nDistance) const
+    {
+        const CVector3d ovecPointOnSurface = Ray.GetPointAt(nDistance);
+
+        return (ovecPointOnSurface-m_ovecOrigin).UnitVector();
+    }
+
 public:
     CSphere(const CVector3d& ovecOrigin, const float nRadius, const CColor& clrColor)
         : m_ovecOrigin(ovecOrigin)
@@ -49,18 +57,18 @@ public:
                 }
                 else
                 {
-                    return CHit3d(nDistance2, m_clrColor);
+                    return CHit3d(nDistance2, m_clrColor, GetSurfaceNormalForRayPoint(Ray, nDistance2));
                 }
             }
             else
             {
                 if(nDistance2<nDistanceMin || nDistance2>nDistanceMax)
                 {
-                    return CHit3d(nDistance1, m_clrColor);
+                    return CHit3d(nDistance1, m_clrColor, GetSurfaceNormalForRayPoint(Ray, nDistance1));
                 }
                 else
                 {
-                    return CHit3d(min(nDistance1, nDistance2), m_clrColor);
+                    return CHit3d(min(nDistance1, nDistance2), m_clrColor, GetSurfaceNormalForRayPoint(Ray, min(nDistance1, nDistance2)));
                 }
             }
         }
@@ -70,7 +78,7 @@ public:
             return CHit3d();
         }
 
-        return CHit3d(nVbsr, m_clrColor);
+        return CHit3d(nVbsr, m_clrColor, GetSurfaceNormalForRayPoint(Ray, nVbsr));
     }
 
     virtual const CVector3d& GetOrigin() const

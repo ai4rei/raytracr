@@ -124,7 +124,7 @@ public:
                 }
             }
 
-            ResultHit = CHit3d(ResultHit.GetDistance(), clrLight-~ResultHit.GetColor());
+            ResultHit = CHit3d(ResultHit.GetDistance(), clrLight-~ResultHit.GetColor(), ResultHit.GetSurfaceNormal());
         }
 
         return ResultHit;
