@@ -47,9 +47,9 @@ public:
     */
     /*r*/CVector3d Reflection(const CVector3d& vecVector) const
     {
-        const CVector3d rvecLO = -vecVector;
-        const CVector3d rvecON = rvecLO.ProjectionTo(m_uvecNormal);
-        const CVector3d rvecLN = rvecLO-rvecON;
+        const CVector3d rvecOL = -vecVector;
+        const CVector3d rvecON = rvecOL.ProjectionTo(m_uvecNormal);
+        const CVector3d rvecLN = rvecON-rvecOL;
         const CVector3d rvecNR = rvecLN;
         const CVector3d rvecOR = rvecON+rvecNR;
 
