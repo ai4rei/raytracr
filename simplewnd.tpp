@@ -129,9 +129,9 @@ public:
         Wc.lpfnWndProc = &CSelf::WndProcCB;
         Wc.hInstance = m_hInstance;
         Wc.lpszClassName = WINDOWCLASSNAME;
-        Wc.hIcon = LoadIcon(NULL, MAKEINTRESOURCE(IDI_APPLICATION));
-        Wc.hCursor = LoadCursor(NULL, MAKEINTRESOURCE(IDC_ARROW));
-        Wc.hIconSm = LoadIcon(NULL, MAKEINTRESOURCE(IDI_APPLICATION));
+        Wc.hIcon = LoadIcon(NULL, IDI_APPLICATION);
+        Wc.hCursor = LoadCursor(NULL, IDC_ARROW);
+        Wc.hIconSm = LoadIcon(NULL, IDI_APPLICATION);
 
         if(RegisterClassEx(&Wc))
         {
