@@ -51,10 +51,19 @@ public:
     {
     }
 
-    CRay3d GetRay(const int nRenderX, const int nRenderY)
+    /**
+        @brief  Retrieves a ray for a given point in camera's FOV.
+        @param  nRenderX
+        @param  nRenderY
+        @param  nSubX
+                Sub-point X-offset in the range of [-1;+1].
+        @param  nSubY
+                Sub-point Y-offset in the range of [-1;+1].
+    */
+    CRay3d GetRay(const int nRenderX, const int nRenderY, const float nSubX = 0.0f, const float nSubY = 0.0f)
     {
-        const CVector3d rvecX = m_rvecFOVX*(m_nFOVWidth*(nRenderX+0.5f)/static_cast< float >(m_nRenderWidth));
-        const CVector3d rvecY = m_rvecFOVY*(m_nFOVHeight*(nRenderY+0.5f)/static_cast< float >(m_nRenderHeight));
+        const CVector3d rvecX = m_rvecFOVX*(m_nFOVWidth*(nRenderX+nSubX/2.0f+0.5f)/static_cast< float >(m_nRenderWidth));
+        const CVector3d rvecY = m_rvecFOVY*(m_nFOVHeight*(nRenderY+nSubY/2.0f+0.5f)/static_cast< float >(m_nRenderHeight));
 
         // point on image plane
         const CVector3d rvecXY = rvecX+rvecY;
