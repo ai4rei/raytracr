@@ -1,6 +1,7 @@
 //#include <cmath>
 #include <cstdio>
 //#include <cstdlib>
+#include <memory>
 #include <vector>
 
 template< typename T > const T& min(const T& One, const T& Two)

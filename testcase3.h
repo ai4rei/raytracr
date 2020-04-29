@@ -13,4 +13,6 @@
 #define IDC_STEER_LEFT 1007
 #define IDC_TOGGLE_HELP 1008
 
+#define IDT_RUNONCE 1
+
 #endif  /* TESTCASE3_H */

@@ -1,6 +1,7 @@
 #include <cmath>
 #include <cstdio>
 #include <cstdlib>
+#include <memory>
 #include <vector>
 
 #define WIN32_LEAN_AND_MEAN
@@ -12,6 +13,28 @@
 #include "raytracr.hpp"
 
 #include "testcase3.h"
+
+class CCriticalSection
+    : public CRITICAL_SECTION
+{
+public:
+    ~CCriticalSection()
+    {
+        DeleteCriticalSection(this);
+    }
+    CCriticalSection()
+    {
+        InitializeCriticalSection(this);
+    }
+    void Enter()
+    {
+        EnterCriticalSection(this);
+    }
+    void Leave()
+    {
+        LeaveCriticalSection(this);
+    }
+};
 
 class CGetDC
 {
@@ -42,6 +65,7 @@ public:
 
 class CTestWindow
     : public CSimpleWindow
+    , protected CCriticalSection
     , protected Raytracer
 {
 private:
@@ -68,10 +92,11 @@ protected:
     CVector3d m_uvecUp;
     CMatrix3d m_mtxScene;
     bool m_bShowHelp;
+    bool m_bRunOnce;
 
 public:
     CTestWindow(const HINSTANCE hInstance)
-        : CSimpleWindow(hInstance, GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN), WS_VISIBLE|WS_POPUPWINDOW|WS_SYSMENU|WS_CAPTION|WS_BORDER|WS_MINIMIZEBOX)
+        : CSimpleWindow(hInstance, 320/*GetSystemMetrics(SM_CXSCREEN)*/, 240/*GetSystemMetrics(SM_CYSCREEN)*/, WS_VISIBLE|WS_POPUPWINDOW|WS_SYSMENU|WS_CAPTION|WS_BORDER|WS_MINIMIZEBOX)
         , m_hbmOutput(NULL)
         , m_hAccl(LoadAccelerators(hInstance, MAKEINTRESOURCE(IDA_MAINACCL)))
         , m_nSteeringPlane(PLANE_XZ)
@@ -80,6 +105,7 @@ public:
         , m_ovecTarget(+0.0f, +0.0f, +0.0f)
         , m_uvecUp(+0.0f, +1.0f, +0.0f)
         , m_bShowHelp(false)
+        , m_bRunOnce(false)
     {
         // Objects
         AddObject(CreatePlane(CreateVector3d(+0.0f, +0.0f, +0.0f), CreateVector3d(+0.0f, +1.0f, +0.0f), CreateColor(1.0f, 1.0f, 1.0f)));
@@ -100,8 +126,9 @@ public:
         // Lights
         AddLight(CreateLight(CreateVector3d(+9.0f, +9.0f, +0.0f), CreateColor(1.0f, 1.0f, 1.0f), 50.0f));
 
-        SetScene(GetSystemMetrics(SM_CXSCREEN)/1, GetSystemMetrics(SM_CYSCREEN)/1);
+        SetScene(320 /*GetSystemMetrics(SM_CXSCREEN)/1*/, 240/*GetSystemMetrics(SM_CYSCREEN)/1*/);
 
+        m_mtxScene.SetIdentity();
         UpdateCamera();
     }
 
@@ -114,9 +141,123 @@ public:
         }
     }
 
+    static HBITMAP BitmapFromPixels2(const std::vector< CColor >& aclrPixels, const int nWidth, const int nHeight)
+    {
+        HBITMAP hbmOutput = NULL;
+        BITMAPINFO bmiOutput = { 0 };
+        VOID* lpBits = NULL;
+
+        bmiOutput.bmiHeader.biSize = sizeof(bmiOutput.bmiHeader);
+        bmiOutput.bmiHeader.biWidth = nWidth;
+        bmiOutput.bmiHeader.biHeight = nHeight;  // bottom-up, just like our pixel buffer
+        bmiOutput.bmiHeader.biPlanes = 1;
+        bmiOutput.bmiHeader.biBitCount = 24;
+        bmiOutput.bmiHeader.biCompression = BI_RGB;
+
+        hbmOutput = CreateDIBSection(CGetDC(NULL), &bmiOutput, DIB_RGB_COLORS, &lpBits, NULL, 0);
+
+        if(hbmOutput!=NULL)
+        {
+            BITMAP bmInfo = { 0 };
+
+            GetObject(hbmOutput, sizeof(BITMAP), &bmInfo);
+
+            const int nWidthBytes = bmInfo.bmWidthBytes;
+            const int nPixelBytes = bmInfo.bmBitsPixel/8;
+
+            for(int nY = 0; nY<nHeight; nY++)
+            {
+                for(int nX = 0; nX<nWidth; nX++)
+                {
+                    const auto& Px = aclrPixels[nX+nY*nWidth];
+                    unsigned char* ucBits = &static_cast< unsigned char* >(lpBits)[nY*nWidthBytes+nX*nPixelBytes];
+
+                    ucBits[0] = static_cast< unsigned char >(sqrt(Px.B())*255U);
+                    ucBits[1] = static_cast< unsigned char >(sqrt(Px.G())*255U);
+                    ucBits[2] = static_cast< unsigned char >(sqrt(Px.R())*255U);
+                }
+            }
+
+            GdiFlush();
+        }
+
+        return hbmOutput;
+    }
+
     void UpdateCamera()
     {
         SetCamera(m_ovecEye.MatrixProduct(m_mtxScene), m_ovecTarget.MatrixProduct(m_mtxScene), m_uvecUp.MatrixProduct(m_mtxScene));
+    }
+
+    void UpdateRenderAsync()
+    {
+        DWORD dwStart;
+
+        dwStart = GetTickCount();
+        //Render(&TrackProgress, NULL);
+        Render(NULL);
+        printf("%ums", GetTickCount()-dwStart);
+
+        dwStart = GetTickCount();
+        HBITMAP hbmOutput = BitmapFromPixels2(GetResult(), GetSceneWidth(), GetSceneHeight());
+        printf("+%ums\n", GetTickCount()-dwStart);
+
+        Enter();
+        {
+            DeleteObject(m_hbmOutput);
+            m_hbmOutput = hbmOutput;
+        }
+        Leave();
+    }
+
+    static DWORD CALLBACK UpdateRenderAsyncCB(LPVOID lpParam)
+    {
+        CSelf* lpThis = static_cast< CSelf* >(lpParam);
+
+        lpThis->UpdateRenderAsync();
+
+        return 0;
+    }
+
+    void UpdateRender(HWND hWnd)
+    {
+        DWORD dwThreadId;
+        HANDLE hThread = CreateThread(NULL, 0, &UpdateRenderAsyncCB, this, CREATE_SUSPENDED, &dwThreadId);
+
+        if(hThread!=NULL)
+        {
+            ResumeThread(hThread);
+        
+            for(;;)
+            {
+                DWORD dwWait = MsgWaitForMultipleObjects(1, &hThread, FALSE, INFINITE, QS_ALLINPUT);
+
+                if(dwWait==WAIT_OBJECT_0+0)
+                {
+                    InvalidateRect(hWnd, NULL, FALSE);
+                    break;
+                }
+                else
+                if(dwWait==WAIT_OBJECT_0+1)
+                {
+                    MSG Msg;
+
+                    while(PeekMessage(&Msg, NULL, 0, 0, PM_REMOVE))
+                    {
+                        if(Msg.message==WM_QUIT)
+                        {
+                            PostQuitMessage(Msg.wParam);
+                            break;
+                        }
+
+                        DispatchMessage(&Msg);
+                    }
+                }
+            }
+
+            CloseHandle(hThread);
+            hThread = NULL;
+        }
     }
 
     /*
@@ -372,114 +513,36 @@ public:
 
         return uHitTest;
     }
-};
 
-bool TrackProgress(unsigned int uDone, unsigned int uTotal, void* lpContext)
-{
-    printf("%3.1f%%\r", uDone*100.0f/uTotal);
-
-    return true;
-
-    UNREFERENCED_PARAMETER(lpContext);
-}
-
-HBITMAP BitmapFromPixels(const std::vector< Raytracer::CColor >& aclrPixels, const int nWidth, const int nHeight)
-{
-    HBITMAP hbmOutput = NULL;
-    HDC hdcOutput = NULL;
-    HGDIOBJ hPrevObj = NULL;
-
-    hbmOutput = CreateCompatibleBitmap(CGetDC(NULL), nWidth, nHeight);
-    hdcOutput = CreateCompatibleDC(NULL);
-
-    hPrevObj = SelectObject(hdcOutput, hbmOutput);
-
-    for(int nY = 0, nPY = nHeight-1; nY<nHeight; nY++, nPY--)
+    virtual VOID WndProcOnTimer(HWND hWnd, UINT uId)
     {
-        for(int nX = 0; nX<nWidth; nX++)
+        switch(uId)
         {
-            const auto& Px = aclrPixels[nX+nPY*nWidth];  // the buffer is up-side down
+        case IDT_RUNONCE:
+            KillTimer(hWnd, IDT_RUNONCE);
 
-            SetPixelV(hdcOutput, nX, nY, RGB(Px.R()*255,Px.G()*255,Px.B()*255));
-        }
-    }
-
-    SelectObject(hdcOutput, hPrevObj);
-    DeleteDC(hdcOutput);
-
-    return hbmOutput;
-}
-
-HBITMAP BitmapFromPixels2(const std::vector< Raytracer::CColor >& aclrPixels, const int nWidth, const int nHeight)
-{
-    HBITMAP hbmOutput = NULL;
-    BITMAPINFO bmiOutput = { 0 };
-    VOID* lpBits = NULL;
-
-    bmiOutput.bmiHeader.biSize = sizeof(bmiOutput.bmiHeader);
-    bmiOutput.bmiHeader.biWidth = nWidth;
-    bmiOutput.bmiHeader.biHeight = nHeight;  // bottom-up, just like our pixel buffer
-    bmiOutput.bmiHeader.biPlanes = 1;
-    bmiOutput.bmiHeader.biBitCount = 24;
-    bmiOutput.bmiHeader.biCompression = BI_RGB;
-
-    hbmOutput = CreateDIBSection(CGetDC(NULL), &bmiOutput, DIB_RGB_COLORS, &lpBits, NULL, 0);
-
-    if(hbmOutput!=NULL)
-    {
-        BITMAP bmInfo = { 0 };
-
-        GetObject(hbmOutput, sizeof(BITMAP), &bmInfo);
-
-        const int nWidthBytes = bmInfo.bmWidthBytes;
-        const int nPixelBytes = bmInfo.bmBitsPixel/8;
-
-        for(int nY = 0; nY<nHeight; nY++)
-        {
-            for(int nX = 0; nX<nWidth; nX++)
+            if(!m_bRunOnce)
             {
-                const auto& Px = aclrPixels[nX+nY*nWidth];
-                unsigned char* ucBits = &static_cast< unsigned char* >(lpBits)[nY*nWidthBytes+nX*nPixelBytes];
+                m_bRunOnce = true;
 
-                ucBits[0] = static_cast< unsigned char >(sqrt(Px.B())*255U);
-                ucBits[1] = static_cast< unsigned char >(sqrt(Px.G())*255U);
-                ucBits[2] = static_cast< unsigned char >(sqrt(Px.R())*255U);
+                UpdateRender(hWnd);
             }
+            return;
         }
 
-        GdiFlush();
+        CSuper::WndProcOnTimer(hWnd, uId);
     }
 
-    return hbmOutput;
-}
-
-void AddTriangleStrip(Raytracer& R, const float anVertices[], const size_t uCount, const Raytracer::CColor& clrColor)
-{
-    size_t uIdx = 0;
-
-    while(uCount-uIdx>=9)
+    virtual VOID WndProcOnWindowPosChanged(HWND hWnd, CONST WINDOWPOS* lpWP)
     {
-        R.AddObject(Raytracer::CreateTriangle(Raytracer::CreateVector3d(anVertices[uIdx+0], anVertices[uIdx+1], anVertices[uIdx+2]), Raytracer::CreateVector3d(anVertices[uIdx+3], anVertices[uIdx+4], anVertices[uIdx+5]), Raytracer::CreateVector3d(anVertices[uIdx+6], anVertices[uIdx+7], anVertices[uIdx+8]), clrColor));
+        if(!m_bRunOnce)
+        {
+            SetTimer(hWnd, IDT_RUNONCE, 0, NULL);
+        }
 
-        uIdx+= 3;
+        CSuper::WndProcOnWindowPosChanged(hWnd, lpWP);
     }
-}
-
-HBITMAP RenderJob(Raytracer& R)
-{
-    DWORD dwStart;
-
-    dwStart = GetTickCount();
-    //R.Render(&TrackProgress, NULL);
-    R.Render(NULL);
-    printf("%ums", GetTickCount()-dwStart);
-
-    dwStart = GetTickCount();
-    HBITMAP hbmOutput = BitmapFromPixels2(R.GetResult(), R.GetSceneWidth(), R.GetSceneHeight());
-    printf("+%ums\n", GetTickCount()-dwStart);
-
-    return hbmOutput;
-}
+};
 
 int __cdecl main(int nArgc, char** lppszArgv)
 {
