@@ -119,13 +119,13 @@ public:
         |  Z1  Z2  Z3 |   |  Z  |   |  Z1* X  +  Z2* Y  +  Z3* Z  |
 
     */
-    CSelf MatrixProduct(const CMatrix3d& mtxOher) const
+    CSelf MatrixProduct(const CMatrix3d& mtxOther) const
     {
         return CSelf
         (
-            m_nX*mtxOher.X1()+m_nY*mtxOher.X2()+m_nZ*mtxOher.X3()+1.0f*mtxOher.X4(),
-            m_nX*mtxOher.Y1()+m_nY*mtxOher.Y2()+m_nZ*mtxOher.Y3()+1.0f*mtxOher.Y4(),
-            m_nX*mtxOher.Z1()+m_nY*mtxOher.Z2()+m_nZ*mtxOher.Z3()+1.0f*mtxOher.Z4()
+            m_nX*mtxOther.X1()+m_nY*mtxOther.X2()+m_nZ*mtxOther.X3()+1.0f*mtxOther.X4(),
+            m_nX*mtxOther.Y1()+m_nY*mtxOther.Y2()+m_nZ*mtxOther.Y3()+1.0f*mtxOther.Y4(),
+            m_nX*mtxOther.Z1()+m_nY*mtxOther.Z2()+m_nZ*mtxOther.Z3()+1.0f*mtxOther.Z4()
         );
     }
 
