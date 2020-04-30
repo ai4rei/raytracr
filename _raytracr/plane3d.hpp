@@ -36,7 +36,7 @@ public:
 
     float AngleTo(const CSelf& plnOther) const
     {
-        m_uvecNormal.AngleTo(plnOther.m_uvecNormal);
+        return m_uvecNormal.AngleTo(plnOther.m_uvecNormal);
     }
 
     /*
