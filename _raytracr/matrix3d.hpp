@@ -1,7 +1,7 @@
 #define PrintMatrix(VAR) printf("%s:\n| %+2.3f,%+2.3f,%+2.3f |\n| %+2.3f,%+2.3f,%+2.3f |\n| %+2.3f,%+2.3f,%+2.3f |\n", #VAR, VAR.X1(), VAR.X2(), VAR.X3(), VAR.Y1(), VAR.Y2(), VAR.Y3(), VAR.Z1(), VAR.Z2(), VAR.Z3())
 
 class CMatrix3d
-    : public CBaseSquareMatrix< CMatrix3d, float, 3 >
+    : public CBaseSquareMatrix< CMatrix3d, float, 4 >
 {
 private:
     typedef CMatrix3d CSelf;
@@ -24,6 +24,9 @@ public:
 
     CMatrix3d(const float nX1, const float nX2, const float nX3, const float nY1, const float nY2, const float nY3, const float nZ1, const float nZ2, const float nZ3)
     {
+        // SetZero() is implied during construction
+        SetIdentity();
+
         m_nX1 = nX1; m_nX2 = nX2; m_nX3 = nX3;
         m_nY1 = nY1; m_nY2 = nY2; m_nY3 = nY3;
         m_nZ1 = nZ1; m_nZ2 = nZ2; m_nZ3 = nZ3;
@@ -32,6 +35,9 @@ public:
     CSelf& SetFromUpVector(const CVector3d& uvecUp, const CVector3d& uvecRight)
     {
         const CVector3d uvecBack = uvecUp.CrossProduct(uvecRight).UnitVector();
+
+        SetZero();
+        SetIdentity();
 
         m_nX1 = uvecRight.X(); m_nX2 = uvecUp.X(); m_nX3 = uvecBack.X();
         m_nY1 = uvecRight.Y(); m_nY2 = uvecUp.Y(); m_nY3 = uvecBack.Y();
@@ -42,27 +48,43 @@ public:
 
     CSelf& AddXTranslation(const float nOffset)
     {
+        const CSelf mtxOffset = CSelf().SetIdentity()
+            .SetItem(0, 3, nOffset)
+            ;
+
+        *this = *this*mtxOffset;
+
         return *this;
     }
 
     CSelf& AddYTranslation(const float nOffset)
     {
+        const CSelf mtxOffset = CSelf().SetIdentity()
+            .SetItem(1, 3, nOffset)
+            ;
+
+        *this = *this*mtxOffset;
+
         return *this;
     }
 
     CSelf& AddZTranslation(const float nOffset)
     {
+        const CSelf mtxOffset = CSelf().SetIdentity()
+            .SetItem(2, 3, nOffset)
+            ;
+
+        *this = *this*mtxOffset;
+
         return *this;
     }
 
     CSelf& AddXRotation(const float nRad)
     {
-        const CSelf mtxRoll
-        (
-            +1.0, +0.0,       +0.0,
-            +0.0, +cos(nRad), -sin(nRad),
-            +0.0, +sin(nRad), +cos(nRad)
-        );
+        const CSelf mtxRoll = CSelf().SetIdentity()
+            .SetItem(1, 1, +cos(nRad)).SetItem(1, 2, -sin(nRad))
+            .SetItem(2, 1, +sin(nRad)).SetItem(2, 2, +cos(nRad))
+            ;
 
         *this = *this*mtxRoll;
 
@@ -71,12 +93,10 @@ public:
 
     CSelf& AddYRotation(const float nRad)
     {
-        const CSelf mtxPitch
-        (
-            +cos(nRad), +0.0, +sin(nRad),
-            +0.0,       +1.0, +0.0,
-            -sin(nRad), +0.0, +cos(nRad)
-        );
+        const CSelf mtxPitch = CSelf().SetIdentity()
+            .SetItem(0, 0, +cos(nRad)).SetItem(0, 2, +sin(nRad))
+            .SetItem(2, 0, -sin(nRad)).SetItem(2, 2, +cos(nRad))
+            ;
 
         *this = *this*mtxPitch;
 
@@ -85,12 +105,10 @@ public:
 
     CSelf& AddZRotation(const float nRad)
     {
-        const CSelf mtxYaw
-        (
-            +cos(nRad), -sin(nRad), +0.0,
-            +sin(nRad), +cos(nRad), +0.0,
-            +0.0,       +0.0,       +1.0
-        );
+        const CSelf mtxYaw = CSelf().SetIdentity()
+            .SetItem(0, 0, +cos(nRad)).SetItem(0, 1, -sin(nRad))
+            .SetItem(1, 0, +sin(nRad)).SetItem(1, 1, +cos(nRad))
+            ;
 
         *this = *this*mtxYaw;
 

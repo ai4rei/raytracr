@@ -41,6 +41,13 @@ public:
         return *static_cast< CSelf* >(this);
     }
 
+    CSelf& SetItem(const unsigned int i, const unsigned int j, T nValue)
+    {
+        (*this)(i, j) = nValue;
+
+        return *static_cast< CSelf* >(this);
+    }
+
     CSelf operator+(const CSelf& mtxOther) const
     {
         CSelf mtxResult;
