@@ -397,15 +397,19 @@ public:
         {
         case IDC_SET_PLANE_XZ:
             m_nSteeringPlane = PLANE_XZ;
+            puts("Steering: XZ");
             break;
         case IDC_SET_PLANE_XY:
             m_nSteeringPlane = PLANE_XY;
+            puts("Steering: XY");
             break;
         case IDC_SET_AXES_AB:
             m_nSteeringPlane = AXES_AB;
+            puts("Steering: AB");
             break;
         case IDC_SET_ZOOM:
             m_nSteeringPlane = ZOOM;
+            puts("Steering: ZOOM");
             break;
         case IDC_STEER_UP:
             SteerUp();
