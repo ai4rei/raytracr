@@ -326,7 +326,7 @@ public:
             SteerA(+1.0f);
             break;
         case ZOOM:      // zoom in
-            SteerZoom(-1.0f);
+            SteerZoom(+1.0f);
         }
     }
 
@@ -360,7 +360,7 @@ public:
             SteerA(-1.0f);
             break;
         case ZOOM:      // zoom out
-            SteerZoom(+1.0f);
+            SteerZoom(-1.0f);
             break;
         }
     }
