@@ -129,6 +129,7 @@ public:
         AddLight(CreateLight(CreateVector3d(+9.0f, +9.0f, +0.0f), CreateColor(1.0f, 1.0f, 1.0f), 50.0f));
 
         SetScene(320 /*GetSystemMetrics(SM_CXSCREEN)/1*/, 240/*GetSystemMetrics(SM_CYSCREEN)/1*/);
+        SetBounceDepth(3);
 
         m_mtxScene.SetIdentity();
         UpdateCamera();

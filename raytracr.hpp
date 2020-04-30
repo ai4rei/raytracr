@@ -33,6 +33,7 @@ public:
 
     int m_nSceneWidth;
     int m_nSceneHeight;
+    unsigned int m_uBounceDepth;
     CVector3d m_ovecEye;
     CVector3d m_ovecTarget;
     CVector3d m_rvecLookAt;
@@ -46,6 +47,7 @@ public:
     Raytracer()
         : m_nSceneWidth(0)
         , m_nSceneHeight(0)
+        , m_uBounceDepth(0)
         , m_ovecEye(0.0f, 0.0f, 0.0f)
         , m_ovecTarget(0.0f, 0.0f, 0.0f)
         , m_rvecLookAt(0.0f, 0.0f, 0.0f)
@@ -71,6 +73,11 @@ public:
         m_nSceneHeight = nHeight;
     }
 
+    void SetBounceDepth(const unsigned int uBounceDepth)
+    {
+        m_uBounceDepth = uBounceDepth;
+    }
+
     void SetCamera(const CVector3d& ovecEye, const CVector3d& ovecTarget, const CVector3d& rvecUp)
     {
         m_ovecEye = ovecEye;
@@ -85,7 +92,7 @@ public:
         m_lpfnProgress = lpfnProgress;
     }
 
-    CHit3d HitTest(const CRay3d& Ray, const float nDistanceMin, const float nDistanceMax, const bool bSingleHit = false, const unsigned int uDepth = 3U)
+    CHit3d HitTest(const CRay3d& Ray, const float nDistanceMin, const float nDistanceMax, const bool bSingleHit = false, const unsigned int uDepth = 0)
     {
         CHit3d ResultHit;
 
@@ -152,7 +159,7 @@ public:
             for(int nX = 0; nX<m_nSceneWidth; nX++)
             {
                 const CColor clrPixel =
-                    HitTest(Cam.GetRay(nX, nY), 0.0f, FLD_MAX).GetColor()  // TODO: average more of these for anti-aliasing
+                    HitTest(Cam.GetRay(nX, nY), 0.0f, FLD_MAX, false, m_uBounceDepth).GetColor()  // TODO: average more of these for anti-aliasing
                     ;
 
                 m_aclrPixels[m_nSceneWidth*nY+nX] = clrPixel;
