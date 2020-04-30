@@ -141,12 +141,13 @@ public:
         {
             for(int nX = 0; nX<m_nSceneWidth; nX++)
             {
-                const CRay3d Ray = Cam.GetRay(nX, nY);
-                const CHit3d Hit = HitTest(Ray, 0.0f, FLD_MAX);
+                const CColor clrPixel =
+                    HitTest(Cam.GetRay(nX, nY), 0.0f, FLD_MAX).GetColor()
+                    ;
 
-                m_aclrPixels[m_nSceneWidth*nY+nX] = Hit.GetColor();
+                m_aclrPixels[m_nSceneWidth*nY+nX] = clrPixel;
 
-                if(m_lpfnProgress!=NULL && !m_lpfnProgress(Hit.GetColor().R(), Hit.GetColor().G(), Hit.GetColor().B(), nX, nY, lpContext))
+                if(m_lpfnProgress!=NULL && !m_lpfnProgress(clrPixel.R(), clrPixel.G(), clrPixel.B(), nX, nY, lpContext))
                 {
                     break;
                 }
