@@ -1,4 +1,4 @@
-#define PrintMatrix(VAR) printf("%s:\n| %+2.3f,%+2.3f,%+2.3f |\n| %+2.3f,%+2.3f,%+2.3f |\n| %+2.3f,%+2.3f,%+2.3f |\n", #VAR, VAR.X1(), VAR.X2(), VAR.X3(), VAR.Y1(), VAR.Y2(), VAR.Y3(), VAR.Z1(), VAR.Z2(), VAR.Z3())
+#define PrintMatrix(VAR) printf("%s:\n| %+2.3f,%+2.3f,%+2.3f,%+2.3f |\n| %+2.3f,%+2.3f,%+2.3f,%+2.3f |\n| %+2.3f,%+2.3f,%+2.3f,%+2.3f |\n", #VAR, VAR.X1(), VAR.X2(), VAR.X3(), VAR.X4(), VAR.Y1(), VAR.Y2(), VAR.Y3(), VAR.Y4(), VAR.Z1(), VAR.Z2(), VAR.Z3(), VAR.Z4())
 
 class CMatrix3d
     : public CBaseSquareMatrix< CMatrix3d, float, 4 >
