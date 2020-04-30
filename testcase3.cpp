@@ -301,15 +301,11 @@ public:
 
     void SteerZoom(const float nDirection)
     {
-        CVector3d rvecLookAt = m_ovecTarget-m_ovecEye;
-        float nZoom = rvecLookAt.Magnitude();
-        float nNewZoom = max(0.1f, nZoom+nDirection*m_nSteeringPower);
+        CVector3d uvecLookAt = (m_ovecTarget-m_ovecEye).UnitVector();
 
-        if(nZoom!=nNewZoom)
-        {
-            m_ovecEye = m_ovecTarget-rvecLookAt.UnitVector()*nNewZoom;
-            UpdateCamera();
-        }
+        m_ovecEye = m_ovecEye+uvecLookAt*(nDirection*m_nSteeringPower);
+        m_ovecTarget = m_ovecTarget+uvecLookAt*(nDirection*m_nSteeringPower);
+        UpdateCamera();
     }
 
     void SteerUp()
