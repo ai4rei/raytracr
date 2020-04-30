@@ -93,6 +93,7 @@ protected:
     CMatrix3d m_mtxScene;
     bool m_bShowHelp;
     bool m_bRunOnce;
+    bool m_bCameraDirty;
 
 public:
     CTestWindow(const HINSTANCE hInstance)
@@ -106,6 +107,7 @@ public:
         , m_uvecUp(+0.0f, +1.0f, +0.0f)
         , m_bShowHelp(false)
         , m_bRunOnce(false)
+        , m_bCameraDirty(false)
     {
         // Objects
         AddObject(CreatePlane(CreateVector3d(+0.0f, +0.0f, +0.0f), CreateVector3d(+0.0f, +1.0f, +0.0f), CreateColor(1.0f, 1.0f, 1.0f)));
@@ -187,6 +189,8 @@ public:
     void UpdateCamera()
     {
         SetCamera(m_ovecEye.MatrixProduct(m_mtxScene), m_ovecTarget.MatrixProduct(m_mtxScene), m_uvecUp.MatrixProduct(m_mtxScene));
+
+        m_bCameraDirty = true;
     }
 
     void UpdateRenderAsync()
@@ -224,6 +228,8 @@ public:
         DWORD dwThreadId;
         HANDLE hThread = CreateThread(NULL, 0, &UpdateRenderAsyncCB, this, CREATE_SUSPENDED, &dwThreadId);
 
+        m_bCameraDirty = false;
+
         if(hThread!=NULL)
         {
             ResumeThread(hThread);
@@ -257,6 +263,8 @@ public:
 
             CloseHandle(hThread);
             hThread = NULL;
+
+            InvalidateRect(hWnd, NULL, FALSE);
         }
     }
 
@@ -408,24 +416,25 @@ public:
             break;
         case IDC_STEER_UP:
             SteerUp();
-            InvalidateRect(hWnd, NULL, FALSE);
             break;
         case IDC_STEER_RIGHT:
             SteerRight();
-            InvalidateRect(hWnd, NULL, FALSE);
             break;
         case IDC_STEER_DOWN:
             SteerDown();
-            InvalidateRect(hWnd, NULL, FALSE);
             break;
         case IDC_STEER_LEFT:
             SteerLeft();
-            InvalidateRect(hWnd, NULL, FALSE);
             break;
         case IDC_TOGGLE_HELP:
             m_bShowHelp = !m_bShowHelp;
             InvalidateRect(hWnd, NULL, FALSE);
             break;
+        }
+
+        if(m_bCameraDirty)
+        {
+            UpdateRender(hWnd);
         }
 
         CSuper::WndProcOnCommand(hWnd, nId, hWndCtl, uCodeNotify);
