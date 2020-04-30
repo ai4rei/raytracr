@@ -85,7 +85,7 @@ public:
         m_lpfnProgress = lpfnProgress;
     }
 
-    CHit3d HitTest(const CRay3d& Ray, const float nDistanceMin, const float nDistanceMax, const bool bSingleHit = false)
+    CHit3d HitTest(const CRay3d& Ray, const float nDistanceMin, const float nDistanceMax, const bool bSingleHit = false, const unsigned int uDepth = 3U)
     {
         CHit3d ResultHit;
 
@@ -124,6 +124,16 @@ public:
                 }
             }
 
+            if(uDepth>0U)
+            {
+                const CHit3d SecondaryHit = HitTest(CRay3d(ovecHitPoint, CPlane3d(ovecHitPoint, ResultHit.GetSurfaceNormal()).Reflection(Ray.GetLookAt()).UnitVector()), 0.001f, FLD_MAX, false, uDepth-1U);
+
+                if(SecondaryHit)
+                {
+                    clrLight = clrLight+SecondaryHit.GetColor()/4.0f;
+                }
+            }
+
             ResultHit = CHit3d(ResultHit.GetDistance(), clrLight-~ResultHit.GetColor(), ResultHit.GetSurfaceNormal());
         }
 
@@ -142,7 +152,7 @@ public:
             for(int nX = 0; nX<m_nSceneWidth; nX++)
             {
                 const CColor clrPixel =
-                    HitTest(Cam.GetRay(nX, nY), 0.0f, FLD_MAX).GetColor()
+                    HitTest(Cam.GetRay(nX, nY), 0.0f, FLD_MAX).GetColor()  // TODO: average more of these for anti-aliasing
                     ;
 
                 m_aclrPixels[m_nSceneWidth*nY+nX] = clrPixel;
