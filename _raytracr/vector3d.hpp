@@ -123,9 +123,9 @@ public:
     {
         return CSelf
         (
-            m_nX*mtxOher.X1()+m_nY*mtxOher.X2()+m_nZ*mtxOher.X3(),
-            m_nX*mtxOher.Y1()+m_nY*mtxOher.Y2()+m_nZ*mtxOher.Y3(),
-            m_nX*mtxOher.Z1()+m_nY*mtxOher.Z2()+m_nZ*mtxOher.Z3()
+            m_nX*mtxOher.X1()+m_nY*mtxOher.X2()+m_nZ*mtxOher.X3()+1.0f*mtxOher.X4(),
+            m_nX*mtxOher.Y1()+m_nY*mtxOher.Y2()+m_nZ*mtxOher.Y3()+1.0f*mtxOher.Y4(),
+            m_nX*mtxOher.Z1()+m_nY*mtxOher.Z2()+m_nZ*mtxOher.Z3()+1.0f*mtxOher.Z4()
         );
     }
 

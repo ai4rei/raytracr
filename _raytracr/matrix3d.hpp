@@ -10,12 +10,15 @@ private:
     #define m_nX1 (*this)(0, 0)
     #define m_nX2 (*this)(0, 1)
     #define m_nX3 (*this)(0, 2)
+    #define m_nX4 (*this)(0, 3)
     #define m_nY1 (*this)(1, 0)
     #define m_nY2 (*this)(1, 1)
     #define m_nY3 (*this)(1, 2)
+    #define m_nY4 (*this)(1, 3)
     #define m_nZ1 (*this)(2, 0)
     #define m_nZ2 (*this)(2, 1)
     #define m_nZ3 (*this)(2, 2)
+    #define m_nZ4 (*this)(2, 3)
 
 public:
     CMatrix3d()
@@ -118,20 +121,26 @@ public:
     float X1() const { return m_nX1; }
     float X2() const { return m_nX2; }
     float X3() const { return m_nX3; }
+    float X4() const { return m_nX4; }
     float Y1() const { return m_nY1; }
     float Y2() const { return m_nY2; }
     float Y3() const { return m_nY3; }
+    float Y4() const { return m_nY4; }
     float Z1() const { return m_nZ1; }
     float Z2() const { return m_nZ2; }
     float Z3() const { return m_nZ3; }
+    float Z4() const { return m_nZ4; }
 
 #undef m_nX1
 #undef m_nX2
 #undef m_nX3
+#undef m_nX4
 #undef m_nY1
 #undef m_nY2
 #undef m_nY3
+#undef m_nY4
 #undef m_nZ1
 #undef m_nZ2
 #undef m_nZ3
+#undef m_nZ4
 };
