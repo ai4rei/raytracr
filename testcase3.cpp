@@ -287,15 +287,14 @@ public:
     }
 
     void SteerA(const float nDirection)
-     //     const float PI = acos(0.0f)*2.0f;
-    {// Raytracer::CreateMatrix3d().SetIdentity().AddYRotation(PI/180.0f*45.0f).AddXRotation(PI/180.0f*-45.0f)
-        m_mtxScene.AddXRotation(nDirection*m_nSteeringPower);
+    {
+        m_mtxScene.AddXRotation(PI/180.0f*nDirection*m_nSteeringPower);
         UpdateCamera();
     }
 
     void SteerB(const float nDirection)
     {
-        m_mtxScene.AddYRotation(nDirection*m_nSteeringPower);
+        m_mtxScene.AddYRotation(PI/180.0f*nDirection*m_nSteeringPower);
         UpdateCamera();
     }
 
