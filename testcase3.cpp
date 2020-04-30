@@ -117,12 +117,12 @@ public:
 
         for(float nY = 0; nY<nSphereRange; nY+= nSphereIncrement)
         {
-        for(float nX = 0; nX<nSphereRange; nX+= nSphereIncrement)
-        {
-            const float nRadius = 0.5f+(rand()%3)/2.0f;
+            for(float nX = 0; nX<nSphereRange; nX+= nSphereIncrement)
+            {
+                const float nRadius = 0.5f+(rand()%3)/2.0f;
 
-            AddObject(CreateSphere(CreateVector3d(nX-nSphereRange/2.0f, nRadius, nY-nSphereRange/2.0f), nRadius, CreateColor((rand()%100)/100.0f, (rand()%100)/100.0f, (rand()%100)/100.0f)));
-        }
+                AddObject(CreateSphere(CreateVector3d(nX-nSphereRange/2.0f, nRadius, nY-nSphereRange/2.0f), nRadius, CreateColor((rand()%100)/100.0f, (rand()%100)/100.0f, (rand()%100)/100.0f)));
+            }
         }
 
         // Lights
