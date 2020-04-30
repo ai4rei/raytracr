@@ -227,7 +227,7 @@ public:
         if(hThread!=NULL)
         {
             ResumeThread(hThread);
-        
+
             for(;;)
             {
                 DWORD dwWait = MsgWaitForMultipleObjects(1, &hThread, FALSE, INFINITE, QS_ALLINPUT);

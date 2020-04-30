@@ -96,24 +96,24 @@ public:
 
             if(Hit && (!ResultHit || ResultHit.GetDistance()>Hit.GetDistance()))
             {
-                ResultHit = Hit;
-
                 if(bSingleHit)
                 {
-                    break;
+                    return Hit;
                 }
+
+                ResultHit = Hit;
             }
         }
 
         if(ResultHit)
         {
             CColor clrLight(0, 0, 0);  // shadow
+            const CVector3d ovecHitPoint = Ray.GetPointAt(ResultHit.GetDistance());
 
             for(size_t uIdx = 0; uIdx<m_aobjLights.size(); uIdx++)
             {
                 const CLight& Light = *m_aobjLights[uIdx];
 
-                const CVector3d ovecHitPoint = Ray.GetPointAt(ResultHit.GetDistance());
                 const CVector3d rvecDirLight = Light.GetOrigin()-ovecHitPoint;
                 const CRay3d ShadowRay(ovecHitPoint, rvecDirLight.UnitVector());
                 const CHit3d ShadowHit = HitTest(ShadowRay, 0.001f, rvecDirLight.Magnitude(), true);
