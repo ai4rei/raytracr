@@ -1,4 +1,4 @@
-LINK = link.exe
+LINK = link
 
 CPPFLAGS = -nologo -W3 -O2x -GF -EHsc -D_CRT_SECURE_NO_WARNINGS
 LFLAGS = -nologo -release user32.lib gdi32.lib
