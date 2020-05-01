@@ -192,7 +192,7 @@ public:
     void UpdateCamera()
     {
         puts("");
-        printf("X:%+2.3f Y:%+2.3f Z:%+2.3f A:%+2.3f B:%+2.3f\n", m_nSteeringX, m_nSteeringY, m_nSteeringZ, m_nSteeringA*180.0f/PI, m_nSteeringB*180.0f/PI);
+        printf("X:%+2.3f Y:%+2.3f Z:%+2.3f A:%+2.3f B:%+2.3f P:%+2.3f\n", m_nSteeringX, m_nSteeringY, m_nSteeringZ, m_nSteeringA*180.0f/PI, m_nSteeringB*180.0f/PI, m_nSteeringPower);
 
         const CVector3d ovecEye = CVector3d(+0.0f, +0.0f, +0.0f)
             .MatrixProduct(CMatrix3d()
@@ -460,6 +460,12 @@ public:
         case IDC_STEER_LEFT:
             SteerLeft();
             break;
+        case IDC_STEER_POWER_UP:
+            m_nSteeringPower++;
+            break;
+        case IDC_STEER_POWER_DOWN:
+            m_nSteeringPower--;  // NOTE: Not limiting. Negative power gives you a reverse-gear.
+            break;
         case IDC_TOGGLE_HELP:
             m_bShowHelp = !m_bShowHelp;
             InvalidateRect(hWnd, NULL, FALSE);
@@ -529,6 +535,7 @@ public:
                     (
                         Ps.hdc,
                         "Steering mode: 1=XZ 2=XY 3=AB 4=BZ\r\n"
+                        "Steering power: PAGE UP/PAGE DOWN\r\n"
                         "Steering: UP RIGHT DOWN LEFT or WASD\r\n",
                         -1,
                         &rcWnd,
