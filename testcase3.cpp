@@ -101,7 +101,7 @@ protected:
 
 public:
     CTestWindow(const HINSTANCE hInstance)
-        : CSimpleWindow(hInstance, 320, 240, WS_VISIBLE|WS_POPUPWINDOW|WS_SYSMENU|WS_CAPTION|WS_BORDER|WS_MINIMIZEBOX|WS_MAXIMIZEBOX|WS_SIZEBOX)
+        : CSimpleWindow(hInstance, 640, 480, WS_VISIBLE|WS_POPUPWINDOW|WS_SYSMENU|WS_CAPTION|WS_BORDER|WS_MINIMIZEBOX|WS_MAXIMIZEBOX|WS_SIZEBOX)
         , m_dwRenderTime(0)
         , m_dwDrawingTime(0)
         , m_hbmOutput(NULL)
@@ -121,23 +121,28 @@ public:
         // Objects
         AddObject(CreatePlane(CreateVector3d(+0.0f, +0.0f, +0.0f), CreateVector3d(+0.0f, +1.0f, +0.0f), CreateColor(1.0f, 1.0f, 1.0f)));
 
-        const float nSphereRange = 25;
-        const float nSphereIncrement = 5;
+        const float SF_RADIUS_MIN = 0.5f;
+        const float SF_RADIUS_INT = 0.5f;
+        const float SF_RADIUS_MAX = 1.5f;
+        const float SF_SPHERE_DST = 2.5f;
+        const int   SF_SPHERE_ROW = 10;
 
         srand(GetTickCount());
 
-        for(float nY = -nSphereRange/2.0f; nY<=nSphereRange/2.0f; nY+= nSphereIncrement)
+        for(int nY = 0; nY<SF_SPHERE_ROW; nY++)
         {
-            for(float nX = -nSphereRange/2.0f; nX<=nSphereRange/2.0f; nX+= nSphereIncrement)
+            for(int nX = 0; nX<SF_SPHERE_ROW; nX++)
             {
-                const float nRadius = 0.5f+(rand()%3)/2.0f;
+                const float nPosX   = (nX-SF_SPHERE_ROW/2.0f+0.5f)*SF_SPHERE_DST;
+                const float nPosY   = (nY-SF_SPHERE_ROW/2.0f+0.5f)*SF_SPHERE_DST;
+                const float nRadius = SF_RADIUS_MIN+(rand()%(int(SF_RADIUS_MAX-SF_RADIUS_MIN)+1))*SF_RADIUS_INT;
 
-                AddObject(CreateSphere(CreateVector3d(nX, nRadius, nY), nRadius, CreateColor((rand()%100)/100.0f, (rand()%100)/100.0f, (rand()%100)/100.0f)));
+                AddObject(CreateSphere(CreateVector3d(nPosX, nRadius, nPosY), nRadius, CreateColor((rand()%100)/100.0f, (rand()%100)/100.0f, (rand()%100)/100.0f)));
             }
         }
 
         // Lights
-        AddLight(CreateLight(CreateVector3d(+9.0f, +9.0f, +0.0f), CreateColor(1.0f, 1.0f, 1.0f), 50.0f));
+        AddLight(CreateLight(CreateVector3d(+0.0f, +9.0f, +0.0f), CreateColor(1.0f, 1.0f, 1.0f), 50.0f));
 
         SetBounceDepth(3);
 
