@@ -253,7 +253,7 @@ public:
                     {
                         if(Msg.message==WM_QUIT)
                         {
-                            PostQuitMessage(Msg.wParam);
+                            PostQuitMessage((int)Msg.wParam);
                             break;
                         }
 
