@@ -18,12 +18,12 @@ public:
         SetZero();
     }
 
-    T& operator()(unsigned int i, unsigned int j)
+    inline T& operator()(unsigned int i, unsigned int j)
     {
         return m_aItem[i][j];
     }
 
-    const T& operator()(unsigned int i, unsigned int j) const
+    inline const T& operator()(unsigned int i, unsigned int j) const
     {
         return m_aItem[i][j];
     }
@@ -34,16 +34,16 @@ public:
         {
             for(unsigned int i = 0; i < M; i++)
             {
-                (*this)(i, j) = 0;
+                SetItem(i, j, 0);
             }
         }
 
         return *static_cast< CSelf* >(this);
     }
 
-    CSelf& SetItem(const unsigned int i, const unsigned int j, T nValue)
+    inline CSelf& SetItem(const unsigned int i, const unsigned int j, T nValue)
     {
-        (*this)(i, j) = nValue;
+        operator()(i, j) = nValue;
 
         return *static_cast< CSelf* >(this);
     }
@@ -56,7 +56,7 @@ public:
         {
             for(unsigned int i = 0; i < M; i++)
             {
-                mtxResult(i, j) = (*this)(i, j)+mtxOther(i, j);
+                mtxResult(i, j) = operator()(i, j)+mtxOther(i, j);
             }
         }
 
@@ -71,7 +71,7 @@ public:
         {
             for(unsigned int i = 0; i < M; i++)
             {
-                mtxResult(i, j) = (*this)(i, j)-mtxOther(i, j);
+                mtxResult(i, j) = operator()(i, j)-mtxOther(i, j);
             }
         }
 
@@ -86,7 +86,7 @@ public:
         {
             for(unsigned int i = 0; i < M; i++)
             {
-                mtxResult(i, j) = (*this)(i, j)*nScalar;
+                mtxResult(i, j) = operator()(i, j)*nScalar;
             }
         }
 
@@ -101,7 +101,7 @@ public:
         {
             for(unsigned int i = 0; i < M; i++)
             {
-                mtxResult(i, j) = (*this)(i, j)/nScalar;
+                mtxResult(i, j) = operator()(i, j)/nScalar;
             }
         }
 
@@ -116,7 +116,7 @@ public:
         {
             for(unsigned int i = 0; i < M; i++)
             {
-                mtxResult(i, j) = (*this)(j, i);
+                mtxResult(i, j) = operator()(j, i);
             }
         }
 
@@ -133,7 +133,7 @@ public:
             {
                 for(unsigned int r = 0; r < N; r++)
                 {
-                    mtxResult(i, j)+= (*this)(i, r)*mtxOther(r, j);
+                    mtxResult(i, j)+= operator()(i, r)*mtxOther(r, j);
                 }
             }
         }
@@ -159,7 +159,7 @@ public:
     {
         for(unsigned int j = 0; j < N; j++)
         {
-            (*this)(j, j) = 1;
+            SetItem(j, j, 1);
         }
 
         return *static_cast< CSelf* >(this);
@@ -175,7 +175,7 @@ public:
             {
                 for(unsigned int r = 0; r < N; r++)
                 {
-                    mtxResult(i, j)+= (*this)(i, r)*mtxOther(r, j);
+                    mtxResult(i, j)+= operator()(i, r)*mtxOther(r, j);
                 }
             }
         }

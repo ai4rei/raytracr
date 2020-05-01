@@ -9,19 +9,11 @@ class CMatrix3d
 private:
     typedef CMatrix3d CSelf;
 
-private:
-    #define m_nX1 (*this)(0, 0)
-    #define m_nX2 (*this)(0, 1)
-    #define m_nX3 (*this)(0, 2)
-    #define m_nX4 (*this)(0, 3)
-    #define m_nY1 (*this)(1, 0)
-    #define m_nY2 (*this)(1, 1)
-    #define m_nY3 (*this)(1, 2)
-    #define m_nY4 (*this)(1, 3)
-    #define m_nZ1 (*this)(2, 0)
-    #define m_nZ2 (*this)(2, 1)
-    #define m_nZ3 (*this)(2, 2)
-    #define m_nZ4 (*this)(2, 3)
+public:
+    static const int ROW_X = 0;
+    static const int ROW_Y = 1;
+    static const int ROW_Z = 2;
+    static const int ROW_W = 3;
 
 public:
     CMatrix3d()
@@ -33,9 +25,9 @@ public:
         // SetZero() is implied during construction
         SetIdentity();
 
-        m_nX1 = nX1; m_nX2 = nX2; m_nX3 = nX3;
-        m_nY1 = nY1; m_nY2 = nY2; m_nY3 = nY3;
-        m_nZ1 = nZ1; m_nZ2 = nZ2; m_nZ3 = nZ3;
+        SetItem(ROW_X, 0, nX1); SetItem(ROW_X, 1, nX2); SetItem(ROW_X, 2, nX3);
+        SetItem(ROW_Y, 0, nY1); SetItem(ROW_Y, 1, nY2); SetItem(ROW_Y, 2, nY3);
+        SetItem(ROW_Z, 0, nZ1); SetItem(ROW_Z, 1, nZ2); SetItem(ROW_Z, 2, nZ3);
     }
 
     CSelf& SetFromUpVector(const CVector3d& uvecUp, const CVector3d& uvecRight)
@@ -45,9 +37,9 @@ public:
         SetZero();
         SetIdentity();
 
-        m_nX1 = uvecRight.X(); m_nX2 = uvecUp.X(); m_nX3 = uvecBack.X();
-        m_nY1 = uvecRight.Y(); m_nY2 = uvecUp.Y(); m_nY3 = uvecBack.Y();
-        m_nZ1 = uvecRight.Z(); m_nZ2 = uvecUp.Z(); m_nZ3 = uvecBack.Z();
+        SetItem(ROW_X, 0, uvecRight.X()); SetItem(ROW_X, 1, uvecUp.X()); SetItem(ROW_X, 2, uvecBack.X());
+        SetItem(ROW_Y, 0, uvecRight.Y()); SetItem(ROW_Y, 1, uvecUp.Y()); SetItem(ROW_Y, 2, uvecBack.Y());
+        SetItem(ROW_Z, 0, uvecRight.Z()); SetItem(ROW_Z, 1, uvecUp.Z()); SetItem(ROW_Z, 2, uvecBack.Z());
 
         return *this;
     }
@@ -55,7 +47,7 @@ public:
     CSelf& AddXTranslation(const float nOffset)
     {
         const CSelf mtxOffset = CSelf().SetIdentity()
-            .SetItem(0, 3, nOffset)
+            .SetItem(ROW_X, 3, nOffset)
             ;
 
         *this = *this*mtxOffset;
@@ -66,7 +58,7 @@ public:
     CSelf& AddYTranslation(const float nOffset)
     {
         const CSelf mtxOffset = CSelf().SetIdentity()
-            .SetItem(1, 3, nOffset)
+            .SetItem(ROW_Y, 3, nOffset)
             ;
 
         *this = *this*mtxOffset;
@@ -77,7 +69,7 @@ public:
     CSelf& AddZTranslation(const float nOffset)
     {
         const CSelf mtxOffset = CSelf().SetIdentity()
-            .SetItem(2, 3, nOffset)
+            .SetItem(ROW_Z, 3, nOffset)
             ;
 
         *this = *this*mtxOffset;
@@ -88,8 +80,8 @@ public:
     CSelf& AddXRotation(const float nRad)
     {
         const CSelf mtxRoll = CSelf().SetIdentity()
-            .SetItem(1, 1, +cos(nRad)).SetItem(1, 2, -sin(nRad))
-            .SetItem(2, 1, +sin(nRad)).SetItem(2, 2, +cos(nRad))
+            .SetItem(ROW_Y, 1, +cos(nRad)).SetItem(ROW_Y, 2, -sin(nRad))
+            .SetItem(ROW_Z, 1, +sin(nRad)).SetItem(ROW_Z, 2, +cos(nRad))
             ;
 
         *this = *this*mtxRoll;
@@ -100,8 +92,8 @@ public:
     CSelf& AddYRotation(const float nRad)
     {
         const CSelf mtxPitch = CSelf().SetIdentity()
-            .SetItem(0, 0, +cos(nRad)).SetItem(0, 2, +sin(nRad))
-            .SetItem(2, 0, -sin(nRad)).SetItem(2, 2, +cos(nRad))
+            .SetItem(ROW_X, 0, +cos(nRad)).SetItem(ROW_X, 2, +sin(nRad))
+            .SetItem(ROW_Z, 0, -sin(nRad)).SetItem(ROW_Z, 2, +cos(nRad))
             ;
 
         *this = *this*mtxPitch;
@@ -112,8 +104,8 @@ public:
     CSelf& AddZRotation(const float nRad)
     {
         const CSelf mtxYaw = CSelf().SetIdentity()
-            .SetItem(0, 0, +cos(nRad)).SetItem(0, 1, -sin(nRad))
-            .SetItem(1, 0, +sin(nRad)).SetItem(1, 1, +cos(nRad))
+            .SetItem(ROW_X, 0, +cos(nRad)).SetItem(ROW_X, 1, -sin(nRad))
+            .SetItem(ROW_Y, 0, +sin(nRad)).SetItem(ROW_Y, 1, +cos(nRad))
             ;
 
         *this = *this*mtxYaw;
@@ -121,31 +113,18 @@ public:
         return *this;
     }
 
-    float X1() const { return m_nX1; }
-    float X2() const { return m_nX2; }
-    float X3() const { return m_nX3; }
-    float X4() const { return m_nX4; }
-    float Y1() const { return m_nY1; }
-    float Y2() const { return m_nY2; }
-    float Y3() const { return m_nY3; }
-    float Y4() const { return m_nY4; }
-    float Z1() const { return m_nZ1; }
-    float Z2() const { return m_nZ2; }
-    float Z3() const { return m_nZ3; }
-    float Z4() const { return m_nZ4; }
-
-#undef m_nX1
-#undef m_nX2
-#undef m_nX3
-#undef m_nX4
-#undef m_nY1
-#undef m_nY2
-#undef m_nY3
-#undef m_nY4
-#undef m_nZ1
-#undef m_nZ2
-#undef m_nZ3
-#undef m_nZ4
+    float X1() const { return operator()(ROW_X, 0); }
+    float X2() const { return operator()(ROW_X, 1); }
+    float X3() const { return operator()(ROW_X, 2); }
+    float X4() const { return operator()(ROW_X, 3); }
+    float Y1() const { return operator()(ROW_Y, 0); }
+    float Y2() const { return operator()(ROW_Y, 1); }
+    float Y3() const { return operator()(ROW_Y, 2); }
+    float Y4() const { return operator()(ROW_Y, 3); }
+    float Z1() const { return operator()(ROW_Z, 0); }
+    float Z2() const { return operator()(ROW_Z, 1); }
+    float Z3() const { return operator()(ROW_Z, 2); }
+    float Z4() const { return operator()(ROW_Z, 3); }
 };
 
 #endif  /* SNIPPETS_RAYTRACER_MATRIX3D_HPP */
