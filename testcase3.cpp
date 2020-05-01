@@ -144,7 +144,7 @@ public:
         // Lights
         AddLight(CreateLight(CreateVector3d(+0.0f, +9.0f, +0.0f), CreateColor(1.0f, 1.0f, 1.0f), 50.0f));
 
-        SetBounceDepth(3);
+        SetBounceDepth(2);
 
         UpdateCamera();
     }
