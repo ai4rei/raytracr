@@ -87,10 +87,11 @@ protected:
 
     STEERINGPLANE m_nSteeringPlane;
     float m_nSteeringPower;
-    CVector3d m_ovecEye;
-    CVector3d m_ovecTarget;
-    CVector3d m_uvecUp;
-    CMatrix3d m_mtxScene;
+    float m_nSteeringX;
+    float m_nSteeringY;
+    float m_nSteeringZ;
+    float m_nSteeringA;
+    float m_nSteeringB;
     bool m_bShowHelp;
     bool m_bRunOnce;
     bool m_bCameraDirty;
@@ -101,10 +102,12 @@ public:
         , m_hbmOutput(NULL)
         , m_hAccl(LoadAccelerators(hInstance, MAKEINTRESOURCE(IDA_MAINACCL)))
         , m_nSteeringPlane(PLANE_XZ)
-        , m_nSteeringPower(1.0f)
-        , m_ovecEye(+0.0f, +0.0f, +1.0f)
-        , m_ovecTarget(+0.0f, +0.0f, +0.0f)
-        , m_uvecUp(+0.0f, +1.0f, +0.0f)
+        , m_nSteeringPower(+1.0f)
+        , m_nSteeringX(+0.0f)
+        , m_nSteeringY(+1.0f)
+        , m_nSteeringZ(+0.0f)
+        , m_nSteeringA(PI*+0.0f/+180.0f)
+        , m_nSteeringB(PI*+0.0f/+180.0f)
         , m_bShowHelp(false)
         , m_bRunOnce(false)
         , m_bCameraDirty(false)
@@ -131,7 +134,6 @@ public:
         SetScene(320 /*GetSystemMetrics(SM_CXSCREEN)/1*/, 240/*GetSystemMetrics(SM_CYSCREEN)/1*/);
         SetBounceDepth(3);
 
-        m_mtxScene.SetIdentity();
         UpdateCamera();
     }
 
@@ -189,7 +191,32 @@ public:
 
     void UpdateCamera()
     {
-        SetCamera(m_ovecEye.MatrixProduct(m_mtxScene), m_ovecTarget.MatrixProduct(m_mtxScene), m_uvecUp.MatrixProduct(m_mtxScene));
+        puts("");
+        printf("X:%+2.3f Y:%+2.3f Z:%+2.3f A:%+2.3f B:%+2.3f\n", m_nSteeringX, m_nSteeringY, m_nSteeringZ, m_nSteeringA*180.0f/PI, m_nSteeringB*180.0f/PI);
+
+        const CVector3d ovecEye = CVector3d(+0.0f, +0.0f, +0.0f)
+            .MatrixProduct(CMatrix3d()
+                .SetIdentity()
+                .AddXTranslation(m_nSteeringX)
+                .AddYTranslation(m_nSteeringY)
+                .AddZTranslation(m_nSteeringZ)
+            );
+
+        const CVector3d rvecLookAt = CVector3d(+0.0f, +0.0f, -1.0f)
+            .MatrixProduct(CMatrix3d()
+                .SetIdentity()
+                .AddYRotation(m_nSteeringB)
+                .AddXRotation(m_nSteeringA)
+            );
+
+        const CVector3d uvecUp = CVector3d(+0.0f, +1.0f, -0.0f)
+            .MatrixProduct(CMatrix3d()
+                .SetIdentity()
+                .AddYRotation(m_nSteeringB)
+                .AddXRotation(m_nSteeringA)
+            );
+
+        SetCamera(ovecEye, ovecEye+rvecLookAt, uvecUp);
 
         m_bCameraDirty = true;
     }
@@ -279,41 +306,43 @@ public:
     */
     void SteerX(const float nDirection)
     {
-        m_mtxScene.AddXTranslation(nDirection*m_nSteeringPower);
+        m_nSteeringX+= nDirection*m_nSteeringPower;
         UpdateCamera();
     }
 
     void SteerY(const float nDirection)
     {
-        m_mtxScene.AddYTranslation(nDirection*m_nSteeringPower);
+        m_nSteeringY+= nDirection*m_nSteeringPower;
         UpdateCamera();
     }
 
     void SteerZ(const float nDirection)
     {
-        m_mtxScene.AddZTranslation(nDirection*m_nSteeringPower);
+        m_nSteeringZ+= nDirection*m_nSteeringPower;
         UpdateCamera();
     }
 
     void SteerA(const float nDirection)
     {
-        m_mtxScene.AddXRotation(PI/180.0f*nDirection*m_nSteeringPower);
+        m_nSteeringA+= PI/180.0f*nDirection*m_nSteeringPower;
         UpdateCamera();
     }
 
     void SteerB(const float nDirection)
     {
-        m_mtxScene.AddYRotation(PI/180.0f*nDirection*m_nSteeringPower);
+        m_nSteeringB+= PI/180.0f*nDirection*m_nSteeringPower;
         UpdateCamera();
     }
 
     void SteerZoom(const float nDirection)
     {
+        /*
         CVector3d uvecLookAt = (m_ovecTarget-m_ovecEye).UnitVector();
 
         m_ovecEye = m_ovecEye+uvecLookAt*(nDirection*m_nSteeringPower);
         m_ovecTarget = m_ovecTarget+uvecLookAt*(nDirection*m_nSteeringPower);
         UpdateCamera();
+        */
     }
 
     void SteerUp()
