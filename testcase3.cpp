@@ -78,7 +78,7 @@ protected:
         PLANE_XZ,
         PLANE_XY,
         AXES_AB,
-        ZOOM,
+        VIEW_BZ,
     };
 
 protected:
@@ -334,15 +334,13 @@ public:
         UpdateCamera();
     }
 
-    void SteerZoom(const float nDirection)
-    {
-        /*
-        CVector3d uvecLookAt = (m_ovecTarget-m_ovecEye).UnitVector();
+    void SteerViewZ(const float nDirection)
+    {// forward-backward translation
+        const CVector3d rvecMove = CVector3d(+0.0f, +0.0f, nDirection).MatrixProduct(CMatrix3d().SetIdentity().AddYRotation(m_nSteeringB));
 
-        m_ovecEye = m_ovecEye+uvecLookAt*(nDirection*m_nSteeringPower);
-        m_ovecTarget = m_ovecTarget+uvecLookAt*(nDirection*m_nSteeringPower);
+        m_nSteeringX+= rvecMove.X();
+        m_nSteeringZ+= rvecMove.Z();
         UpdateCamera();
-        */
     }
 
     void SteerUp()
@@ -358,8 +356,8 @@ public:
         case AXES_AB:   // +A
             SteerA(+1.0f);
             break;
-        case ZOOM:      // zoom in
-            SteerZoom(+1.0f);
+        case VIEW_BZ:  // -Z
+            SteerViewZ(-1.0f);
         }
     }
 
@@ -375,6 +373,9 @@ public:
             break;
         case AXES_AB:   // +B
             SteerB(+1.0f);
+            break;
+        case VIEW_BZ:  // -B
+            SteerB(-1.0f);
             break;
         }
     }
@@ -392,8 +393,8 @@ public:
         case AXES_AB:   // -A
             SteerA(-1.0f);
             break;
-        case ZOOM:      // zoom out
-            SteerZoom(-1.0f);
+        case VIEW_BZ:  // +Z
+            SteerViewZ(+1.0f);
             break;
         }
     }
@@ -410,6 +411,9 @@ public:
             break;
         case AXES_AB:   // -B
             SteerB(-1.0f);
+            break;
+        case VIEW_BZ:  // +B
+            SteerB(+1.0f);
             break;
         }
     }
@@ -440,9 +444,9 @@ public:
             m_nSteeringPlane = AXES_AB;
             puts("Steering: AB");
             break;
-        case IDC_SET_ZOOM:
-            m_nSteeringPlane = ZOOM;
-            puts("Steering: ZOOM");
+        case IDC_SET_VIEW_BZ:
+            m_nSteeringPlane = VIEW_BZ;
+            puts("Steering: BZ");
             break;
         case IDC_STEER_UP:
             SteerUp();
@@ -524,7 +528,7 @@ public:
                     DrawTextEx
                     (
                         Ps.hdc,
-                        "Steering mode: 1=XZ 2=XY 3=AB 4=ZOOM\r\n"
+                        "Steering mode: 1=XZ 2=XY 3=AB 4=BZ\r\n"
                         "Steering: UP RIGHT DOWN LEFT or WASD\r\n",
                         -1,
                         &rcWnd,
