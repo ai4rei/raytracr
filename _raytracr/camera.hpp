@@ -1,3 +1,6 @@
+#ifndef SNIPPETS_RAYTRACER_CAMERA_HPP
+#define SNIPPETS_RAYTRACER_CAMERA_HPP
+
 class CCamera
 {
 public:
@@ -84,3 +87,5 @@ public:
         return CRay3d(ovecEye, uvecRay);
     }
 };
+
+#endif  /* SNIPPETS_RAYTRACER_CAMERA_HPP */

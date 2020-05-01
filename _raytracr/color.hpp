@@ -1,3 +1,6 @@
+#ifndef SNIPPETS_RAYTRACER_COLOR_HPP
+#define SNIPPETS_RAYTRACER_COLOR_HPP
+
 class CColor
 {
 private:
@@ -47,3 +50,5 @@ public:
     float G() const { return max(0.0f, min(1.0f, m_nG)); }
     float B() const { return max(0.0f, min(1.0f, m_nB)); }
 };
+
+#endif  /* SNIPPETS_RAYTRACER_COLOR_HPP */

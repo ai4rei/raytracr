@@ -1,3 +1,6 @@
+#ifndef SNIPPETS_RAYTRACER_RAY3D_HPP
+#define SNIPPETS_RAYTRACER_RAY3D_HPP
+
 class CRay3d
 {
 private:
@@ -26,3 +29,5 @@ public:
         return m_ovecEye+m_uvecLookAt*nDistance;
     }
 };
+
+#endif  /* SNIPPETS_RAYTRACER_RAY3D_HPP */

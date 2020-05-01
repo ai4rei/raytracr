@@ -1,3 +1,6 @@
+#ifndef SNIPPETS_RAYTRACER_SPHERE3D_HPP
+#define SNIPPETS_RAYTRACER_SPHERE3D_HPP
+
 class CSphere3d
 {
 private:
@@ -20,3 +23,5 @@ private:
         return CPlane3d(ovecPointOnSurface, ovecPointOnSurface-m_ovecOrigin).AngleTo(rvecDirection);
     }
 };
+
+#endif  /* SNIPPETS_RAYTRACER_SPHERE3D_HPP */

@@ -1,5 +1,5 @@
-#ifndef MATRIX_HPP
-#define MATRIX_HPP
+#ifndef SNIPPETS_RAYTRACER_MATRIX_HPP
+#define SNIPPETS_RAYTRACER_MATRIX_HPP
 
 template< typename T, unsigned int M, unsigned int N > class CMatrix;
 
@@ -189,4 +189,4 @@ template< typename T, unsigned int N > class CSquareMatrix
 {
 };
 
-#endif  /* MATRIX_HPP */
+#endif  /* SNIPPETS_RAYTRACER_MATRIX_HPP */

@@ -1,3 +1,6 @@
+#ifndef SNIPPETS_RAYTRACER_LIGHT_HPP
+#define SNIPPETS_RAYTRACER_LIGHT_HPP
+
 class CLight
 {
 private:
@@ -28,3 +31,5 @@ public:
         return m_nIntensity;
     }
 };
+
+#endif  /* SNIPPETS_RAYTRACER_LIGHT_HPP */

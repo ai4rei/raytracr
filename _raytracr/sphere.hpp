@@ -1,3 +1,6 @@
+#ifndef SNIPPETS_RAYTRACER_SPHERE_HPP
+#define SNIPPETS_RAYTRACER_SPHERE_HPP
+
 class CSphere
     : public CObject
 {
@@ -86,3 +89,5 @@ public:
         return m_ovecOrigin;
     }
 };
+
+#endif  /* SNIPPETS_RAYTRACER_SPHERE_HPP */

@@ -1,3 +1,6 @@
+#ifndef SNIPPETS_RAYTRACER_PLANE3D_HPP
+#define SNIPPETS_RAYTRACER_PLANE3D_HPP
+
 class CPlane3d
 {
 private:
@@ -71,3 +74,5 @@ public:
         ), m_uvecNormal.CrossProduct(plnOther.m_uvecNormal));
     }
 };
+
+#endif  /* SNIPPETS_RAYTRACER_PLANE3D_HPP */

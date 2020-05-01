@@ -1,3 +1,6 @@
+#ifndef SNIPPETS_RAYTRACER_MATERIAL_HPP
+#define SNIPPETS_RAYTRACER_MATERIAL_HPP
+
 class CMaterial
 {
 private:
@@ -6,3 +9,5 @@ private:
     float m_nReflectivity;
     float m_nRefractiveIndex;
 };
+
+#endif  /* SNIPPETS_RAYTRACER_MATERIAL_HPP */

@@ -1,3 +1,6 @@
+#ifndef SNIPPETS_RAYTRACER_MATRIX3D_HPP
+#define SNIPPETS_RAYTRACER_MATRIX3D_HPP
+
 #define PrintMatrix(VAR) printf("%s:\n| %+2.3f,%+2.3f,%+2.3f,%+2.3f |\n| %+2.3f,%+2.3f,%+2.3f,%+2.3f |\n| %+2.3f,%+2.3f,%+2.3f,%+2.3f |\n", #VAR, VAR.X1(), VAR.X2(), VAR.X3(), VAR.X4(), VAR.Y1(), VAR.Y2(), VAR.Y3(), VAR.Y4(), VAR.Z1(), VAR.Z2(), VAR.Z3(), VAR.Z4())
 
 class CMatrix3d
@@ -144,3 +147,5 @@ public:
 #undef m_nZ3
 #undef m_nZ4
 };
+
+#endif  /* SNIPPETS_RAYTRACER_MATRIX3D_HPP */

@@ -1,5 +1,5 @@
-#ifndef _SNIPPETS_RAYTRACER_HPP_
-#define _SNIPPETS_RAYTRACER_HPP_
+#ifndef SNIPPETS_RAYTRACER_HPP
+#define SNIPPETS_RAYTRACER_HPP
 
 class Raytracer
 {
@@ -225,4 +225,4 @@ public:
 
 const float Raytracer::PI = acos(0.0f)*2.0f;
 
-#endif  /* _SNIPPETS_RAYTRACER_HPP_ */
+#endif  /* SNIPPETS_RAYTRACER_HPP */

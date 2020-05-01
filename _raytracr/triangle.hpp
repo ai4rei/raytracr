@@ -1,3 +1,6 @@
+#ifndef SNIPPETS_RAYTRACER_TRIANGLE_HPP
+#define SNIPPETS_RAYTRACER_TRIANGLE_HPP
+
 class CTriangle
     : public CObject
 {
@@ -57,3 +60,5 @@ public:
         return m_ovecA;  // this should be centroid
     }
 };
+
+#endif  /* SNIPPETS_RAYTRACER_TRIANGLE_HPP */

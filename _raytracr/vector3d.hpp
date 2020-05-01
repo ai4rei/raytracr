@@ -1,3 +1,6 @@
+#ifndef SNIPPETS_RAYTRACER_VECTOR3D_HPP
+#define SNIPPETS_RAYTRACER_VECTOR3D_HPP
+
 #define PrintVector(VAR) printf("%s: %+2.3f,%+2.3f,%+2.3f\n", #VAR, VAR.X(), VAR.Y(), VAR.Z())
 
 class CMatrix3d;
@@ -203,3 +206,5 @@ public:
         return 0;
     }
 };
+
+#endif  /* SNIPPETS_RAYTRACER_VECTOR3D_HPP */

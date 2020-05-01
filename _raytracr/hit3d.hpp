@@ -1,3 +1,6 @@
+#ifndef SNIPPETS_RAYTRACER_HIT3D_HPP
+#define SNIPPETS_RAYTRACER_HIT3D_HPP
+
 class CHit3d
 {
 private:
@@ -43,3 +46,5 @@ public:
         return m_uvecSurfaceNormal;
     }
 };
+
+#endif  /* SNIPPETS_RAYTRACER_HIT3D_HPP */

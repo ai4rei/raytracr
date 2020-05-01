@@ -1,3 +1,6 @@
+#ifndef SNIPPETS_RAYTRACER_PLANE_HPP
+#define SNIPPETS_RAYTRACER_PLANE_HPP
+
 class CPlane
     : public CObject
 {
@@ -38,3 +41,5 @@ public:
         return m_ovecOrigin;
     }
 };
+
+#endif  /* SNIPPETS_RAYTRACER_PLANE_HPP */
