@@ -82,6 +82,8 @@ protected:
     };
 
 protected:
+    DWORD m_dwRenderTime;
+    DWORD m_dwDrawingTime;
     HBITMAP m_hbmOutput;
     HACCEL m_hAccl;
 
@@ -92,13 +94,16 @@ protected:
     float m_nSteeringZ;
     float m_nSteeringA;
     float m_nSteeringB;
+    int m_nPixelRatio;
     bool m_bShowHelp;
     bool m_bRunOnce;
     bool m_bCameraDirty;
 
 public:
     CTestWindow(const HINSTANCE hInstance)
-        : CSimpleWindow(hInstance, 320/*GetSystemMetrics(SM_CXSCREEN)*/, 240/*GetSystemMetrics(SM_CYSCREEN)*/, WS_VISIBLE|WS_POPUPWINDOW|WS_SYSMENU|WS_CAPTION|WS_BORDER|WS_MINIMIZEBOX)
+        : CSimpleWindow(hInstance, 320, 240, WS_VISIBLE|WS_POPUPWINDOW|WS_SYSMENU|WS_CAPTION|WS_BORDER|WS_MINIMIZEBOX|WS_MAXIMIZEBOX|WS_SIZEBOX)
+        , m_dwRenderTime(0)
+        , m_dwDrawingTime(0)
         , m_hbmOutput(NULL)
         , m_hAccl(LoadAccelerators(hInstance, MAKEINTRESOURCE(IDA_MAINACCL)))
         , m_nSteeringPlane(PLANE_XZ)
@@ -108,6 +113,7 @@ public:
         , m_nSteeringZ(+0.0f)
         , m_nSteeringA(PI*+0.0f/+180.0f)
         , m_nSteeringB(PI*+0.0f/+180.0f)
+        , m_nPixelRatio(1)
         , m_bShowHelp(false)
         , m_bRunOnce(false)
         , m_bCameraDirty(false)
@@ -117,6 +123,8 @@ public:
 
         const float nSphereRange = 25;
         const float nSphereIncrement = 5;
+
+        srand(GetTickCount());
 
         for(float nY = -nSphereRange/2.0f; nY<=nSphereRange/2.0f; nY+= nSphereIncrement)
         {
@@ -131,7 +139,6 @@ public:
         // Lights
         AddLight(CreateLight(CreateVector3d(+9.0f, +9.0f, +0.0f), CreateColor(1.0f, 1.0f, 1.0f), 50.0f));
 
-        SetScene(320 /*GetSystemMetrics(SM_CXSCREEN)/1*/, 240/*GetSystemMetrics(SM_CYSCREEN)/1*/);
         SetBounceDepth(3);
 
         UpdateCamera();
@@ -191,9 +198,6 @@ public:
 
     void UpdateCamera()
     {
-        puts("");
-        printf("X:%+2.3f Y:%+2.3f Z:%+2.3f A:%+2.3f B:%+2.3f P:%+2.3f\n", m_nSteeringX, m_nSteeringY, m_nSteeringZ, m_nSteeringA*180.0f/PI, m_nSteeringB*180.0f/PI, m_nSteeringPower);
-
         const CVector3d ovecEye = CVector3d(+0.0f, +0.0f, +0.0f)
             .MatrixProduct(CMatrix3d()
                 .SetIdentity()
@@ -228,11 +232,11 @@ public:
         dwStart = GetTickCount();
         //Render(&TrackProgress, NULL);
         Render(NULL);
-        printf("%ums", GetTickCount()-dwStart);
+        m_dwRenderTime = GetTickCount()-dwStart;
 
         dwStart = GetTickCount();
         HBITMAP hbmOutput = BitmapFromPixels2(GetResult(), GetSceneWidth(), GetSceneHeight());
-        printf("+%ums\n", GetTickCount()-dwStart);
+        m_dwDrawingTime = GetTickCount()-dwStart;
 
         Enter();
         {
@@ -255,6 +259,10 @@ public:
     {
         DWORD dwThreadId;
         HANDLE hThread = CreateThread(NULL, 0, &UpdateRenderAsyncCB, this, CREATE_SUSPENDED, &dwThreadId);
+        RECT rcWnd;
+
+        GetClientRect(hWnd, &rcWnd);
+        SetScene((rcWnd.right-rcWnd.left)/m_nPixelRatio, (rcWnd.bottom-rcWnd.top)/m_nPixelRatio);
 
         m_bCameraDirty = false;
 
@@ -434,19 +442,19 @@ public:
         {
         case IDC_SET_PLANE_XZ:
             m_nSteeringPlane = PLANE_XZ;
-            puts("Steering: XZ");
+            InvalidateRect(hWnd, NULL, FALSE);
             break;
         case IDC_SET_PLANE_XY:
             m_nSteeringPlane = PLANE_XY;
-            puts("Steering: XY");
+            InvalidateRect(hWnd, NULL, FALSE);
             break;
         case IDC_SET_AXES_AB:
             m_nSteeringPlane = AXES_AB;
-            puts("Steering: AB");
+            InvalidateRect(hWnd, NULL, FALSE);
             break;
         case IDC_SET_VIEW_BZ:
             m_nSteeringPlane = VIEW_BZ;
-            puts("Steering: BZ");
+            InvalidateRect(hWnd, NULL, FALSE);
             break;
         case IDC_STEER_UP:
             SteerUp();
@@ -462,13 +470,26 @@ public:
             break;
         case IDC_STEER_POWER_UP:
             m_nSteeringPower++;
+            InvalidateRect(hWnd, NULL, FALSE);
             break;
         case IDC_STEER_POWER_DOWN:
             m_nSteeringPower--;  // NOTE: Not limiting. Negative power gives you a reverse-gear.
+            InvalidateRect(hWnd, NULL, FALSE);
             break;
         case IDC_TOGGLE_HELP:
             m_bShowHelp = !m_bShowHelp;
             InvalidateRect(hWnd, NULL, FALSE);
+            break;
+        case IDC_PIXELRATIO_UP:
+            m_nPixelRatio++;
+            m_bCameraDirty = true;
+            break;
+        case IDC_PIXELRATIO_DOWN:
+            if(m_nPixelRatio>1)
+            {
+                m_nPixelRatio--;
+                m_bCameraDirty = true;
+            }
             break;
         }
 
@@ -527,6 +548,26 @@ public:
                 if(m_bShowHelp)
                 {
                     const int nSavedTextDC = SaveDC(Ps.hdc);
+                    char szHelpText[1024];
+
+                    _snprintf(szHelpText, _countof(szHelpText),
+                        "X: %+2.3f Y: %+2.3f Z: %+2.3f A: %+2.3f B: %+2.3f\r\n"
+                        "Steering mode (%d): 1=XZ 2=XY 3=AB 4=BZ\r\n"
+                        "Steering power (%+.1f): PAGE UP+ PAGE DOWN-\r\n"
+                        "Steering: UP RIGHT DOWN LEFT or WASD\r\n"
+                        "Pixel ratio (%d): M+ N-\r\n"
+                        "Last render took: %ums+%ums\r\n",
+                        m_nSteeringX,
+                        m_nSteeringY,
+                        m_nSteeringZ,
+                        m_nSteeringA*180.0f/PI,
+                        m_nSteeringB*180.0f/PI,
+                        m_nSteeringPlane+1,
+                        m_nSteeringPower,
+                        m_nPixelRatio,
+                        m_dwRenderTime,
+                        m_dwDrawingTime
+                    );
 
                     SetTextColor(Ps.hdc, RGB(255, 255, 0));
                     SetBkColor(Ps.hdc, RGB(0, 0, 255));
@@ -534,9 +575,7 @@ public:
                     DrawTextEx
                     (
                         Ps.hdc,
-                        "Steering mode: 1=XZ 2=XY 3=AB 4=BZ\r\n"
-                        "Steering power: PAGE UP/PAGE DOWN\r\n"
-                        "Steering: UP RIGHT DOWN LEFT or WASD\r\n",
+                        szHelpText,
                         -1,
                         &rcWnd,
                         DT_WORDBREAK|DT_TOP|DT_LEFT,
@@ -567,15 +606,15 @@ public:
     {
         switch(uId)
         {
-        case IDT_RUNONCE:
-            KillTimer(hWnd, IDT_RUNONCE);
+        case IDT_RENDER:
+            KillTimer(hWnd, IDT_RENDER);
 
             if(!m_bRunOnce)
             {
                 m_bRunOnce = true;
-
-                UpdateRender(hWnd);
             }
+
+            UpdateRender(hWnd);
             return;
         }
 
@@ -584,18 +623,14 @@ public:
 
     virtual VOID WndProcOnWindowPosChanged(HWND hWnd, CONST WINDOWPOS* lpWP)
     {
-        if(!m_bRunOnce)
-        {
-            SetTimer(hWnd, IDT_RUNONCE, 0, NULL);
-        }
+        // TODO: Ignore minimize and check for unnecessary renders (i.e. if the window size does not change)
+        SetTimer(hWnd, IDT_RENDER, m_bRunOnce ? 500 : 0, NULL);
 
         CSuper::WndProcOnWindowPosChanged(hWnd, lpWP);
     }
 };
 
-int __cdecl main(int nArgc, char** lppszArgv)
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdLine, INT nShowCmd)
 {
-    srand(GetTickCount());
-
-    return CTestWindow(GetModuleHandle(NULL));
+    return CTestWindow(hInstance);
 }
