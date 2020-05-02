@@ -4,16 +4,16 @@
 class Raytracer
 {
 public:
+    #include "_raytracr/color.hpp"
+
+protected:
     #include "_raytracr/matrix.hpp"
     #include "_raytracr/vector3d.hpp"
     #include "_raytracr/matrix3d.hpp"
     #include "_raytracr/plane3d.hpp"
     #include "_raytracr/sphere3d.hpp"
     #include "_raytracr/ray3d.hpp"
-
-    #include "_raytracr/color.hpp"
     #include "_raytracr/hit3d.hpp"
-
     #include "_raytracr/object.hpp"
     #include "_raytracr/triangle.hpp"
     #include "_raytracr/plane.hpp"
@@ -21,16 +21,19 @@ public:
     #include "_raytracr/light.hpp"  // diffuse, ambient, spot light
     #include "_raytracr/camera.hpp"
 
+protected:
     typedef std::vector< std::shared_ptr< CObject > > OBJECTVECTOR;
     typedef std::vector< std::shared_ptr< CLight > > LIGHTVECTOR;
     typedef std::vector< CColor > PIXELVECTOR;
     typedef bool (*PROGRESSCB)(const float nR, const float nG, const float nB, const int nX, const int nY, void* lpContext);
 
+protected:
     static const float PI;
 #ifndef FLD_MAX
     #define FLD_MAX 1e37f
 #endif  /* FLD_MAX */
 
+protected:
     int m_nSceneWidth;
     int m_nSceneHeight;
     unsigned int m_uBounceDepth;
@@ -42,6 +45,7 @@ public:
     LIGHTVECTOR m_aobjLights;
     PROGRESSCB m_lpfnProgress;
 
+public:
     Raytracer()
         : m_nSceneWidth(0)
         , m_nSceneHeight(0)
