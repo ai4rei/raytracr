@@ -21,6 +21,15 @@ public:
         return CColor(m_nR+clrOther.m_nR, m_nG+clrOther.m_nG, m_nB+clrOther.m_nB);
     }
 
+    CColor& operator+=(const CColor& clrOther)
+    {
+        m_nR+= clrOther.m_nR;
+        m_nG+= clrOther.m_nG;
+        m_nB+= clrOther.m_nB;
+
+        return *this;
+    }
+
     CColor operator-(const CColor& clrOther) const
     {
         return CColor(m_nR-clrOther.m_nR, m_nG-clrOther.m_nG, m_nB-clrOther.m_nB);
@@ -39,6 +48,15 @@ public:
     CColor operator/(const float nScale) const
     {
         return CColor(m_nR/nScale, m_nG/nScale, m_nB/nScale);
+    }
+
+    CColor& operator/=(const float nScale)
+    {
+        m_nR/= nScale;
+        m_nG/= nScale;
+        m_nB/= nScale;
+
+        return *this;
     }
 
     CColor operator~() const

@@ -37,6 +37,7 @@ protected:
     int m_nSceneWidth;
     int m_nSceneHeight;
     unsigned int m_uBounceDepth;
+    unsigned int m_uAntiAliasing;
     CVector3d m_ovecEye;
     CVector3d m_rvecLookAt;
     CVector3d m_rvecUp;
@@ -50,6 +51,7 @@ public:
         : m_nSceneWidth(0)
         , m_nSceneHeight(0)
         , m_uBounceDepth(0)
+        , m_uAntiAliasing(0)
         , m_ovecEye(0.0f, 0.0f, 0.0f)
         , m_rvecLookAt(0.0f, 0.0f, 0.0f)
         , m_rvecUp(0.0f, 0.0f, 0.0f)
@@ -76,6 +78,11 @@ public:
     void SetBounceDepth(const unsigned int uBounceDepth)
     {
         m_uBounceDepth = uBounceDepth;
+    }
+
+    void SetAntiAliasing(const unsigned int uLevel)
+    {
+        m_uAntiAliasing = uLevel;
     }
 
     void SetCamera(const CVector3d& ovecEye, const CVector3d& rvecLookAt, const CVector3d& rvecUp)
@@ -145,9 +152,26 @@ public:
         return ResultHit;
     }
 
+    static float RandomSubPoint()
+    {
+        return ((rand()%201)-100)/100.0f;
+    }
+
     CColor RenderColorAt(const CCamera& Cam, const int nX, const int nY)
     {
-        return HitTest(Cam.GetRay(nX, nY), 0.0f, FLD_MAX, false, m_uBounceDepth).GetColor();
+        CColor clrHit = HitTest(Cam.GetRay(nX, nY), 0.0f, FLD_MAX, false, m_uBounceDepth).GetColor();
+
+        if(m_uAntiAliasing)
+        {
+            for(unsigned int uIdx = 0; uIdx<m_uAntiAliasing; uIdx++)
+            {
+                clrHit+= HitTest(Cam.GetRay(nX, nY, RandomSubPoint(), RandomSubPoint()), 0.0f, FLD_MAX, false, m_uBounceDepth).GetColor();
+            }
+
+            clrHit/= m_uAntiAliasing+1.0f;
+        }
+
+        return clrHit;
     }
 
     void Render(void* const lpContext = NULL)
