@@ -4,8 +4,8 @@
 class Raytracer
 {
 public:
-    #include "_raytracr/vector3d.hpp"
     #include "_raytracr/matrix.hpp"
+    #include "_raytracr/vector3d.hpp"
     #include "_raytracr/matrix3d.hpp"
     #include "_raytracr/plane3d.hpp"
     #include "_raytracr/sphere3d.hpp"
