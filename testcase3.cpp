@@ -95,6 +95,7 @@ protected:
     float m_nSteeringA;
     float m_nSteeringB;
     int m_nPixelRatio;
+    unsigned int m_uAntiAliasing;
     bool m_bShowHelp;
     bool m_bRunOnce;
     bool m_bCameraDirty;
@@ -114,6 +115,7 @@ public:
         , m_nSteeringA(PI*+0.0f/+180.0f)
         , m_nSteeringB(PI*+0.0f/+180.0f)
         , m_nPixelRatio(1)
+        , m_uAntiAliasing(0)
         , m_bShowHelp(false)
         , m_bRunOnce(false)
         , m_bCameraDirty(false)
@@ -496,6 +498,19 @@ public:
                 m_bCameraDirty = true;
             }
             break;
+        case IDC_ANTIALIASING_UP:
+            m_uAntiAliasing++;
+            SetAntiAliasing(m_uAntiAliasing);
+            m_bCameraDirty = true;
+            break;
+        case IDC_ANTIALIASING_DOWN:
+            if(m_uAntiAliasing>1)
+            {
+                m_uAntiAliasing--;
+                SetAntiAliasing(m_uAntiAliasing);
+                m_bCameraDirty = true;
+            }
+            break;
         }
 
         if(m_bCameraDirty)
@@ -561,6 +576,7 @@ public:
                         "Steering power (%+.1f): PAGE UP+ PAGE DOWN-\r\n"
                         "Steering: UP RIGHT DOWN LEFT or WASD\r\n"
                         "Pixel ratio (%d): M+ N-\r\n"
+                        "Anti-aliasing (%u): B+ V-\r\n"
                         "Last render took: %ums+%ums\r\n",
                         m_nSteeringX,
                         m_nSteeringY,
@@ -570,6 +586,7 @@ public:
                         m_nSteeringPlane+1,
                         m_nSteeringPower,
                         m_nPixelRatio,
+                        m_uAntiAliasing,
                         m_dwRenderTime,
                         m_dwDrawingTime
                     );
