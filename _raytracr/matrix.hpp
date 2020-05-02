@@ -18,12 +18,12 @@ public:
         SetZero();
     }
 
-    inline T& operator()(unsigned int i, unsigned int j)
+    inline T& operator()(unsigned int i, unsigned int j = 0)
     {
         return m_aItem[i][j];
     }
 
-    inline const T& operator()(unsigned int i, unsigned int j) const
+    inline const T& operator()(unsigned int i, unsigned int j = 0) const
     {
         return m_aItem[i][j];
     }
@@ -37,6 +37,13 @@ public:
                 SetItem(i, j, 0);
             }
         }
+
+        return *static_cast< CSelf* >(this);
+    }
+
+    inline CSelf& SetItem(const unsigned int i, T nValue)
+    {
+        operator()(i) = nValue;
 
         return *static_cast< CSelf* >(this);
     }
@@ -102,6 +109,21 @@ public:
             for(unsigned int i = 0; i < M; i++)
             {
                 mtxResult(i, j) = operator()(i, j)/nScalar;
+            }
+        }
+
+        return mtxResult;
+    }
+
+    CSelf operator-() const
+    {
+        CSelf mtxResult;
+
+        for(unsigned int j = 0; j < N; j++)
+        {
+            for(unsigned int i = 0; i < M; i++)
+            {
+                mtxResult(i, j) = -operator()(i, j);
             }
         }
 
