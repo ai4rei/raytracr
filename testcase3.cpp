@@ -225,7 +225,7 @@ public:
                 .AddXRotation(m_nSteeringA)
             );
 
-        SetCamera(ovecEye, ovecEye+rvecLookAt, uvecUp);
+        SetCamera(ovecEye, rvecLookAt, uvecUp);
 
         m_bCameraDirty = true;
     }

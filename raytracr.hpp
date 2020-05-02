@@ -35,10 +35,8 @@ public:
     int m_nSceneHeight;
     unsigned int m_uBounceDepth;
     CVector3d m_ovecEye;
-    CVector3d m_ovecTarget;
     CVector3d m_rvecLookAt;
-    CVector3d m_uvecRight;
-    CVector3d m_uvecUp;
+    CVector3d m_rvecUp;
     PIXELVECTOR m_aclrPixels;
     OBJECTVECTOR m_aobjObjects;
     LIGHTVECTOR m_aobjLights;
@@ -49,11 +47,9 @@ public:
         , m_nSceneHeight(0)
         , m_uBounceDepth(0)
         , m_ovecEye(0.0f, 0.0f, 0.0f)
-        , m_ovecTarget(0.0f, 0.0f, 0.0f)
         , m_rvecLookAt(0.0f, 0.0f, 0.0f)
-        , m_uvecRight(0.0f, 0.0f, 0.0f)
-        , m_uvecUp(0.0f, 0.0f, 0.0f)
-        , m_lpfnProgress(NULL)
+        , m_rvecUp(0.0f, 0.0f, 0.0f)
+        , m_lpfnProgress(nullptr)
     {
     }
 
@@ -78,13 +74,11 @@ public:
         m_uBounceDepth = uBounceDepth;
     }
 
-    void SetCamera(const CVector3d& ovecEye, const CVector3d& ovecTarget, const CVector3d& rvecUp)
+    void SetCamera(const CVector3d& ovecEye, const CVector3d& rvecLookAt, const CVector3d& rvecUp)
     {
         m_ovecEye = ovecEye;
-        m_ovecTarget = ovecTarget;
-        m_rvecLookAt = ovecTarget-ovecEye;
-        m_uvecRight = m_rvecLookAt.CrossProduct(rvecUp).UnitVector();
-        m_uvecUp = m_uvecRight.CrossProduct(m_rvecLookAt).UnitVector();  // align the up vector to the camera
+        m_rvecLookAt = rvecLookAt;
+        m_rvecUp = rvecUp;
     }
 
     void SetCallback(PROGRESSCB lpfnProgress)
@@ -149,7 +143,7 @@ public:
 
     void Render(void* const lpContext = NULL)
     {
-        CCamera Cam(m_ovecEye, m_ovecTarget, m_uvecUp, CCamera::TYPE_PERSPECTIVE, 45.0f, m_nSceneWidth/*m_nRenderWidth*/, m_nSceneHeight/*m_nRenderHeight*/);
+        CCamera Cam(m_ovecEye, m_rvecLookAt, m_rvecUp, CCamera::TYPE_PERSPECTIVE, 45.0f, m_nSceneWidth/*m_nRenderWidth*/, m_nSceneHeight/*m_nRenderHeight*/);
 
         // initialize pixel buffer
         m_aclrPixels.assign(m_nSceneWidth*m_nSceneHeight, CColor(0.0f, 0.0f, 0.0f));

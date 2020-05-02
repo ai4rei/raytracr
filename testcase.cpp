@@ -354,7 +354,7 @@ int __cdecl main(int nArgc, char** lppszArgv)
     puts("Rendering...");
 
     const auto ovecEye = Raytracer::CreateVector3d(+0.0f, +1.0f, +10.0f);
-    const auto ovecTarget = Raytracer::CreateVector3d(+0.0f, +1.0f, +9.0f);
+    const auto rvecLookAt = Raytracer::CreateVector3d(+0.0f, +0.0f, -1.0f);
     const auto uvecUp = Raytracer::CreateVector3d(+0.0f, +1.0f, +0.0f);
     const auto mtxFront = Raytracer::CreateMatrix3d().SetIdentity().AddYRotation(PI/180.0f*0.0f);
     const auto mtxSide = Raytracer::CreateMatrix3d().SetIdentity().AddYRotation(PI/180.0f*90.0f);
@@ -362,19 +362,19 @@ int __cdecl main(int nArgc, char** lppszArgv)
     const auto mtxIso = Raytracer::CreateMatrix3d().SetIdentity().AddYRotation(PI/180.0f*45.0f).AddXRotation(PI/180.0f*-45.0f);
 
     // Front
-    R.SetCamera(ovecEye.MatrixProduct(mtxFront), ovecTarget.MatrixProduct(mtxFront), uvecUp.MatrixProduct(mtxFront));
+    R.SetCamera(ovecEye.MatrixProduct(mtxFront), rvecLookAt.MatrixProduct(mtxFront), uvecUp.MatrixProduct(mtxFront));
     HBITMAP hbmOutput1 = RenderJob(R);
 
     // Side
-    R.SetCamera(ovecEye.MatrixProduct(mtxSide), ovecTarget.MatrixProduct(mtxSide), uvecUp.MatrixProduct(mtxSide));
+    R.SetCamera(ovecEye.MatrixProduct(mtxSide), rvecLookAt.MatrixProduct(mtxSide), uvecUp.MatrixProduct(mtxSide));
     HBITMAP hbmOutput2 = RenderJob(R);
 
     // Top
-    R.SetCamera(ovecEye.MatrixProduct(mtxTop), ovecTarget.MatrixProduct(mtxTop), uvecUp.MatrixProduct(mtxTop));
+    R.SetCamera(ovecEye.MatrixProduct(mtxTop), rvecLookAt.MatrixProduct(mtxTop), uvecUp.MatrixProduct(mtxTop));
     HBITMAP hbmOutput3 = RenderJob(R);
 
     // Iso
-    R.SetCamera(ovecEye.MatrixProduct(mtxIso), ovecTarget.MatrixProduct(mtxIso), uvecUp.MatrixProduct(mtxIso));
+    R.SetCamera(ovecEye.MatrixProduct(mtxIso), rvecLookAt.MatrixProduct(mtxIso), uvecUp.MatrixProduct(mtxIso));
     HBITMAP hbmOutput4 = RenderJob(R);
 
     puts("Present.");
