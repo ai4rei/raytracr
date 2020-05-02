@@ -61,7 +61,7 @@ public:
         @param  nSubY
                 Sub-point Y-offset in the range of [-1;+1].
     */
-    CRay3d GetRay(const int nRenderX, const int nRenderY, const float nSubX = 0.0f, const float nSubY = 0.0f)
+    CRay3d GetRay(const int nRenderX, const int nRenderY, const float nSubX = 0.0f, const float nSubY = 0.0f) const
     {
         const CVector3d rvecX = m_rvecFOVX*(m_nFOVWidth*(nRenderX+nSubX/2.0f+0.5f)/static_cast< float >(m_nRenderWidth));
         const CVector3d rvecY = m_rvecFOVY*(m_nFOVHeight*(nRenderY+nSubY/2.0f+0.5f)/static_cast< float >(m_nRenderHeight));

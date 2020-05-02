@@ -145,6 +145,11 @@ public:
         return ResultHit;
     }
 
+    CColor RenderColorAt(const CCamera& Cam, const int nX, const int nY)
+    {
+        return HitTest(Cam.GetRay(nX, nY), 0.0f, FLD_MAX, false, m_uBounceDepth).GetColor();
+    }
+
     void Render(void* const lpContext = NULL)
     {
         CCamera Cam(m_ovecEye, m_rvecLookAt, m_rvecUp, CCamera::TYPE_PERSPECTIVE, 45.0f, m_nSceneWidth/*m_nRenderWidth*/, m_nSceneHeight/*m_nRenderHeight*/);
@@ -156,9 +161,7 @@ public:
         {
             for(int nX = 0; nX<m_nSceneWidth; nX++)
             {
-                const CColor clrPixel =
-                    HitTest(Cam.GetRay(nX, nY), 0.0f, FLD_MAX, false, m_uBounceDepth).GetColor()  // TODO: average more of these for anti-aliasing
-                    ;
+                const CColor clrPixel = RenderColorAt(Cam, nX, nY);
 
                 m_aclrPixels[m_nSceneWidth*nY+nX] = clrPixel;
 
