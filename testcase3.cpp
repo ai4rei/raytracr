@@ -795,6 +795,7 @@ public:
                         SetTextColor(Ps.hdc, RGB(255, 255, 0));
                         SetBkColor(Ps.hdc, RGB(0, 0, 255));
                         SetBkMode(Ps.hdc, TRANSPARENT);
+                        SelectObject(Ps.hdc, GetStockObject(SYSTEM_FIXED_FONT));
                         DrawTextEx(Ps.hdc, szHelpText, -1, &rcWnd, DT_WORDBREAK|DT_TOP|DT_LEFT, NULL);
                     }
                     RestoreDC(Ps.hdc, -1);
