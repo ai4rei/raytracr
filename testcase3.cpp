@@ -568,7 +568,7 @@ public:
             m_bCameraDirty = true;
             break;
         case IDC_ANTIALIASING_DOWN:
-            if(m_uAntiAliasing>1)
+            if(m_uAntiAliasing>0)
             {
                 m_uAntiAliasing--;
                 SetAntiAliasing(m_uAntiAliasing);
