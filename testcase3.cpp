@@ -39,6 +39,7 @@ protected:
     DWORD m_dwDrawingTime;
     HBITMAP m_hbmOutput;
     HACCEL m_hAccl;
+    SIZE m_LastWndSize;
 
     STEERINGPLANE m_nSteeringPlane;
     float m_nSteeringPower;
@@ -61,6 +62,7 @@ public:
         , m_dwDrawingTime(0)
         , m_hbmOutput(NULL)
         , m_hAccl(LoadAccelerators(hInstance, MAKEINTRESOURCE(IDA_MAINACCL)))
+        , m_LastWndSize()
         , m_nSteeringPlane(PLANE_XZ)
         , m_nSteeringPower(+1.0f)
         , m_nSteeringX(+0.0f)
@@ -721,8 +723,11 @@ public:
 
         GetClientRect(hWnd, &rcWnd);
 
-        if(!m_bRunOnce || (!IsIconic(hWnd) && (rcWnd.right-rcWnd.left!=GetSceneWidth() || rcWnd.bottom-rcWnd.top!=GetSceneHeight())))
+        if(!m_bRunOnce || (!IsIconic(hWnd) && (rcWnd.right-rcWnd.left!=m_LastWndSize.cx || rcWnd.bottom-rcWnd.top!=m_LastWndSize.cy)))
         {
+            m_LastWndSize.cx = rcWnd.right-rcWnd.left;
+            m_LastWndSize.cy = rcWnd.bottom-rcWnd.top;
+
             if(m_hbmOutput!=NULL)
             {
                 SetOutputBitmap(NULL);
@@ -732,6 +737,7 @@ public:
             SetTimer(hWnd, IDT_RENDER, m_bRunOnce ? 500 : 0, NULL);
         }
 
+        // update controls
         MoveWindow(GetDlgItem(hWnd, IDC_PROGRESSBAR), rcWnd.left, rcWnd.bottom-15, rcWnd.right-rcWnd.left, 15, FALSE);
 
         CSuper::WndProcOnWindowPosChanged(hWnd, lpWP);
