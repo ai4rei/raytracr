@@ -587,8 +587,6 @@ public:
 
             if(BeginPaint(hWnd, &Ps))
             {
-                HDC hDC = CreateCompatibleDC(NULL);
-                HGDIOBJ hPrevObj;
                 RECT rcWnd;
 
                 GetClientRect(hWnd, &rcWnd);
@@ -601,60 +599,56 @@ public:
 
                         GetObject(m_hbmOutput, sizeof(bmInfo), &bmInfo);
 
-                        const int nDstW = rcWnd.right-rcWnd.left;
-                        const int nDstH = rcWnd.bottom-rcWnd.top;
-                        const int nSrcW = bmInfo.bmWidth;
-                        const int nSrcH = bmInfo.bmHeight;
+                        HDC hDC = CreateCompatibleDC(NULL);
 
-                        hPrevObj = SelectObject(hDC, m_hbmOutput);
-                        StretchBlt(Ps.hdc, 0, 0, nDstW, nDstH, hDC, 0, 0, nSrcW, nSrcH, SRCCOPY);
-                        SelectObject(hDC, hPrevObj);
+                        if(hDC!=NULL)
+                        {
+                            SaveDC(hDC);
+                            {
+                                SelectObject(hDC, m_hbmOutput);
+                                StretchBlt(Ps.hdc, 0, 0, rcWnd.right-rcWnd.left, rcWnd.bottom-rcWnd.top, hDC, 0, 0, bmInfo.bmWidth, bmInfo.bmHeight, SRCCOPY);
+                            }
+                            RestoreDC(hDC, -1);
+
+                            DeleteDC(hDC);
+                        }
                     }
                 }
                 Leave();
 
-                DeleteDC(hDC);
-
                 if(m_bShowHelp)
                 {
-                    const int nSavedTextDC = SaveDC(Ps.hdc);
-                    char szHelpText[1024];
+                    SaveDC(Ps.hdc);
+                    {
+                        char szHelpText[1024];
 
-                    _snprintf(szHelpText, _countof(szHelpText),
-                        "X: %+2.3f Y: %+2.3f Z: %+2.3f A: %+2.3f B: %+2.3f\r\n"
-                        "Steering mode (%d): 1=XZ 2=XY 3=AB 4=BZ\r\n"
-                        "Steering power (%+.1f): PAGE UP+ PAGE DOWN-\r\n"
-                        "Steering: UP RIGHT DOWN LEFT or WASD\r\n"
-                        "Pixel ratio (%d): M+ N-\r\n"
-                        "Anti-aliasing (%u): B+ V-\r\n"
-                        "Last render took: %ums+%ums\r\n",
-                        m_nSteeringX,
-                        m_nSteeringY,
-                        m_nSteeringZ,
-                        m_nSteeringA*180.0f/PI,
-                        m_nSteeringB*180.0f/PI,
-                        m_nSteeringPlane+1,
-                        m_nSteeringPower,
-                        m_nPixelRatio,
-                        m_uAntiAliasing,
-                        m_dwRenderTime,
-                        m_dwDrawingTime
-                    );
+                        _snprintf(szHelpText, _countof(szHelpText),
+                            "X: %+2.3f Y: %+2.3f Z: %+2.3f A: %+2.3f B: %+2.3f\r\n"
+                            "Steering mode (%d): 1=XZ 2=XY 3=AB 4=BZ\r\n"
+                            "Steering power (%+.1f): PAGE UP+ PAGE DOWN-\r\n"
+                            "Steering: UP RIGHT DOWN LEFT or WASD\r\n"
+                            "Pixel ratio (%d): M+ N-\r\n"
+                            "Anti-aliasing (%u): B+ V-\r\n"
+                            "Last render took: %ums+%ums\r\n",
+                            m_nSteeringX,
+                            m_nSteeringY,
+                            m_nSteeringZ,
+                            m_nSteeringA*180.0f/PI,
+                            m_nSteeringB*180.0f/PI,
+                            m_nSteeringPlane+1,
+                            m_nSteeringPower,
+                            m_nPixelRatio,
+                            m_uAntiAliasing,
+                            m_dwRenderTime,
+                            m_dwDrawingTime
+                        );
 
-                    SetTextColor(Ps.hdc, RGB(255, 255, 0));
-                    SetBkColor(Ps.hdc, RGB(0, 0, 255));
-                    SetBkMode(Ps.hdc, TRANSPARENT);
-                    DrawTextEx
-                    (
-                        Ps.hdc,
-                        szHelpText,
-                        -1,
-                        &rcWnd,
-                        DT_WORDBREAK|DT_TOP|DT_LEFT,
-                        NULL
-                    );
-
-                    RestoreDC(Ps.hdc, nSavedTextDC);
+                        SetTextColor(Ps.hdc, RGB(255, 255, 0));
+                        SetBkColor(Ps.hdc, RGB(0, 0, 255));
+                        SetBkMode(Ps.hdc, TRANSPARENT);
+                        DrawTextEx(Ps.hdc, szHelpText, -1, &rcWnd, DT_WORDBREAK|DT_TOP|DT_LEFT, NULL);
+                    }
+                    RestoreDC(Ps.hdc, -1);
                 }
 
                 EndPaint(hWnd, &Ps);
