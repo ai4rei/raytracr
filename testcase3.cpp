@@ -702,8 +702,10 @@ public:
 
         GetClientRect(hWnd, &rcWnd);
 
-        // TODO: Ignore minimize and check for unnecessary renders (i.e. if the window size does not change)
-        SetTimer(hWnd, IDT_RENDER, m_bRunOnce ? 500 : 0, NULL);
+        if(!m_bRunOnce || (!IsIconic(hWnd) && (rcWnd.right-rcWnd.left!=GetSceneWidth() || rcWnd.bottom-rcWnd.top!=GetSceneHeight())))
+        {
+            SetTimer(hWnd, IDT_RENDER, m_bRunOnce ? 500 : 0, NULL);
+        }
 
         MoveWindow(GetDlgItem(hWnd, IDC_PROGRESSBAR), rcWnd.left, rcWnd.bottom-15, rcWnd.right-rcWnd.left, 15, FALSE);
 
