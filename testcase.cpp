@@ -9,35 +9,9 @@
 #include <windowsx.h>
 
 #include "simplewnd.tpp"
+#include "utility.hpp"
 
 #include "raytracr.hpp"
-
-class CGetDC
-{
-private:
-    CONST HWND m_hWnd;
-    CONST HDC m_hDC;
-
-public:
-    ~CGetDC()
-    {
-        if(m_hDC!=NULL)
-        {
-            ReleaseDC(m_hWnd, m_hDC);
-        }
-    }
-
-    CGetDC(CONST HWND hWnd)
-        : m_hDC(GetDC(hWnd))
-        , m_hWnd(hWnd)
-    {
-    }
-
-    operator HDC() const
-    {
-        return m_hDC;
-    }
-};
 
 class CTestWindow
     : public CSimpleWindow

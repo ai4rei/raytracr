@@ -37,6 +37,8 @@ testcase3.exe : testcase3.obj testcase3.res
 
 testcase.cpp testcase2.cpp testcase3.cpp : raytracr.hpp
 
+testcase.cpp testcase3.cpp : utility.hpp
+
 testcase3.cpp :  testcase3.h
 
 raytracr.hpp : $(RTHEADERS)
