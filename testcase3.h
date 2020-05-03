@@ -21,4 +21,6 @@
 
 #define IDT_RENDER 1
 
+#define ID_MANIFEST 1
+
 #endif  /* TESTCASE3_H */
