@@ -156,7 +156,7 @@ protected:
 
 public:
     CTestWindow(const HINSTANCE hInstance)
-        : CSimpleWindow(hInstance, 640, 480, WS_VISIBLE|WS_POPUPWINDOW|WS_SYSMENU|WS_CAPTION|WS_BORDER|WS_MINIMIZEBOX|WS_MAXIMIZEBOX|WS_SIZEBOX)
+        : CSimpleWindow(hInstance, 480, 320, WS_VISIBLE|WS_POPUPWINDOW|WS_SYSMENU|WS_CAPTION|WS_BORDER|WS_MINIMIZEBOX|WS_MAXIMIZEBOX|WS_SIZEBOX)
         , m_dwRenderTime(0)
         , m_dwDrawingTime(0)
         , m_hbmOutput(NULL)
