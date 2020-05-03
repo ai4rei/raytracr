@@ -1,7 +1,7 @@
 LINK = link
 
 CPPFLAGS = -nologo -W3 -O2x -GF -EHsc -D_CRT_SECURE_NO_WARNINGS
-LFLAGS = -nologo -release user32.lib gdi32.lib
+LFLAGS = -nologo -release user32.lib gdi32.lib comctl32.lib
 RFLAGS = -nologo
 
 RTPATH = _raytracr/

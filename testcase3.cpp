@@ -7,6 +7,7 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <windowsx.h>
+#include <commctrl.h>
 
 #include "simplewnd.tpp"
 
@@ -96,6 +97,7 @@ protected:
     float m_nSteeringB;
     int m_nPixelRatio;
     unsigned int m_uAntiAliasing;
+    unsigned char m_uRenderProgress;
     bool m_bShowHelp;
     bool m_bRunOnce;
     bool m_bCameraDirty;
@@ -116,6 +118,7 @@ public:
         , m_nSteeringB(PI*+0.0f/+180.0f)
         , m_nPixelRatio(1)
         , m_uAntiAliasing(0)
+        , m_uRenderProgress(0)
         , m_bShowHelp(false)
         , m_bRunOnce(false)
         , m_bCameraDirty(false)
@@ -147,6 +150,7 @@ public:
         AddLight(CreateLight(CreateVector3d(+0.0f, +9.0f, +0.0f), CreateColor(1.0f, 1.0f, 1.0f), 50.0f));
 
         SetBounceDepth(2);
+        SetCallback(&UpdateRenderProgressCB);
 
         UpdateCamera();
     }
@@ -232,13 +236,26 @@ public:
         m_bCameraDirty = true;
     }
 
+    bool UpdateRenderProgress(const float nR, const float nG, const float nB, const int nX, const int nY)
+    {
+        m_uRenderProgress = (nY*100)/GetSceneHeight();
+
+        return true;
+    }
+
+    static bool UpdateRenderProgressCB(const float nR, const float nG, const float nB, const int nX, const int nY, void* lpContext)
+    {
+        CSelf* lpThis = static_cast< CSelf* >(lpContext);
+
+        return lpThis->UpdateRenderProgress(nR, nG, nB, nX, nY);
+    }
+
     void UpdateRenderAsync()
     {
         DWORD dwStart;
 
         dwStart = GetTickCount();
-        //Render(&TrackProgress, NULL);
-        Render(NULL);
+        Render(this);
         m_dwRenderTime = GetTickCount()-dwStart;
 
         dwStart = GetTickCount();
@@ -275,6 +292,11 @@ public:
 
         if(hThread!=NULL)
         {
+            m_uRenderProgress = 0;
+
+            SendMessage(GetDlgItem(hWnd, IDC_PROGRESSBAR), PBM_SETPOS, 0, 0);
+            AnimateWindow(GetDlgItem(hWnd, IDC_PROGRESSBAR), 250, AW_VER_NEGATIVE);
+            SetTimer(hWnd, IDT_RENDERPROGRESS, 1000, NULL);
             ResumeThread(hThread);
 
             for(;;)
@@ -308,6 +330,8 @@ public:
             hThread = NULL;
 
             InvalidateRect(hWnd, NULL, FALSE);
+            KillTimer(hWnd, IDT_RENDERPROGRESS);
+            AnimateWindow(GetDlgItem(hWnd, IDC_PROGRESSBAR), 250, AW_VER_POSITIVE|AW_HIDE);
         }
     }
 
@@ -525,9 +549,12 @@ public:
     {
         if(CSuper::WndProcOnCreate(hWnd, lpCreateStruct))
         {
-            SetWindowText(hWnd, "TestCase (press F1 for help, ESC to exit)");
+            if(CreateWindowEx(0, PROGRESS_CLASS, "", WS_CHILD, 0, 0, 0, 0, hWnd, (HMENU)IDC_PROGRESSBAR, NULL, NULL))
+            {
+                SetWindowText(hWnd, "TestCase (press F1 for help, ESC to exit)");
 
-            return TRUE;
+                return TRUE;
+            }
         }
 
         return FALSE;
@@ -638,6 +665,9 @@ public:
 
             UpdateRender(hWnd);
             return;
+        case IDT_RENDERPROGRESS:
+            SendMessage(GetDlgItem(hWnd, IDC_PROGRESSBAR), PBM_SETPOS, m_uRenderProgress, 0);
+            return;
         }
 
         CSuper::WndProcOnTimer(hWnd, uId);
@@ -645,8 +675,14 @@ public:
 
     virtual VOID WndProcOnWindowPosChanged(HWND hWnd, CONST WINDOWPOS* lpWP)
     {
+        RECT rcWnd;
+
+        GetClientRect(hWnd, &rcWnd);
+
         // TODO: Ignore minimize and check for unnecessary renders (i.e. if the window size does not change)
         SetTimer(hWnd, IDT_RENDER, m_bRunOnce ? 500 : 0, NULL);
+
+        MoveWindow(GetDlgItem(hWnd, IDC_PROGRESSBAR), rcWnd.left, rcWnd.bottom-15, rcWnd.right-rcWnd.left, 15, FALSE);
 
         CSuper::WndProcOnWindowPosChanged(hWnd, lpWP);
     }
@@ -654,5 +690,7 @@ public:
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdLine, INT nShowCmd)
 {
+    InitCommonControls();
+
     return CTestWindow(hInstance);
 }
