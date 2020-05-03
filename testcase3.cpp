@@ -157,11 +157,35 @@ public:
 
     virtual ~CTestWindow()
     {
-        if(m_hbmOutput!=NULL)
+        SetOutputBitmap(NULL);
+    }
+
+    bool SetOutputBitmap(HBITMAP hbmOutput, const bool bOnlyIfNotNull = false)
+    {
+        bool bSuccess = true;
+
+        Enter();
         {
-            DeleteBitmap(m_hbmOutput);
-            m_hbmOutput = NULL;
+            if(m_hbmOutput!=NULL)
+            {
+                if(bOnlyIfNotNull)
+                {
+                    bSuccess = false;
+                }
+                else
+                {
+                    DeleteBitmap(m_hbmOutput);
+                    m_hbmOutput = hbmOutput;
+                }
+            }
+            else
+            {
+                m_hbmOutput = hbmOutput;
+            }
         }
+        Leave();
+
+        return bSuccess;
     }
 
     static HBITMAP BitmapFromPixels2(const std::vector< CColor >& aclrPixels, const int nWidth, const int nHeight)
@@ -262,12 +286,7 @@ public:
         HBITMAP hbmOutput = BitmapFromPixels2(GetResult(), GetSceneWidth(), GetSceneHeight());
         m_dwDrawingTime = GetTickCount()-dwStart;
 
-        Enter();
-        {
-            DeleteObject(m_hbmOutput);
-            m_hbmOutput = hbmOutput;
-        }
-        Leave();
+        SetOutputBitmap(hbmOutput);
     }
 
     static DWORD CALLBACK UpdateRenderAsyncCB(LPVOID lpParam)
@@ -574,21 +593,25 @@ public:
 
                 GetClientRect(hWnd, &rcWnd);
 
-                if(m_hbmOutput!=NULL)
-                {
-                    BITMAP bmInfo;
+                Enter();
+                {// do not mess with the bitmap if currently drawing
+                    if(m_hbmOutput!=NULL)
+                    {
+                        BITMAP bmInfo;
 
-                    GetObject(m_hbmOutput, sizeof(bmInfo), &bmInfo);
+                        GetObject(m_hbmOutput, sizeof(bmInfo), &bmInfo);
 
-                    const int nDstW = rcWnd.right-rcWnd.left;
-                    const int nDstH = rcWnd.bottom-rcWnd.top;
-                    const int nSrcW = bmInfo.bmWidth;
-                    const int nSrcH = bmInfo.bmHeight;
+                        const int nDstW = rcWnd.right-rcWnd.left;
+                        const int nDstH = rcWnd.bottom-rcWnd.top;
+                        const int nSrcW = bmInfo.bmWidth;
+                        const int nSrcH = bmInfo.bmHeight;
 
-                    hPrevObj = SelectObject(hDC, m_hbmOutput);
-                    StretchBlt(Ps.hdc, 0, 0, nDstW, nDstH, hDC, 0, 0, nSrcW, nSrcH, SRCCOPY);
-                    SelectObject(hDC, hPrevObj);
+                        hPrevObj = SelectObject(hDC, m_hbmOutput);
+                        StretchBlt(Ps.hdc, 0, 0, nDstW, nDstH, hDC, 0, 0, nSrcW, nSrcH, SRCCOPY);
+                        SelectObject(hDC, hPrevObj);
+                    }
                 }
+                Leave();
 
                 DeleteDC(hDC);
 
