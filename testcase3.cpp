@@ -64,6 +64,58 @@ public:
     }
 };
 
+class CSolidBrush
+{
+private:
+    HBRUSH m_hbrBrush;
+
+public:
+    ~CSolidBrush()
+    {
+        if(m_hbrBrush!=NULL)
+        {
+            DeleteBrush(m_hbrBrush);
+            m_hbrBrush = NULL;
+        }
+    }
+
+    CSolidBrush(COLORREF clrBrush)
+        : m_hbrBrush(CreateSolidBrush(clrBrush))
+    {
+    }
+
+    operator const HBRUSH&()
+    {
+        return m_hbrBrush;
+    }
+};
+
+class CSolidPen
+{
+private:
+    HPEN m_hpnPen;
+
+public:
+    ~CSolidPen()
+    {
+        if(m_hpnPen!=NULL)
+        {
+            DeletePen(m_hpnPen);
+            m_hpnPen = NULL;
+        }
+    }
+
+    CSolidPen(int nWidth, COLORREF clrPen)
+        : m_hpnPen(CreatePen(PS_SOLID, nWidth, clrPen))
+    {
+    }
+
+    operator const HPEN&()
+    {
+        return m_hpnPen;
+    }
+};
+
 class CTestWindow
     : public CSimpleWindow
     , protected CCriticalSection
@@ -186,6 +238,92 @@ public:
         Leave();
 
         return bSuccess;
+    }
+
+    static HBITMAP BitmapFromCake(const int nWidth, const int nHeight, int nPenWidth, COLORREF clrStroke, COLORREF clrBack)
+    {
+        HBITMAP hbmBitmap = NULL;
+        HDC hDC = CreateCompatibleDC(NULL);
+
+        if(hDC!=NULL)
+        {
+            hbmBitmap = CreateCompatibleBitmap(CGetDC(NULL), nWidth, nHeight);
+
+            if(hbmBitmap!=NULL)
+            {
+                RECT rcAll;
+
+                SetRect(&rcAll, 0, 0, nWidth, nHeight);
+
+                RECT rcPie = rcAll;
+
+                // calculate
+                if(nWidth/2>nHeight)
+                {
+                    InflateRect(&rcPie, nHeight-nWidth/2, 0);
+                }
+                else
+                {
+                    InflateRect(&rcPie, 0, nWidth/4-nHeight/2);
+                }
+
+                InflateRect(&rcPie, (rcPie.left-rcPie.right)/4, (rcPie.top-rcPie.bottom)/4);
+
+                const int nPieWidth = rcPie.right-rcPie.left;
+                const int nPieHeight = rcPie.bottom-rcPie.top;
+
+                OffsetRect(&rcPie, -nPieWidth/4, 0);
+
+                const float nOneAngle = -20.0f/180.0f*PI;
+                const float nTwoAngle = -60.0f/180.0f*PI;
+
+                POINT aptPoly[4];
+
+                aptPoly[0].x = rcPie.left+(nPieWidth/2)+int((nPieWidth/2)*cos(nOneAngle));
+                aptPoly[0].y = rcPie.top+(nPieHeight/2)+int((nPieHeight/2)*sin(nOneAngle));
+
+                aptPoly[1].x = aptPoly[0].x;
+                aptPoly[1].y = aptPoly[0].y+nPieHeight/4;
+
+                aptPoly[3].x = rcPie.left+nPieWidth/2;
+                aptPoly[3].y = rcPie.top+nPieHeight/2;
+
+                aptPoly[2].x = aptPoly[3].x;
+                aptPoly[2].y = aptPoly[3].y+nPieHeight/4;
+
+                POINT& ptRadial1 = aptPoly[0];
+                POINT ptRadial2;
+
+                ptRadial2.x = rcPie.left+(nPieWidth/2)+int((nPieWidth/2)*cos(nTwoAngle));
+                ptRadial2.y = rcPie.top+(nPieHeight/2)+int((nPieHeight/2)*sin(nTwoAngle));
+
+                SaveDC(hDC);
+                {
+                    SelectObject(hDC, hbmBitmap);
+
+                    CSolidPen hpnPen(nPenWidth, clrStroke);
+                    SelectObject(hDC, hpnPen);
+
+                    // background
+                    FillRect(hDC, &rcAll, CSolidBrush(clrBack));
+
+                    // side
+                    CSolidBrush hbrSide(RGB(GetRValue(clrBack)/2, GetGValue(clrBack)/2, GetBValue(clrBack)/2));
+                    SelectObject(hDC, hbrSide);
+                    Polygon(hDC, aptPoly, _ARRAYSIZE(aptPoly));
+
+                    //top
+                    CSolidBrush hbrTop(RGB(GetRValue(clrBack)*3/2, GetGValue(clrBack)*3/2, GetBValue(clrBack)*3/2));
+                    SelectObject(hDC, hbrTop);
+                    Pie(hDC, rcPie.left, rcPie.top, rcPie.right, rcPie.bottom, ptRadial1.x, ptRadial1.y, ptRadial2.x, ptRadial2.y);
+                }
+                RestoreDC(hDC, -1);
+            }
+
+            DeleteDC(hDC);
+        }
+
+        return hbmBitmap;
     }
 
     static HBITMAP BitmapFromPixels2(const std::vector< CColor >& aclrPixels, const int nWidth, const int nHeight)
@@ -591,6 +729,17 @@ public:
 
                 GetClientRect(hWnd, &rcWnd);
 
+                if(m_hbmOutput==NULL)
+                {// when there is nothing to draw, make something up
+                    HBITMAP hbmOutput = BitmapFromCake(rcWnd.right-rcWnd.left, rcWnd.bottom-rcWnd.top, 2, RGB(255, 255, 255), RGB(0, 128, 128));
+
+                    if(hbmOutput!=NULL && !SetOutputBitmap(hbmOutput, true))
+                    {// too late
+                        DeleteBitmap(hbmOutput);
+                        hbmOutput = NULL;
+                    }
+                }
+
                 Enter();
                 {// do not mess with the bitmap if currently drawing
                     if(m_hbmOutput!=NULL)
@@ -698,6 +847,12 @@ public:
 
         if(!m_bRunOnce || (!IsIconic(hWnd) && (rcWnd.right-rcWnd.left!=GetSceneWidth() || rcWnd.bottom-rcWnd.top!=GetSceneHeight())))
         {
+            if(m_hbmOutput!=NULL)
+            {
+                SetOutputBitmap(NULL);
+                InvalidateRect(hWnd, NULL, FALSE);
+            }
+
             SetTimer(hWnd, IDT_RENDER, m_bRunOnce ? 500 : 0, NULL);
         }
 
