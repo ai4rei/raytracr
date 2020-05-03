@@ -242,71 +242,71 @@ public:
 
     static void DrawCake(HDC hDC, const int nWidth, const int nHeight, int nPenWidth, COLORREF clrStroke, COLORREF clrBack)
     {
-                RECT rcAll;
+        RECT rcAll;
 
-                SetRect(&rcAll, 0, 0, nWidth, nHeight);
+        SetRect(&rcAll, 0, 0, nWidth, nHeight);
 
-                RECT rcPie = rcAll;
+        RECT rcPie = rcAll;
 
-                // calculate
-                if(nWidth/2>nHeight)
-                {
-                    InflateRect(&rcPie, nHeight-nWidth/2, 0);
-                }
-                else
-                {
-                    InflateRect(&rcPie, 0, nWidth/4-nHeight/2);
-                }
+        // calculate
+        if(nWidth/2>nHeight)
+        {
+            InflateRect(&rcPie, nHeight-nWidth/2, 0);
+        }
+        else
+        {
+            InflateRect(&rcPie, 0, nWidth/4-nHeight/2);
+        }
 
-                InflateRect(&rcPie, (rcPie.left-rcPie.right)/4, (rcPie.top-rcPie.bottom)/4);
+        InflateRect(&rcPie, (rcPie.left-rcPie.right)/4, (rcPie.top-rcPie.bottom)/4);
 
-                const int nPieWidth = rcPie.right-rcPie.left;
-                const int nPieHeight = rcPie.bottom-rcPie.top;
+        const int nPieWidth = rcPie.right-rcPie.left;
+        const int nPieHeight = rcPie.bottom-rcPie.top;
 
-                OffsetRect(&rcPie, -nPieWidth/4, 0);
+        OffsetRect(&rcPie, -nPieWidth/4, 0);
 
-                const float nOneAngle = -20.0f/180.0f*PI;
-                const float nTwoAngle = -60.0f/180.0f*PI;
+        const float nOneAngle = -20.0f/180.0f*PI;
+        const float nTwoAngle = -60.0f/180.0f*PI;
 
-                POINT aptPoly[4];
+        POINT aptPoly[4];
 
-                aptPoly[0].x = rcPie.left+(nPieWidth/2)+int((nPieWidth/2)*cos(nOneAngle));
-                aptPoly[0].y = rcPie.top+(nPieHeight/2)+int((nPieHeight/2)*sin(nOneAngle));
+        aptPoly[0].x = rcPie.left+(nPieWidth/2)+int((nPieWidth/2)*cos(nOneAngle));
+        aptPoly[0].y = rcPie.top+(nPieHeight/2)+int((nPieHeight/2)*sin(nOneAngle));
 
-                aptPoly[1].x = aptPoly[0].x;
-                aptPoly[1].y = aptPoly[0].y+nPieHeight/4;
+        aptPoly[1].x = aptPoly[0].x;
+        aptPoly[1].y = aptPoly[0].y+nPieHeight/4;
 
-                aptPoly[3].x = rcPie.left+nPieWidth/2;
-                aptPoly[3].y = rcPie.top+nPieHeight/2;
+        aptPoly[3].x = rcPie.left+nPieWidth/2;
+        aptPoly[3].y = rcPie.top+nPieHeight/2;
 
-                aptPoly[2].x = aptPoly[3].x;
-                aptPoly[2].y = aptPoly[3].y+nPieHeight/4;
+        aptPoly[2].x = aptPoly[3].x;
+        aptPoly[2].y = aptPoly[3].y+nPieHeight/4;
 
-                POINT& ptRadial1 = aptPoly[0];
-                POINT ptRadial2;
+        POINT& ptRadial1 = aptPoly[0];
+        POINT ptRadial2;
 
-                ptRadial2.x = rcPie.left+(nPieWidth/2)+int((nPieWidth/2)*cos(nTwoAngle));
-                ptRadial2.y = rcPie.top+(nPieHeight/2)+int((nPieHeight/2)*sin(nTwoAngle));
+        ptRadial2.x = rcPie.left+(nPieWidth/2)+int((nPieWidth/2)*cos(nTwoAngle));
+        ptRadial2.y = rcPie.top+(nPieHeight/2)+int((nPieHeight/2)*sin(nTwoAngle));
 
-                SaveDC(hDC);
-                {
-                    CSolidPen hpnPen(nPenWidth, clrStroke);
-                    SelectObject(hDC, hpnPen);
+        SaveDC(hDC);
+        {
+            CSolidPen hpnPen(nPenWidth, clrStroke);
+            SelectObject(hDC, hpnPen);
 
-                    // background
-                    FillRect(hDC, &rcAll, CSolidBrush(clrBack));
+            // background
+            FillRect(hDC, &rcAll, CSolidBrush(clrBack));
 
-                    // side
-                    CSolidBrush hbrSide(RGB(GetRValue(clrBack)/2, GetGValue(clrBack)/2, GetBValue(clrBack)/2));
-                    SelectObject(hDC, hbrSide);
-                    Polygon(hDC, aptPoly, _ARRAYSIZE(aptPoly));
+            // side
+            CSolidBrush hbrSide(RGB(GetRValue(clrBack)/2, GetGValue(clrBack)/2, GetBValue(clrBack)/2));
+            SelectObject(hDC, hbrSide);
+            Polygon(hDC, aptPoly, _ARRAYSIZE(aptPoly));
 
-                    //top
-                    CSolidBrush hbrTop(RGB(GetRValue(clrBack)*3/2, GetGValue(clrBack)*3/2, GetBValue(clrBack)*3/2));
-                    SelectObject(hDC, hbrTop);
-                    Pie(hDC, rcPie.left, rcPie.top, rcPie.right, rcPie.bottom, ptRadial1.x, ptRadial1.y, ptRadial2.x, ptRadial2.y);
-                }
-                RestoreDC(hDC, -1);
+            //top
+            CSolidBrush hbrTop(RGB(GetRValue(clrBack)*3/2, GetGValue(clrBack)*3/2, GetBValue(clrBack)*3/2));
+            SelectObject(hDC, hbrTop);
+            Pie(hDC, rcPie.left, rcPie.top, rcPie.right, rcPie.bottom, ptRadial1.x, ptRadial1.y, ptRadial2.x, ptRadial2.y);
+        }
+        RestoreDC(hDC, -1);
     }
 
     static HBITMAP BitmapFromPixels2(const std::vector< CColor >& aclrPixels, const int nWidth, const int nHeight)
