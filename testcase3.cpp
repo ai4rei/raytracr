@@ -379,19 +379,17 @@ public:
                 .AddZTranslation(m_nSteeringZ)
             );
 
+        const CMatrix3d mtxRotation = CMatrix3d()
+            .SetIdentity()
+            .AddYRotation(m_nSteeringB)
+            .AddXRotation(m_nSteeringA)
+            ;
+
         const CVector3d rvecLookAt = CVector3d(+0.0f, +0.0f, -1.0f)
-            .MatrixProduct(CMatrix3d()
-                .SetIdentity()
-                .AddYRotation(m_nSteeringB)
-                .AddXRotation(m_nSteeringA)
-            );
+            .MatrixProduct(mtxRotation);
 
         const CVector3d uvecUp = CVector3d(+0.0f, +1.0f, -0.0f)
-            .MatrixProduct(CMatrix3d()
-                .SetIdentity()
-                .AddYRotation(m_nSteeringB)
-                .AddXRotation(m_nSteeringA)
-            );
+            .MatrixProduct(mtxRotation);
 
         SetCamera(ovecEye, rvecLookAt, uvecUp);
 
