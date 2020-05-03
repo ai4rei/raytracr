@@ -240,17 +240,8 @@ public:
         return bSuccess;
     }
 
-    static HBITMAP BitmapFromCake(const int nWidth, const int nHeight, int nPenWidth, COLORREF clrStroke, COLORREF clrBack)
+    static void DrawCake(HDC hDC, const int nWidth, const int nHeight, int nPenWidth, COLORREF clrStroke, COLORREF clrBack)
     {
-        HBITMAP hbmBitmap = NULL;
-        HDC hDC = CreateCompatibleDC(NULL);
-
-        if(hDC!=NULL)
-        {
-            hbmBitmap = CreateCompatibleBitmap(CGetDC(NULL), nWidth, nHeight);
-
-            if(hbmBitmap!=NULL)
-            {
                 RECT rcAll;
 
                 SetRect(&rcAll, 0, 0, nWidth, nHeight);
@@ -299,8 +290,6 @@ public:
 
                 SaveDC(hDC);
                 {
-                    SelectObject(hDC, hbmBitmap);
-
                     CSolidPen hpnPen(nPenWidth, clrStroke);
                     SelectObject(hDC, hpnPen);
 
@@ -318,12 +307,6 @@ public:
                     Pie(hDC, rcPie.left, rcPie.top, rcPie.right, rcPie.bottom, ptRadial1.x, ptRadial1.y, ptRadial2.x, ptRadial2.y);
                 }
                 RestoreDC(hDC, -1);
-            }
-
-            DeleteDC(hDC);
-        }
-
-        return hbmBitmap;
     }
 
     static HBITMAP BitmapFromPixels2(const std::vector< CColor >& aclrPixels, const int nWidth, const int nHeight)
@@ -729,13 +712,7 @@ public:
 
                 if(m_hbmOutput==NULL)
                 {// when there is nothing to draw, make something up
-                    HBITMAP hbmOutput = BitmapFromCake(rcWnd.right-rcWnd.left, rcWnd.bottom-rcWnd.top, 2, RGB(255, 255, 255), RGB(0, 128, 128));
-
-                    if(hbmOutput!=NULL && !SetOutputBitmap(hbmOutput, true))
-                    {// too late
-                        DeleteBitmap(hbmOutput);
-                        hbmOutput = NULL;
-                    }
+                    DrawCake(Ps.hdc, rcWnd.right-rcWnd.left, rcWnd.bottom-rcWnd.top, 2, RGB(255, 255, 255), RGB(0, 128, 128));
                 }
 
                 Enter();
@@ -849,9 +826,9 @@ public:
             if(m_hbmOutput!=NULL)
             {
                 SetOutputBitmap(NULL);
-                InvalidateRect(hWnd, NULL, FALSE);
             }
 
+            InvalidateRect(hWnd, NULL, FALSE);
             SetTimer(hWnd, IDT_RENDER, m_bRunOnce ? 500 : 0, NULL);
         }
 
