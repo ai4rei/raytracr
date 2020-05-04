@@ -6,6 +6,7 @@ Originally an assignment from 2020-01-30, now just a playground for a future pro
 ## How to build
 Open *Visual Studio Command Prompt* (2010+), enter `nmake` and confirm with ENTER.
 
+## Screenshots
 ![Screenshot of raytracr test case 1.1: White light](http://nn.ai4rei.net/share/raytracr1_1.jpg)
 ![Screenshot of raytracr test case 1.2: RGB lights](http://nn.ai4rei.net/share/raytracr1_2.jpg)
 ![Screenshot of raytracr test case 1.3: HiRes Bounciness 0](http://nn.ai4rei.net/share/raytracr1_3.jpg)
