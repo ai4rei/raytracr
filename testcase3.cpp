@@ -142,6 +142,28 @@ public:
         return bSuccess;
     }
 
+    void SetProgress(HWND hWndCtl, unsigned char ucPercent)
+    {
+        // first update the control itself
+        SendMessage(hWndCtl, PBM_SETPOS, ucPercent, 0);
+
+        if(ucPercent==100)
+        {// hide
+            if(GetWindowStyle(hWndCtl)&WS_VISIBLE)
+            {
+                ShowWindow(hWndCtl, SW_HIDE);
+            }
+        }
+        else
+        if(ucPercent>0)
+        {// show
+            if(!(GetWindowStyle(hWndCtl)&WS_VISIBLE))
+            {
+                ShowWindow(hWndCtl, SW_SHOW);
+            }
+        }
+    }
+
     static void DrawCake(HDC hDC, const int nWidth, const int nHeight, int nPenWidth, COLORREF clrStroke, COLORREF clrBack)
     {
         RECT rcAll;
@@ -334,9 +356,8 @@ public:
         {
             m_uRenderProgress = 0;
 
-            SendMessage(GetDlgItem(hWnd, IDC_PROGRESSBAR), PBM_SETPOS, 0, 0);
-            AnimateWindow(GetDlgItem(hWnd, IDC_PROGRESSBAR), 250, AW_VER_NEGATIVE);
-            SetTimer(hWnd, IDT_RENDERPROGRESS, 1000, NULL);
+            SetProgress(GetDlgItem(hWnd, IDC_PROGRESSBAR), 0);
+            SetTimer(hWnd, IDT_RENDERPROGRESS, 500, NULL);
             ResumeThread(hThread);
 
             for(;;)
@@ -371,7 +392,7 @@ public:
 
             InvalidateRect(hWnd, NULL, FALSE);
             KillTimer(hWnd, IDT_RENDERPROGRESS);
-            AnimateWindow(GetDlgItem(hWnd, IDC_PROGRESSBAR), 250, AW_VER_POSITIVE|AW_HIDE);
+            SetProgress(GetDlgItem(hWnd, IDC_PROGRESSBAR), 100);
         }
     }
 
@@ -710,7 +731,7 @@ public:
             UpdateRender(hWnd);
             return;
         case IDT_RENDERPROGRESS:
-            SendMessage(GetDlgItem(hWnd, IDC_PROGRESSBAR), PBM_SETPOS, m_uRenderProgress, 0);
+            SetProgress(GetDlgItem(hWnd, IDC_PROGRESSBAR), m_uRenderProgress);
             return;
         }
 
