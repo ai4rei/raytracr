@@ -76,7 +76,7 @@ public:
     }
 
     void SetBounceDepth(const unsigned int uBounceDepth)
-    {
+    {//HACK: Should be defined by the object material's reflectivity
         m_uBounceDepth = uBounceDepth;
     }
 
@@ -152,23 +152,31 @@ public:
         return ResultHit;
     }
 
-    static float RandomSubPoint()
-    {
-        return ((rand()%201)-100)/100.0f;
-    }
-
     CColor RenderColorAt(const CCamera& Cam, const int nX, const int nY)
     {
-        CColor clrHit = HitTest(Cam.GetRay(nX, nY), 0.0f, FLD_MAX, false, m_uBounceDepth).GetColor();
+        CColor clrHit(0, 0, 0);
 
         if(m_uAntiAliasing)
         {
-            for(unsigned int uIdx = 0; uIdx<m_uAntiAliasing; uIdx++)
+            const float nPoints = m_uAntiAliasing+1.0f;
+            const float nInc = 2.0f/float(m_uAntiAliasing);
+            float nT = -1.0f;
+
+            for(unsigned int uIdx = 0; uIdx<=m_uAntiAliasing; uIdx++)
             {
-                clrHit+= HitTest(Cam.GetRay(nX, nY, RandomSubPoint(), RandomSubPoint()), 0.0f, FLD_MAX, false, m_uBounceDepth).GetColor();
+                const float nSubX = cos((nPoints)*nT);
+                const float nSubY = sin((nPoints-1.0f)*nT);
+
+                clrHit+= HitTest(Cam.GetRay(nX, nY, nSubX, nSubY), 0.0f, FLD_MAX, false, m_uBounceDepth).GetColor();
+
+                nT+= nInc;
             }
 
-            clrHit/= m_uAntiAliasing+1.0f;
+            clrHit/= nPoints;
+        }
+        else
+        {
+            clrHit = HitTest(Cam.GetRay(nX, nY), 0.0f, FLD_MAX, false, m_uBounceDepth).GetColor();
         }
 
         return clrHit;
