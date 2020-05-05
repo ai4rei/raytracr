@@ -152,42 +152,15 @@ bool TrackProgress(unsigned int uDone, unsigned int uTotal, void* lpContext)
     UNREFERENCED_PARAMETER(lpContext);
 }
 
-HBITMAP BitmapFromPixels(const std::vector< Raytracer::CColor >& aclrPixels, const int nWidth, const int nHeight)
-{
-    HBITMAP hbmOutput = nullptr;
-    HDC hdcOutput = nullptr;
-    HGDIOBJ hPrevObj = nullptr;
-
-    hbmOutput = CreateCompatibleBitmap(CGetDC(nullptr), nWidth, nHeight);
-    hdcOutput = CreateCompatibleDC(nullptr);
-
-    hPrevObj = SelectObject(hdcOutput, hbmOutput);
-
-    for(int nY = 0, nPY = nHeight-1; nY<nHeight; nY++, nPY--)
-    {
-        for(int nX = 0; nX<nWidth; nX++)
-        {
-            const auto& Px = aclrPixels[nX+nPY*nWidth];  // the buffer is up-side down
-
-            SetPixelV(hdcOutput, nX, nY, RGB(Px.R()*255,Px.G()*255,Px.B()*255));
-        }
-    }
-
-    SelectObject(hdcOutput, hPrevObj);
-    DeleteDC(hdcOutput);
-
-    return hbmOutput;
-}
-
-HBITMAP BitmapFromPixels2(const std::vector< Raytracer::CColor >& aclrPixels, const int nWidth, const int nHeight)
+HBITMAP BitmapFromPixels2(const std::vector< Raytracer::CColor >& aclrPixels, const int nImageW, const int nImageH)
 {
     HBITMAP hbmOutput = nullptr;
     BITMAPINFO bmiOutput = { 0 };
     VOID* lpBits = nullptr;
 
     bmiOutput.bmiHeader.biSize = sizeof(bmiOutput.bmiHeader);
-    bmiOutput.bmiHeader.biWidth = nWidth;
-    bmiOutput.bmiHeader.biHeight = nHeight;  // bottom-up, just like our pixel buffer
+    bmiOutput.bmiHeader.biWidth = nImageW;
+    bmiOutput.bmiHeader.biHeight = nImageH;  // bottom-up, just like our pixel buffer
     bmiOutput.bmiHeader.biPlanes = 1;
     bmiOutput.bmiHeader.biBitCount = 24;
     bmiOutput.bmiHeader.biCompression = BI_RGB;
@@ -203,12 +176,12 @@ HBITMAP BitmapFromPixels2(const std::vector< Raytracer::CColor >& aclrPixels, co
         const int nWidthBytes = bmInfo.bmWidthBytes;
         const int nPixelBytes = bmInfo.bmBitsPixel/8;
 
-        for(int nY = 0; nY<nHeight; nY++)
+        for(int nImageY = 0; nImageY<nImageH; nImageY++)
         {
-            for(int nX = 0; nX<nWidth; nX++)
+            for(int nImageX = 0; nImageX<nImageW; nImageX++)
             {
-                const auto& Px = aclrPixels[nX+nY*nWidth];
-                unsigned char* ucBits = &static_cast< unsigned char* >(lpBits)[nY*nWidthBytes+nX*nPixelBytes];
+                const auto& Px = aclrPixels[nImageX+nImageY*nImageW];
+                unsigned char* ucBits = &static_cast< unsigned char* >(lpBits)[nImageY*nWidthBytes+nImageX*nPixelBytes];
 
                 ucBits[0] = static_cast< unsigned char >(Px.B()*255U);
                 ucBits[1] = static_cast< unsigned char >(Px.G()*255U);
@@ -244,7 +217,7 @@ HBITMAP RenderJob(Raytracer& R)
     printf("%ums", GetTickCount()-dwStart);
 
     dwStart = GetTickCount();
-    HBITMAP hbmOutput = BitmapFromPixels2(R.GetResult(), R.GetSceneWidth(), R.GetSceneHeight());
+    HBITMAP hbmOutput = BitmapFromPixels2(R.GetResult(), R.GetImageWidth(), R.GetImageHeight());
     printf("+%ums\n", GetTickCount()-dwStart);
 
     return hbmOutput;
@@ -318,11 +291,11 @@ int __cdecl main(int nArgc, char** lppszArgv)
 
     if(nArgc>2 && atoi(lppszArgv[1])>0 && atoi(lppszArgv[2])>0)
     {
-        R.SetScene(atoi(lppszArgv[1])/2, atoi(lppszArgv[2])/2);
+        R.SetImageSize(atoi(lppszArgv[1])/2, atoi(lppszArgv[2])/2);
     }
     else
     {
-        R.SetScene(GetSystemMetrics(SM_CXSCREEN)/3, GetSystemMetrics(SM_CYSCREEN)/3);
+        R.SetImageSize(GetSystemMetrics(SM_CXSCREEN)/3, GetSystemMetrics(SM_CYSCREEN)/3);
     }
 
     puts("Rendering...");
@@ -353,5 +326,5 @@ int __cdecl main(int nArgc, char** lppszArgv)
 
     puts("Present.");
 
-    return CTestWindow(GetModuleHandle(nullptr), R.GetSceneWidth(), R.GetSceneHeight(), WS_VISIBLE|WS_POPUPWINDOW|WS_SYSMENU|WS_CAPTION|WS_BORDER|WS_MINIMIZEBOX, hbmOutput1, hbmOutput2, hbmOutput3, hbmOutput4);
+    return CTestWindow(GetModuleHandle(nullptr), R.GetImageWidth(), R.GetImageHeight(), WS_VISIBLE|WS_POPUPWINDOW|WS_SYSMENU|WS_CAPTION|WS_BORDER|WS_MINIMIZEBOX, hbmOutput1, hbmOutput2, hbmOutput3, hbmOutput4);
 }

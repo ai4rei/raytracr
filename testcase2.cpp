@@ -35,21 +35,21 @@ int __cdecl main(int nArgc, char** lppszArgv)
     R.AddObject(Raytracer::CreateSphere(Raytracer::CreateVector3d(-2.0f, +1.0f, -3.0f), 1.0f, Raytracer::CreateColor(0.75f, 0.25f, 0.25f)));
     R.AddObject(Raytracer::CreateSphere(Raytracer::CreateVector3d(+0.0f, +1.0f, -2.0f), 1.0f, Raytracer::CreateColor(0.25f, 0.75f, 0.25f)));
     R.AddLight(Raytracer::CreateLight(Raytracer::CreateVector3d(+9.0f, +9.0f, +0.0f), Raytracer::CreateColor(1.0f, 1.0f, 1.0f), 50.0f));
-    R.SetScene(700, 500);
+    R.SetImageSize(700, 500);
     R.SetCamera(Raytracer::CreateVector3d(+0.0f, +1.0f, +10.0f), Raytracer::CreateVector3d(+0.0f, +0.0f, -1.0f), Raytracer::CreateVector3d(+0.0f, +1.0f, +0.0f));
     R.Render(nullptr);
 
     const auto aclrPixels = R.GetResult();
-    const int nWidth = R.GetSceneWidth();
-    const int nHeight = R.GetSceneHeight();
+    const int nImageW = R.GetImageWidth();
+    const int nImageH = R.GetImageHeight();
 
-    printf("P3\n%d %d\n255\n", nWidth, nHeight);
+    printf("P3\n%d %d\n255\n", nImageW, nImageH);
 
-    for(int nY = nHeight-1; nY>=0; nY--)
+    for(int nImageY = nImageH-1; nImageY>=0; nImageY--)
     {
-        for(int nX = 0; nX<nWidth; nX++)
+        for(int nImageX = 0; nImageX<nImageW; nImageX++)
         {
-            const auto& Px = aclrPixels[nX+nY*nWidth];
+            const auto& Px = aclrPixels[nImageX+nImageY*nImageW];
 
             printf("%u %u %u\n"
                 , static_cast< unsigned char >(Px.R()*255U)

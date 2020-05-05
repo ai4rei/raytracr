@@ -26,18 +26,18 @@ private:
     const CVector3d m_rvecFOVY;
     const CVector3d m_rvecLookAt0;
     const TYPE m_nType;
-    const int m_nRenderWidth;
-    const int m_nRenderHeight;
+    const int m_nImageW;
+    const int m_nImageH;
 
 public:
-    CCamera(const CVector3d& ovecEye, const CVector3d& rvecLookAt, const CVector3d& rvecUp, const TYPE nType, const float nFOV, const int nRenderWidth, const int nRenderHeight)
+    CCamera(const CVector3d& ovecEye, const CVector3d& rvecLookAt, const CVector3d& rvecUp, const TYPE nType, const float nFOV, const int nImageW, const int nImageH)
         : m_ovecEye(ovecEye)
         , m_rvecLookAt(rvecLookAt)
         , m_uvecRight(rvecLookAt.CrossProduct(rvecUp).UnitVector())
         , m_uvecUp(m_uvecRight.CrossProduct(rvecLookAt).UnitVector())  // align the up vector to the camera
         , m_mtxW2C(CMatrix3d().SetFromUpVector(m_uvecUp, m_uvecRight))  // world-to-camera coordinates transformation matrix
         , m_nFOV(nFOV)
-        , m_nFOVRatio(static_cast< float >(nRenderWidth)/static_cast< float >(nRenderHeight))
+        , m_nFOVRatio(static_cast< float >(nImageW)/static_cast< float >(nImageH))
         , m_nFOVHeight(tan(PI/180.0f*nFOV))
         , m_nFOVWidth(m_nFOVHeight*m_nFOVRatio)
         , m_rvecFOV0(CVector3d(-m_nFOVWidth/2.0f, -m_nFOVHeight/2.0f, 0.0f).MatrixProduct(m_mtxW2C))
@@ -47,8 +47,8 @@ public:
         , m_rvecFOVY((m_rvecFOVH-m_rvecFOV0).UnitVector())
         , m_rvecLookAt0(rvecLookAt+m_rvecFOV0)
         , m_nType(nType)
-        , m_nRenderWidth(nRenderWidth)
-        , m_nRenderHeight(nRenderHeight)
+        , m_nImageW(nImageW)
+        , m_nImageH(nImageH)
     {
     }
 
@@ -61,10 +61,10 @@ public:
         @param  nSubY
                 Sub-point Y-offset in the range of [-1;+1].
     */
-    CRay3d GetRay(const int nRenderX, const int nRenderY, const float nSubX = 0.0f, const float nSubY = 0.0f) const
+    CRay3d GetRay(const int nImageX, const int nImageY, const float nSubX = 0.0f, const float nSubY = 0.0f) const
     {
-        const CVector3d rvecX = m_rvecFOVX*(m_nFOVWidth*(nRenderX+nSubX/2.0f+0.5f)/static_cast< float >(m_nRenderWidth));
-        const CVector3d rvecY = m_rvecFOVY*(m_nFOVHeight*(nRenderY+nSubY/2.0f+0.5f)/static_cast< float >(m_nRenderHeight));
+        const CVector3d rvecX = m_rvecFOVX*(m_nFOVWidth*(nImageX+nSubX/2.0f+0.5f)/static_cast< float >(m_nImageW));
+        const CVector3d rvecY = m_rvecFOVY*(m_nFOVHeight*(nImageY+nSubY/2.0f+0.5f)/static_cast< float >(m_nImageH));
 
         // point on image plane
         const CVector3d rvecXY = rvecX+rvecY;

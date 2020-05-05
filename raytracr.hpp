@@ -34,8 +34,8 @@ protected:
 #endif  /* FLD_MAX */
 
 protected:
-    int m_nSceneWidth;
-    int m_nSceneHeight;
+    int m_nImageW;
+    int m_nImageH;
     unsigned int m_uBounceDepth;
     unsigned int m_uAntiAliasing;
     CVector3d m_ovecEye;
@@ -48,8 +48,8 @@ protected:
 
 public:
     Raytracer()
-        : m_nSceneWidth(0)
-        , m_nSceneHeight(0)
+        : m_nImageW(0)
+        , m_nImageH(0)
         , m_uBounceDepth(0)
         , m_uAntiAliasing(0)
         , m_ovecEye(0.0f, 0.0f, 0.0f)
@@ -69,10 +69,10 @@ public:
         m_aobjLights.emplace_back(new T(objLight));
     }
 
-    void SetScene(const int nWidth, const int nHeight)
+    void SetImageSize(const int nImageW, const int nImageH)
     {
-        m_nSceneWidth = nWidth;
-        m_nSceneHeight = nHeight;
+        m_nImageW = nImageW;
+        m_nImageH = nImageH;
     }
 
     void SetBounceDepth(const unsigned int uBounceDepth)
@@ -152,7 +152,7 @@ public:
         return ResultHit;
     }
 
-    CColor RenderColorAt(const CCamera& Cam, const int nX, const int nY)
+    CColor RenderColorAt(const CCamera& Cam, const int nImageX, const int nImageY)
     {
         CColor clrHit(0, 0, 0);
 
@@ -167,7 +167,7 @@ public:
                 const float nSubX = cos((nPoints)*nT);
                 const float nSubY = sin((nPoints-1.0f)*nT);
 
-                clrHit+= HitTest(Cam.GetRay(nX, nY, nSubX, nSubY), 0.0f, FLD_MAX, false, m_uBounceDepth).GetColor();
+                clrHit+= HitTest(Cam.GetRay(nImageX, nImageY, nSubX, nSubY), 0.0f, FLD_MAX, false, m_uBounceDepth).GetColor();
 
                 nT+= nInc;
             }
@@ -176,7 +176,7 @@ public:
         }
         else
         {
-            clrHit = HitTest(Cam.GetRay(nX, nY), 0.0f, FLD_MAX, false, m_uBounceDepth).GetColor();
+            clrHit = HitTest(Cam.GetRay(nImageX, nImageY), 0.0f, FLD_MAX, false, m_uBounceDepth).GetColor();
         }
 
         return clrHit;
@@ -184,20 +184,20 @@ public:
 
     void Render(void* const lpContext = nullptr)
     {
-        CCamera Cam(m_ovecEye, m_rvecLookAt, m_rvecUp, CCamera::TYPE_PERSPECTIVE, 45.0f, m_nSceneWidth/*m_nRenderWidth*/, m_nSceneHeight/*m_nRenderHeight*/);
+        CCamera Cam(m_ovecEye, m_rvecLookAt, m_rvecUp, CCamera::TYPE_PERSPECTIVE, 45.0f, m_nImageW, m_nImageH);
 
         // initialize pixel buffer
-        m_aclrPixels.assign(m_nSceneWidth*m_nSceneHeight, CColor(0.0f, 0.0f, 0.0f));
+        m_aclrPixels.assign(m_nImageW*m_nImageH, CColor(0.0f, 0.0f, 0.0f));
 
-        for(int nY = 0; nY<m_nSceneHeight; nY++)
+        for(int nImageY = 0; nImageY<m_nImageH; nImageY++)
         {
-            for(int nX = 0; nX<m_nSceneWidth; nX++)
+            for(int nImageX = 0; nImageX<m_nImageW; nImageX++)
             {
-                const CColor clrPixel = RenderColorAt(Cam, nX, nY);
+                const CColor clrPixel = RenderColorAt(Cam, nImageX, nImageY);
 
-                m_aclrPixels[m_nSceneWidth*nY+nX] = clrPixel;
+                m_aclrPixels[m_nImageW*nImageY+nImageX] = clrPixel;
 
-                if(m_lpfnProgress!=nullptr && !m_lpfnProgress(clrPixel.R(), clrPixel.G(), clrPixel.B(), nX, nY, lpContext))
+                if(m_lpfnProgress!=nullptr && !m_lpfnProgress(clrPixel.R(), clrPixel.G(), clrPixel.B(), nImageX, nImageY, lpContext))
                 {
                     break;
                 }
@@ -210,14 +210,14 @@ public:
         return m_aclrPixels;
     }
 
-    int GetSceneWidth() const
+    int GetImageWidth() const
     {
-        return m_nSceneWidth;
+        return m_nImageW;
     }
 
-    int GetSceneHeight() const
+    int GetImageHeight() const
     {
-        return m_nSceneHeight;
+        return m_nImageH;
     }
 
     static CTriangle CreateTriangle(const CVector3d& ovecA, const CVector3d& ovecB, const CVector3d& ovecC, const CColor& clrColor)

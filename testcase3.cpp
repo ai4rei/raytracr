@@ -233,15 +233,15 @@ public:
         RestoreDC(hDC, -1);
     }
 
-    static HBITMAP BitmapFromPixels2(const std::vector< CColor >& aclrPixels, const int nWidth, const int nHeight)
+    static HBITMAP BitmapFromPixels2(const std::vector< CColor >& aclrPixels, const int nImageW, const int nImageH)
     {
         HBITMAP hbmOutput = nullptr;
         BITMAPINFO bmiOutput = { 0 };
         VOID* lpBits = nullptr;
 
         bmiOutput.bmiHeader.biSize = sizeof(bmiOutput.bmiHeader);
-        bmiOutput.bmiHeader.biWidth = nWidth;
-        bmiOutput.bmiHeader.biHeight = nHeight;  // bottom-up, just like our pixel buffer
+        bmiOutput.bmiHeader.biWidth = nImageW;
+        bmiOutput.bmiHeader.biHeight = nImageH;  // bottom-up, just like our pixel buffer
         bmiOutput.bmiHeader.biPlanes = 1;
         bmiOutput.bmiHeader.biBitCount = 24;
         bmiOutput.bmiHeader.biCompression = BI_RGB;
@@ -257,12 +257,12 @@ public:
             const int nWidthBytes = bmInfo.bmWidthBytes;
             const int nPixelBytes = bmInfo.bmBitsPixel/8;
 
-            for(int nY = 0; nY<nHeight; nY++)
+            for(int nImageY = 0; nImageY<nImageH; nImageY++)
             {
-                for(int nX = 0; nX<nWidth; nX++)
+                for(int nImageX = 0; nImageX<nImageW; nImageX++)
                 {
-                    const auto& Px = aclrPixels[nX+nY*nWidth];
-                    unsigned char* ucBits = &static_cast< unsigned char* >(lpBits)[nY*nWidthBytes+nX*nPixelBytes];
+                    const auto& Px = aclrPixels[nImageX+nImageY*nImageW];
+                    unsigned char* ucBits = &static_cast< unsigned char* >(lpBits)[nImageY*nWidthBytes+nImageX*nPixelBytes];
 
                     ucBits[0] = static_cast< unsigned char >(sqrt(Px.B())*255U);
                     ucBits[1] = static_cast< unsigned char >(sqrt(Px.G())*255U);
@@ -305,7 +305,7 @@ public:
 
     bool UpdateRenderProgress(const float nR, const float nG, const float nB, const int nX, const int nY)
     {
-        m_uRenderProgress = (nY*100)/GetSceneHeight();
+        m_uRenderProgress = (nY*100)/GetImageHeight();
 
         return true;
     }
@@ -326,7 +326,7 @@ public:
         m_dwRenderTime = GetTickCount()-dwStart;
 
         dwStart = GetTickCount();
-        HBITMAP hbmOutput = BitmapFromPixels2(GetResult(), GetSceneWidth(), GetSceneHeight());
+        HBITMAP hbmOutput = BitmapFromPixels2(GetResult(), GetImageWidth(), GetImageHeight());
         m_dwDrawingTime = GetTickCount()-dwStart;
 
         SetOutputBitmap(hbmOutput);
@@ -348,7 +348,7 @@ public:
         RECT rcWnd;
 
         GetClientRect(hWnd, &rcWnd);
-        SetScene((rcWnd.right-rcWnd.left)/m_nPixelRatio, (rcWnd.bottom-rcWnd.top)/m_nPixelRatio);
+        SetImageSize((rcWnd.right-rcWnd.left)/m_nPixelRatio, (rcWnd.bottom-rcWnd.top)/m_nPixelRatio);
 
         m_bCameraDirty = false;
 
