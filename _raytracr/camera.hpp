@@ -79,7 +79,7 @@ public:
         // eye
         const CVector3d ovecEye =
             //m_ovecEye
-            m_ovecEye+m_rvecFOV0+rvecXY;
+            m_ovecEye+m_rvecFOV0+rvecXY
             ;
 
         return CRay3d(ovecEye, uvecRay);
