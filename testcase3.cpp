@@ -60,7 +60,7 @@ public:
         : CSimpleWindow(hInstance, 480, 320, WS_VISIBLE|WS_POPUPWINDOW|WS_SYSMENU|WS_CAPTION|WS_BORDER|WS_MINIMIZEBOX|WS_MAXIMIZEBOX|WS_SIZEBOX)
         , m_dwRenderTime(0)
         , m_dwDrawingTime(0)
-        , m_hbmOutput(NULL)
+        , m_hbmOutput(nullptr)
         , m_hAccl(LoadAccelerators(hInstance, MAKEINTRESOURCE(IDA_MAINACCL)))
         , m_LastWndSize()
         , m_nSteeringPlane(PLANE_XZ)
@@ -111,7 +111,7 @@ public:
 
     virtual ~CTestWindow()
     {
-        SetOutputBitmap(NULL);
+        SetOutputBitmap(nullptr);
     }
 
     bool SetOutputBitmap(HBITMAP hbmOutput, const bool bOnlyIfNotNull = false)
@@ -120,7 +120,7 @@ public:
 
         Enter();
         {
-            if(m_hbmOutput!=NULL)
+            if(m_hbmOutput!=nullptr)
             {
                 if(bOnlyIfNotNull)
                 {
@@ -235,9 +235,9 @@ public:
 
     static HBITMAP BitmapFromPixels2(const std::vector< CColor >& aclrPixels, const int nWidth, const int nHeight)
     {
-        HBITMAP hbmOutput = NULL;
+        HBITMAP hbmOutput = nullptr;
         BITMAPINFO bmiOutput = { 0 };
-        VOID* lpBits = NULL;
+        VOID* lpBits = nullptr;
 
         bmiOutput.bmiHeader.biSize = sizeof(bmiOutput.bmiHeader);
         bmiOutput.bmiHeader.biWidth = nWidth;
@@ -246,9 +246,9 @@ public:
         bmiOutput.bmiHeader.biBitCount = 24;
         bmiOutput.bmiHeader.biCompression = BI_RGB;
 
-        hbmOutput = CreateDIBSection(CGetDC(NULL), &bmiOutput, DIB_RGB_COLORS, &lpBits, NULL, 0);
+        hbmOutput = CreateDIBSection(CGetDC(nullptr), &bmiOutput, DIB_RGB_COLORS, &lpBits, nullptr, 0);
 
-        if(hbmOutput!=NULL)
+        if(hbmOutput!=nullptr)
         {
             BITMAP bmInfo = { 0 };
 
@@ -344,7 +344,7 @@ public:
     void UpdateRender(HWND hWnd)
     {
         DWORD dwThreadId;
-        HANDLE hThread = CreateThread(NULL, 0, &UpdateRenderAsyncCB, this, CREATE_SUSPENDED, &dwThreadId);
+        HANDLE hThread = CreateThread(nullptr, 0, &UpdateRenderAsyncCB, this, CREATE_SUSPENDED, &dwThreadId);
         RECT rcWnd;
 
         GetClientRect(hWnd, &rcWnd);
@@ -352,12 +352,12 @@ public:
 
         m_bCameraDirty = false;
 
-        if(hThread!=NULL)
+        if(hThread!=nullptr)
         {
             m_uRenderProgress = 0;
 
             SetProgress(GetDlgItem(hWnd, IDC_PROGRESSBAR), 0);
-            SetTimer(hWnd, IDT_RENDERPROGRESS, 500, NULL);
+            SetTimer(hWnd, IDT_RENDERPROGRESS, 500, nullptr);
             ResumeThread(hThread);
 
             for(;;)
@@ -366,7 +366,7 @@ public:
 
                 if(dwWait==WAIT_OBJECT_0+0)
                 {
-                    InvalidateRect(hWnd, NULL, FALSE);
+                    InvalidateRect(hWnd, nullptr, FALSE);
                     break;
                 }
                 else
@@ -374,7 +374,7 @@ public:
                 {
                     MSG Msg;
 
-                    while(PeekMessage(&Msg, NULL, 0, 0, PM_REMOVE))
+                    while(PeekMessage(&Msg, nullptr, 0, 0, PM_REMOVE))
                     {
                         if(Msg.message==WM_QUIT)
                         {
@@ -388,9 +388,9 @@ public:
             }
 
             CloseHandle(hThread);
-            hThread = NULL;
+            hThread = nullptr;
 
-            InvalidateRect(hWnd, NULL, FALSE);
+            InvalidateRect(hWnd, nullptr, FALSE);
             KillTimer(hWnd, IDT_RENDERPROGRESS);
             SetProgress(GetDlgItem(hWnd, IDC_PROGRESSBAR), 100);
         }
@@ -520,7 +520,7 @@ public:
 
     virtual BOOL IsAcceleratorMessage(HWND hWnd, LPMSG lpMsg)
     {
-        if(m_hAccl!=NULL && TranslateAccelerator(hWnd, m_hAccl, lpMsg))
+        if(m_hAccl!=nullptr && TranslateAccelerator(hWnd, m_hAccl, lpMsg))
         {
             return TRUE;
         }
@@ -534,19 +534,19 @@ public:
         {
         case IDC_SET_PLANE_XZ:
             m_nSteeringPlane = PLANE_XZ;
-            InvalidateRect(hWnd, NULL, FALSE);
+            InvalidateRect(hWnd, nullptr, FALSE);
             break;
         case IDC_SET_PLANE_XY:
             m_nSteeringPlane = PLANE_XY;
-            InvalidateRect(hWnd, NULL, FALSE);
+            InvalidateRect(hWnd, nullptr, FALSE);
             break;
         case IDC_SET_AXES_AB:
             m_nSteeringPlane = AXES_AB;
-            InvalidateRect(hWnd, NULL, FALSE);
+            InvalidateRect(hWnd, nullptr, FALSE);
             break;
         case IDC_SET_VIEW_BZ:
             m_nSteeringPlane = VIEW_BZ;
-            InvalidateRect(hWnd, NULL, FALSE);
+            InvalidateRect(hWnd, nullptr, FALSE);
             break;
         case IDC_STEER_UP:
             SteerUp();
@@ -562,15 +562,15 @@ public:
             break;
         case IDC_STEER_POWER_UP:
             m_nSteeringPower++;
-            InvalidateRect(hWnd, NULL, FALSE);
+            InvalidateRect(hWnd, nullptr, FALSE);
             break;
         case IDC_STEER_POWER_DOWN:
             m_nSteeringPower--;  // NOTE: Not limiting. Negative power gives you a reverse-gear.
-            InvalidateRect(hWnd, NULL, FALSE);
+            InvalidateRect(hWnd, nullptr, FALSE);
             break;
         case IDC_TOGGLE_HELP:
             m_bShowHelp = !m_bShowHelp;
-            InvalidateRect(hWnd, NULL, FALSE);
+            InvalidateRect(hWnd, nullptr, FALSE);
             break;
         case IDC_PIXELRATIO_UP:
             m_nPixelRatio++;
@@ -610,7 +610,7 @@ public:
     {
         if(CSuper::WndProcOnCreate(hWnd, lpCreateStruct))
         {
-            if(CreateWindowEx(0, PROGRESS_CLASS, "", WS_CHILD, 0, 0, 0, 0, hWnd, (HMENU)IDC_PROGRESSBAR, NULL, NULL))
+            if(CreateWindowEx(0, PROGRESS_CLASS, "", WS_CHILD, 0, 0, 0, 0, hWnd, (HMENU)IDC_PROGRESSBAR, nullptr, nullptr))
             {
                 SetWindowText(hWnd, "TestCase (press F1 for help, ESC to exit)");
 
@@ -623,7 +623,7 @@ public:
 
     virtual VOID WndProcOnPaint(HWND hWnd)
     {
-        if(GetUpdateRect(hWnd, NULL, FALSE))
+        if(GetUpdateRect(hWnd, nullptr, FALSE))
         {
             PAINTSTRUCT Ps = { 0 };
 
@@ -633,22 +633,22 @@ public:
 
                 GetClientRect(hWnd, &rcWnd);
 
-                if(m_hbmOutput==NULL)
+                if(m_hbmOutput==nullptr)
                 {// when there is nothing to draw, make something up
                     DrawCake(Ps.hdc, rcWnd.right-rcWnd.left, rcWnd.bottom-rcWnd.top, 2, RGB(255, 255, 255), RGB(0, 128, 128));
                 }
 
                 Enter();
                 {// do not mess with the bitmap if currently drawing
-                    if(m_hbmOutput!=NULL)
+                    if(m_hbmOutput!=nullptr)
                     {
                         BITMAP bmInfo;
 
                         GetObject(m_hbmOutput, sizeof(bmInfo), &bmInfo);
 
-                        HDC hDC = CreateCompatibleDC(NULL);
+                        HDC hDC = CreateCompatibleDC(nullptr);
 
-                        if(hDC!=NULL)
+                        if(hDC!=nullptr)
                         {
                             SaveDC(hDC);
                             {
@@ -694,7 +694,7 @@ public:
                         SetBkColor(Ps.hdc, RGB(0, 0, 255));
                         SetBkMode(Ps.hdc, TRANSPARENT);
                         SelectObject(Ps.hdc, GetStockObject(SYSTEM_FIXED_FONT));
-                        DrawTextEx(Ps.hdc, szHelpText, -1, &rcWnd, DT_WORDBREAK|DT_TOP|DT_LEFT, NULL);
+                        DrawTextEx(Ps.hdc, szHelpText, -1, &rcWnd, DT_WORDBREAK|DT_TOP|DT_LEFT, nullptr);
                     }
                     RestoreDC(Ps.hdc, -1);
                 }
@@ -749,13 +749,13 @@ public:
             m_LastWndSize.cx = rcWnd.right-rcWnd.left;
             m_LastWndSize.cy = rcWnd.bottom-rcWnd.top;
 
-            if(m_hbmOutput!=NULL)
+            if(m_hbmOutput!=nullptr)
             {
-                SetOutputBitmap(NULL);
+                SetOutputBitmap(nullptr);
             }
 
-            InvalidateRect(hWnd, NULL, FALSE);
-            SetTimer(hWnd, IDT_RENDER, m_bRunOnce ? 500 : 0, NULL);
+            InvalidateRect(hWnd, nullptr, FALSE);
+            SetTimer(hWnd, IDT_RENDER, m_bRunOnce ? 500 : 0, nullptr);
         }
 
         // update controls

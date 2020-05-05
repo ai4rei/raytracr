@@ -42,25 +42,25 @@ public:
 
     virtual ~CTestWindow()
     {
-        if(m_hbmOutput1!=NULL)
+        if(m_hbmOutput1!=nullptr)
         {
             DeleteBitmap(m_hbmOutput1);
-            m_hbmOutput1 = NULL;
+            m_hbmOutput1 = nullptr;
         }
-        if(m_hbmOutput2!=NULL)
+        if(m_hbmOutput2!=nullptr)
         {
             DeleteBitmap(m_hbmOutput2);
-            m_hbmOutput2 = NULL;
+            m_hbmOutput2 = nullptr;
         }
-        if(m_hbmOutput3!=NULL)
+        if(m_hbmOutput3!=nullptr)
         {
             DeleteBitmap(m_hbmOutput3);
-            m_hbmOutput3 = NULL;
+            m_hbmOutput3 = nullptr;
         }
-        if(m_hbmOutput4!=NULL)
+        if(m_hbmOutput4!=nullptr)
         {
             DeleteBitmap(m_hbmOutput4);
-            m_hbmOutput4 = NULL;
+            m_hbmOutput4 = nullptr;
         }
     }
 
@@ -78,34 +78,34 @@ public:
 
     virtual VOID WndProcOnPaint(HWND hWnd)
     {
-        if(GetUpdateRect(hWnd, NULL, FALSE))
+        if(GetUpdateRect(hWnd, nullptr, FALSE))
         {
             PAINTSTRUCT Ps = { 0 };
 
             if(BeginPaint(hWnd, &Ps))
             {
-                HDC hDC = CreateCompatibleDC(NULL);
+                HDC hDC = CreateCompatibleDC(nullptr);
                 HGDIOBJ hPrevObj;
 
-                if(m_hbmOutput1!=NULL)
+                if(m_hbmOutput1!=nullptr)
                 {
                     hPrevObj = SelectObject(hDC, m_hbmOutput1);
                     BitBlt(Ps.hdc, 0, 0, m_nImageW, m_nImageH, hDC, 0, 0, SRCCOPY);
                     SelectObject(hDC, hPrevObj);
                 }
-                if(m_hbmOutput2!=NULL)
+                if(m_hbmOutput2!=nullptr)
                 {
                     hPrevObj = SelectObject(hDC, m_hbmOutput2);
                     BitBlt(Ps.hdc, m_nImageW, 0, m_nImageW, m_nImageH, hDC, 0, 0, SRCCOPY);
                     SelectObject(hDC, hPrevObj);
                 }
-                if(m_hbmOutput3!=NULL)
+                if(m_hbmOutput3!=nullptr)
                 {
                     hPrevObj = SelectObject(hDC, m_hbmOutput3);
                     BitBlt(Ps.hdc, 0, m_nImageH, m_nImageW, m_nImageH, hDC, 0, 0, SRCCOPY);
                     SelectObject(hDC, hPrevObj);
                 }
-                if(m_hbmOutput4!=NULL)
+                if(m_hbmOutput4!=nullptr)
                 {
                     hPrevObj = SelectObject(hDC, m_hbmOutput4);
                     BitBlt(Ps.hdc, m_nImageW, m_nImageH, m_nImageW, m_nImageH, hDC, 0, 0, SRCCOPY);
@@ -154,12 +154,12 @@ bool TrackProgress(unsigned int uDone, unsigned int uTotal, void* lpContext)
 
 HBITMAP BitmapFromPixels(const std::vector< Raytracer::CColor >& aclrPixels, const int nWidth, const int nHeight)
 {
-    HBITMAP hbmOutput = NULL;
-    HDC hdcOutput = NULL;
-    HGDIOBJ hPrevObj = NULL;
+    HBITMAP hbmOutput = nullptr;
+    HDC hdcOutput = nullptr;
+    HGDIOBJ hPrevObj = nullptr;
 
-    hbmOutput = CreateCompatibleBitmap(CGetDC(NULL), nWidth, nHeight);
-    hdcOutput = CreateCompatibleDC(NULL);
+    hbmOutput = CreateCompatibleBitmap(CGetDC(nullptr), nWidth, nHeight);
+    hdcOutput = CreateCompatibleDC(nullptr);
 
     hPrevObj = SelectObject(hdcOutput, hbmOutput);
 
@@ -181,9 +181,9 @@ HBITMAP BitmapFromPixels(const std::vector< Raytracer::CColor >& aclrPixels, con
 
 HBITMAP BitmapFromPixels2(const std::vector< Raytracer::CColor >& aclrPixels, const int nWidth, const int nHeight)
 {
-    HBITMAP hbmOutput = NULL;
+    HBITMAP hbmOutput = nullptr;
     BITMAPINFO bmiOutput = { 0 };
-    VOID* lpBits = NULL;
+    VOID* lpBits = nullptr;
 
     bmiOutput.bmiHeader.biSize = sizeof(bmiOutput.bmiHeader);
     bmiOutput.bmiHeader.biWidth = nWidth;
@@ -192,9 +192,9 @@ HBITMAP BitmapFromPixels2(const std::vector< Raytracer::CColor >& aclrPixels, co
     bmiOutput.bmiHeader.biBitCount = 24;
     bmiOutput.bmiHeader.biCompression = BI_RGB;
 
-    hbmOutput = CreateDIBSection(CGetDC(NULL), &bmiOutput, DIB_RGB_COLORS, &lpBits, NULL, 0);
+    hbmOutput = CreateDIBSection(CGetDC(nullptr), &bmiOutput, DIB_RGB_COLORS, &lpBits, nullptr, 0);
 
-    if(hbmOutput!=NULL)
+    if(hbmOutput!=nullptr)
     {
         BITMAP bmInfo = { 0 };
 
@@ -239,8 +239,8 @@ HBITMAP RenderJob(Raytracer& R)
     DWORD dwStart;
 
     dwStart = GetTickCount();
-    //R.Render(&TrackProgress, NULL);
-    R.Render(NULL);
+    //R.Render(&TrackProgress, nullptr);
+    R.Render(nullptr);
     printf("%ums", GetTickCount()-dwStart);
 
     dwStart = GetTickCount();
@@ -353,5 +353,5 @@ int __cdecl main(int nArgc, char** lppszArgv)
 
     puts("Present.");
 
-    return CTestWindow(GetModuleHandle(NULL), R.GetSceneWidth(), R.GetSceneHeight(), WS_VISIBLE|WS_POPUPWINDOW|WS_SYSMENU|WS_CAPTION|WS_BORDER|WS_MINIMIZEBOX, hbmOutput1, hbmOutput2, hbmOutput3, hbmOutput4);
+    return CTestWindow(GetModuleHandle(nullptr), R.GetSceneWidth(), R.GetSceneHeight(), WS_VISIBLE|WS_POPUPWINDOW|WS_SYSMENU|WS_CAPTION|WS_BORDER|WS_MINIMIZEBOX, hbmOutput1, hbmOutput2, hbmOutput3, hbmOutput4);
 }

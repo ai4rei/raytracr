@@ -182,7 +182,7 @@ public:
         return clrHit;
     }
 
-    void Render(void* const lpContext = NULL)
+    void Render(void* const lpContext = nullptr)
     {
         CCamera Cam(m_ovecEye, m_rvecLookAt, m_rvecUp, CCamera::TYPE_PERSPECTIVE, 45.0f, m_nSceneWidth/*m_nRenderWidth*/, m_nSceneHeight/*m_nRenderHeight*/);
 
@@ -197,7 +197,7 @@ public:
 
                 m_aclrPixels[m_nSceneWidth*nY+nX] = clrPixel;
 
-                if(m_lpfnProgress!=NULL && !m_lpfnProgress(clrPixel.R(), clrPixel.G(), clrPixel.B(), nX, nY, lpContext))
+                if(m_lpfnProgress!=nullptr && !m_lpfnProgress(clrPixel.R(), clrPixel.G(), clrPixel.B(), nX, nY, lpContext))
                 {
                     break;
                 }

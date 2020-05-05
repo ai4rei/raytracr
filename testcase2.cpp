@@ -37,7 +37,7 @@ int __cdecl main(int nArgc, char** lppszArgv)
     R.AddLight(Raytracer::CreateLight(Raytracer::CreateVector3d(+9.0f, +9.0f, +0.0f), Raytracer::CreateColor(1.0f, 1.0f, 1.0f), 50.0f));
     R.SetScene(700, 500);
     R.SetCamera(Raytracer::CreateVector3d(+0.0f, +1.0f, +10.0f), Raytracer::CreateVector3d(+0.0f, +0.0f, -1.0f), Raytracer::CreateVector3d(+0.0f, +1.0f, +0.0f));
-    R.Render(NULL);
+    R.Render(nullptr);
 
     const auto aclrPixels = R.GetResult();
     const int nWidth = R.GetSceneWidth();

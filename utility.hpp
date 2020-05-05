@@ -32,7 +32,7 @@ private:
 public:
     ~CGetDC()
     {
-        if(m_hDC!=NULL)
+        if(m_hDC!=nullptr)
         {
             ReleaseDC(m_hWnd, m_hDC);
         }
@@ -58,10 +58,10 @@ private:
 public:
     ~CSolidBrush()
     {
-        if(m_hbrBrush!=NULL)
+        if(m_hbrBrush!=nullptr)
         {
             DeleteBrush(m_hbrBrush);
-            m_hbrBrush = NULL;
+            m_hbrBrush = nullptr;
         }
     }
 
@@ -84,10 +84,10 @@ private:
 public:
     ~CSolidPen()
     {
-        if(m_hpnPen!=NULL)
+        if(m_hpnPen!=nullptr)
         {
             DeletePen(m_hpnPen);
-            m_hpnPen = NULL;
+            m_hpnPen = nullptr;
         }
     }
 
