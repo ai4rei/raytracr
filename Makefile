@@ -22,11 +22,11 @@ RTHEADERS = \
     $(RTPATH)vector3d.hpp
 
 all : \
-    testcase.exe \
+    testcase1.exe \
     testcase2.exe \
     testcase3.exe
 
-testcase.exe : testcase.obj
+testcase1.exe : testcase1.obj
     $(LINK) $(LFLAGS) -out:$@ $**
 
 testcase2.exe : testcase2.obj
@@ -35,14 +35,14 @@ testcase2.exe : testcase2.obj
 testcase3.exe : testcase3.obj testcase3.res
     $(LINK) $(LFLAGS) -out:$@ $**
 
-testcase.cpp testcase2.cpp testcase3.cpp : raytracr.hpp
+testcase1.cpp testcase2.cpp testcase3.cpp : raytracr.hpp
 
-testcase.cpp testcase3.cpp : simplewnd.tpp utility.hpp
+testcase1.cpp testcase3.cpp : simplewnd.tpp utility.hpp
 
 testcase3.cpp :  testcase3.h
 
 raytracr.hpp : $(RTHEADERS)
 
 clean :
-    for %%i in (testcase testcase2 testcase3) do @for %%j in (exe obj res pdb) do @if exist %i.%j del %i.%j
+    for %%i in (testcase1 testcase2 testcase3) do @for %%j in (exe obj res pdb) do @if exist %i.%j del %i.%j
     if exist vc*.pdb del vc*.pdb
