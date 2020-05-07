@@ -28,8 +28,53 @@ public:
 
     void Render()
     {
-        glClearColor(0.0f, 0.5f, 0.5f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+
+        // R.AddObject(Raytracer::CreatePlane(Raytracer::CreateVector3d(+0.0f, +0.0f, +0.0f), Raytracer::CreateVector3d(+0.0f, +1.0f, +0.0f), Raytracer::CreateColor(1.0f, 1.0f, 1.0f)));
+        glBegin(GL_QUADS);
+            glColor3f(1.0f, 1.0f, 1.0f);
+            glVertex3f(-100.0f, +0.0f, -100.0f);
+            glVertex3f(-100.0f, +0.0f, +100.0f);
+            glVertex3f(+100.0f, +0.0f, +100.0f);
+            glVertex3f(+100.0f, +0.0f, -100.0f);
+        glEnd();
+
+        GLUquadricObj* lpQuadric = gluNewQuadric();
+
+        if(lpQuadric!=NULL)
+        {
+            gluQuadricDrawStyle(lpQuadric, GLU_FILL);
+
+            //R.AddObject(Raytracer::CreateSphere(Raytracer::CreateVector3d(+0.0f, +0.0f, +0.0f), 0.1f, Raytracer::CreateColor(1.0f, 0.0f, 0.0f)));
+            glPopMatrix();
+            glPushMatrix();
+            glColor3f(1.0f, 0.0f, 0.0f);
+            gluSphere(lpQuadric, 0.1f, 20, 20);
+
+            // R.AddObject(Raytracer::CreateSphere(Raytracer::CreateVector3d(+2.0f, +1.0f, -3.0f), 1.0f, Raytracer::CreateColor(0.25f, 0.25f, 0.75f)));
+            glPopMatrix();
+            glPushMatrix();
+            glTranslatef(+2.0f, +1.0f, -3.0f);
+            glColor3f(0.25f, 0.25f, 0.75f);
+            gluSphere(lpQuadric, 1.0f, 20, 20);
+
+            // R.AddObject(Raytracer::CreateSphere(Raytracer::CreateVector3d(-2.0f, +1.0f, -3.0f), 1.0f, Raytracer::CreateColor(0.75f, 0.25f, 0.25f)));
+            glPopMatrix();
+            glPushMatrix();
+            glTranslatef(-2.0f, +1.0f, -3.0f);
+            glColor3f(0.75f, 0.25f, 0.25f);
+            gluSphere(lpQuadric, 1.0f, 20, 20);
+
+            // R.AddObject(Raytracer::CreateSphere(Raytracer::CreateVector3d(+0.0f, +1.0f, -2.0f), 1.0f, Raytracer::CreateColor(0.25f, 0.75f, 0.25f)));
+            glPopMatrix();
+            glPushMatrix();
+            glTranslatef(+0.0f, +1.0f, -2.0f);
+            glColor3f(0.25f, 0.75f, 0.25f);
+            gluSphere(lpQuadric, 1.0f, 20, 20);
+
+            gluDeleteQuadric(lpQuadric);
+        }
+
         glFlush();
     }
 
@@ -55,6 +100,26 @@ public:
                 {
                     if(wglMakeCurrent(hDC, hGLRC))
                     {
+                        GLfloat aLightPos[] = { 1.0f, 1.0f, 0.0f, 0.0f };
+
+                        glMatrixMode(GL_MODELVIEW);
+                        glLoadIdentity();
+                        gluLookAt
+                        (
+                            +0.0f, +1.0f, +10.0f,  // eye
+                            +0.0f, +1.0f,  +9.0f,  // target
+                            +0.0f, +1.0f,  +0.0f   // up
+                        );
+                        glPushMatrix();
+                        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+                        glClearDepth(1.0f);
+                        glLightfv(GL_LIGHT0, GL_POSITION, aLightPos);
+                        glEnable(GL_LIGHTING);
+                        glEnable(GL_LIGHT0);
+                        glEnable(GL_COLOR_MATERIAL);
+                        glEnable(GL_DEPTH_TEST);
+                        glDepthFunc(GL_LEQUAL);
+
                         SetWindowText(hWnd, "OpenGL TestCase (press ESC to exit)");
                         return TRUE;
                     }
@@ -97,6 +162,9 @@ public:
         RECT rcWnd;
 
         GetClientRect(hWnd, &rcWnd);
+        glMatrixMode(GL_PROJECTION);
+        glLoadIdentity();
+        gluPerspective(45.0f, float(rcWnd.right-rcWnd.left)/float(rcWnd.bottom-rcWnd.top), 1.0f, 100.0f);
         glViewport(0, 0, rcWnd.right-rcWnd.left, rcWnd.bottom-rcWnd.top);
         InvalidateRect(hWnd, NULL, FALSE);
 
