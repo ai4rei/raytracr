@@ -80,57 +80,59 @@ public:
 
     virtual BOOL WndProcOnCreate(HWND hWnd, LPCREATESTRUCT lpCreateStruct)
     {
-        if(CSuper::WndProcOnCreate(hWnd, lpCreateStruct))
+        PIXELFORMATDESCRIPTOR Pfd = { sizeof(Pfd) };
+
+        Pfd.nVersion = 1;
+        Pfd.dwFlags = PFD_DRAW_TO_WINDOW|PFD_SUPPORT_OPENGL;
+        Pfd.iPixelType = PFD_TYPE_RGBA;
+        Pfd.cColorBits = 32;
+
+        HDC hDC = GetDC(hWnd);
+        int nPixelFormat = ChoosePixelFormat(hDC, &Pfd);
+
+        if(nPixelFormat!=0 && SetPixelFormat(hDC, nPixelFormat, &Pfd))
         {
-            PIXELFORMATDESCRIPTOR Pfd = { sizeof(Pfd) };
+            HGLRC hGLRC = wglCreateContext(hDC);
 
-            Pfd.nVersion = 1;
-            Pfd.dwFlags = PFD_DRAW_TO_WINDOW|PFD_SUPPORT_OPENGL;
-            Pfd.iPixelType = PFD_TYPE_RGBA;
-            Pfd.cColorBits = 32;
-
-            HDC hDC = GetDC(hWnd);
-            int nPixelFormat = ChoosePixelFormat(hDC, &Pfd);
-
-            if(nPixelFormat!=0 && SetPixelFormat(hDC, nPixelFormat, &Pfd))
+            if(hGLRC!=NULL)
             {
-                HGLRC hGLRC = wglCreateContext(hDC);
-
-                if(hGLRC!=NULL)
+                if(wglMakeCurrent(hDC, hGLRC))
                 {
-                    if(wglMakeCurrent(hDC, hGLRC))
-                    {
-                        GLfloat aLightPos[] = { 1.0f, 1.0f, 0.0f, 0.0f };
+                    GLfloat aLightPos[] = { 1.0f, 1.0f, 0.0f, 0.0f };
 
-                        glMatrixMode(GL_MODELVIEW);
-                        glLoadIdentity();
-                        gluLookAt
-                        (
-                            +0.0f, +1.0f, +10.0f,  // eye
-                            +0.0f, +1.0f,  +9.0f,  // target
-                            +0.0f, +1.0f,  +0.0f   // up
-                        );
-                        glPushMatrix();
-                        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-                        glClearDepth(1.0f);
-                        glLightfv(GL_LIGHT0, GL_POSITION, aLightPos);
-                        glEnable(GL_LIGHTING);
-                        glEnable(GL_LIGHT0);
-                        glEnable(GL_COLOR_MATERIAL);
-                        glEnable(GL_DEPTH_TEST);
-                        glDepthFunc(GL_LEQUAL);
+                    glMatrixMode(GL_MODELVIEW);
+                    glLoadIdentity();
+                    gluLookAt
+                    (
+                        +0.0f, +1.0f, +10.0f,  // eye
+                        +0.0f, +1.0f,  +9.0f,  // target
+                        +0.0f, +1.0f,  +0.0f   // up
+                    );
+                    glPushMatrix();
+                    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+                    glClearDepth(1.0f);
+                    glLightfv(GL_LIGHT0, GL_POSITION, aLightPos);
+                    glEnable(GL_LIGHTING);
+                    glEnable(GL_LIGHT0);
+                    glEnable(GL_COLOR_MATERIAL);
+                    glEnable(GL_DEPTH_TEST);
+                    glDepthFunc(GL_LEQUAL);
 
+                    if(CSuper::WndProcOnCreate(hWnd, lpCreateStruct))
+                    {// this has to come last, because it triggers onWindowPosChanged
                         SetWindowText(hWnd, "OpenGL TestCase (press ESC to exit)");
                         return TRUE;
                     }
 
-                    wglDeleteContext(hGLRC);
+                    wglMakeCurrent(NULL, NULL);
                 }
-            }
 
-            ReleaseDC(hWnd, hDC);
-            hDC = NULL;
+                wglDeleteContext(hGLRC);
+            }
         }
+
+        ReleaseDC(hWnd, hDC);
+        hDC = NULL;
 
         return FALSE;
     }
