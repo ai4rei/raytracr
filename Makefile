@@ -5,9 +5,9 @@ LFLAGS = -nologo -release user32.lib gdi32.lib comctl32.lib
 RFLAGS = -nologo
 
 LDXFLAGS = ole32.lib d3d9.lib uuid.lib
-LGLFLAGS = opengl32.lib
+LGLFLAGS = opengl32.lib glu32.lib
 
-RTPATH = _raytracr/
+RTPATH = $(MAKEDIR)/_raytracr/
 RTHEADERS = \
     $(RTPATH)camera.hpp \
     $(RTPATH)color.hpp \
@@ -27,6 +27,9 @@ RTHEADERS = \
 all : \
     testcase1.exe \
     testcase2.exe \
+    testcase2dx.exe \
+    testcase2gl.exe \
+    testcase2w.exe \
     testcase3.exe
 
 testcase1.exe : testcase1.obj
@@ -35,23 +38,26 @@ testcase1.exe : testcase1.obj
 testcase2.exe : testcase2.obj
     $(LINK) $(LFLAGS) -out:$@ $**
 
+testcase2dx.exe : testcase2dx.obj
+    $(LINK) $(LFLAGS) $(LDXFLAGS) -out:$@ $**
+
+testcase2gl.exe : testcase2gl.obj
+    $(LINK) $(LFLAGS) $(LGLFLAGS) -out:$@ $**
+
+testcase2w.exe : testcase2w.obj
+    $(LINK) $(LFLAGS) -out:$@ $**
+
 testcase3.exe : testcase3.obj testcase3.res
     $(LINK) $(LFLAGS) -out:$@ $**
 
-testcase4.exe : testcase4.obj
-    $(LINK) $(LFLAGS) $(LDXFLAGS) -out:$@ $**
+testcase1.cpp testcase2.cpp testcase2w.cpp testcase3.cpp : raytracr.hpp
 
-testcase5.exe : testcase5.obj
-    $(LINK) $(LFLAGS) $(LGLFLAGS) -out:$@ $**
-
-testcase1.cpp testcase2.cpp testcase3.cpp : raytracr.hpp
-
-testcase1.cpp testcase3.cpp testcase4.cpp testcase5.cpp : simplewnd.tpp utility.hpp
+testcase1.cpp testcase2dx.cpp testcase2gl.cpp testcase2w.cpp testcase3.cpp : simplewnd.tpp utility.hpp
 
 testcase3.cpp :  testcase3.h
 
 raytracr.hpp : $(RTHEADERS)
 
 clean :
-    for %%i in (testcase1 testcase2 testcase3 testcase4 testcase5) do @for %%j in (exe obj res pdb) do @if exist %i.%j del %i.%j
+    for %%i in (testcase1 testcase2 testcase2dx testcase2gl testcase2w testcase3) do @for %%j in (exe obj res pdb) do @if exist %i.%j del %i.%j
     if exist vc*.pdb del vc*.pdb
