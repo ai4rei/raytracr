@@ -135,7 +135,7 @@ public:
 
         if(RegisterClassEx(&Wc))
         {
-            HWND hWnd = CreateWindowEx(0, WINDOWCLASSNAME, "", m_dwStyle, 0, 0, 0, 0, NULL, NULL, m_hInstance, this);
+            HWND hWnd = CreateWindowEx(0, WINDOWCLASSNAME, "", m_dwStyle, 0, 0, GetSystemMetrics(SM_CXMINTRACK), GetSystemMetrics(SM_CYMINTRACK), NULL, NULL, m_hInstance, this);
 
             if(hWnd!=NULL)
             {
