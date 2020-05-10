@@ -15,15 +15,10 @@ private:
     const CVector3d m_uvecRight;
     const CVector3d m_uvecUp;
     const CMatrix3d m_mtxW2C;
-    const float m_nFOV;
     const float m_nFOVRatio;
     const float m_nFOVHeight;
     const float m_nFOVWidth;
     const CVector3d m_rvecFOV0;
-    const CVector3d m_rvecFOVW;
-    const CVector3d m_rvecFOVH;
-    const CVector3d m_rvecFOVX;
-    const CVector3d m_rvecFOVY;
     const CVector3d m_rvecLookAt0;
     const TYPE m_nType;
     const int m_nImageW;
@@ -36,15 +31,10 @@ public:
         , m_uvecRight(rvecLookAt.CrossProduct(rvecUp).UnitVector())
         , m_uvecUp(m_uvecRight.CrossProduct(rvecLookAt).UnitVector())  // align the up vector to the camera
         , m_mtxW2C(CMatrix3d().SetFromUpVector(m_uvecUp, m_uvecRight))  // world-to-camera coordinates transformation matrix
-        , m_nFOV(nFOV)
         , m_nFOVRatio(static_cast< float >(nImageW)/static_cast< float >(nImageH))
         , m_nFOVHeight(tan(PI/180.0f*nFOV))
         , m_nFOVWidth(m_nFOVHeight*m_nFOVRatio)
         , m_rvecFOV0(CVector3d(-m_nFOVWidth/2.0f, -m_nFOVHeight/2.0f, 0.0f).MatrixProduct(m_mtxW2C))
-        , m_rvecFOVW(CVector3d(+m_nFOVWidth/2.0f, -m_nFOVHeight/2.0f, 0.0f).MatrixProduct(m_mtxW2C))
-        , m_rvecFOVH(CVector3d(-m_nFOVWidth/2.0f, +m_nFOVHeight/2.0f, 0.0f).MatrixProduct(m_mtxW2C))
-        , m_rvecFOVX((m_rvecFOVW-m_rvecFOV0).UnitVector())
-        , m_rvecFOVY((m_rvecFOVH-m_rvecFOV0).UnitVector())
         , m_rvecLookAt0(rvecLookAt+m_rvecFOV0)
         , m_nType(nType)
         , m_nImageW(nImageW)
@@ -63,8 +53,8 @@ public:
     */
     CRay3d GetRay(const int nImageX, const int nImageY, const float nSubX = 0.0f, const float nSubY = 0.0f) const
     {
-        const CVector3d rvecX = m_rvecFOVX*(m_nFOVWidth*(nImageX+nSubX/2.0f+0.5f)/static_cast< float >(m_nImageW));
-        const CVector3d rvecY = m_rvecFOVY*(m_nFOVHeight*(nImageY+nSubY/2.0f+0.5f)/static_cast< float >(m_nImageH));
+        const CVector3d rvecX = m_uvecRight*(m_nFOVWidth*(nImageX+nSubX/2.0f+0.5f)/static_cast< float >(m_nImageW));
+        const CVector3d rvecY = m_uvecUp*(m_nFOVHeight*(nImageY+nSubY/2.0f+0.5f)/static_cast< float >(m_nImageH));
 
         // point on image plane
         const CVector3d rvecXY = rvecX+rvecY;
