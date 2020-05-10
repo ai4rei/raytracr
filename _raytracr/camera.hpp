@@ -18,11 +18,11 @@ private:
     const float m_nFOVRatio;
     const float m_nFOVHeight;
     const float m_nFOVWidth;
+    const float m_nFovXUnit;
+    const float m_nFovYUnit;
     const CVector3d m_rvecFOV0;
     const CVector3d m_rvecLookAt0;
     const TYPE m_nType;
-    const int m_nImageW;
-    const int m_nImageH;
 
 public:
     CCamera(const CVector3d& ovecEye, const CVector3d& rvecLookAt, const CVector3d& rvecUp, const TYPE nType, const float nFOV, const int nImageW, const int nImageH)
@@ -34,11 +34,11 @@ public:
         , m_nFOVRatio(static_cast< float >(nImageW)/static_cast< float >(nImageH))
         , m_nFOVHeight(tan(PI/180.0f*nFOV))
         , m_nFOVWidth(m_nFOVHeight*m_nFOVRatio)
+        , m_nFovXUnit(m_nFOVWidth/float(nImageW))
+        , m_nFovYUnit(m_nFOVHeight/float(nImageH))
         , m_rvecFOV0(CVector3d(-m_nFOVWidth/2.0f, -m_nFOVHeight/2.0f, 0.0f).MatrixProduct(m_mtxW2C))
         , m_rvecLookAt0(rvecLookAt+m_rvecFOV0)
         , m_nType(nType)
-        , m_nImageW(nImageW)
-        , m_nImageH(nImageH)
     {
     }
 
@@ -53,8 +53,8 @@ public:
     */
     CRay3d GetRay(const int nImageX, const int nImageY, const float nSubX = 0.0f, const float nSubY = 0.0f) const
     {
-        const CVector3d rvecX = m_uvecRight*(m_nFOVWidth*(nImageX+nSubX/2.0f+0.5f)/static_cast< float >(m_nImageW));
-        const CVector3d rvecY = m_uvecUp*(m_nFOVHeight*(nImageY+nSubY/2.0f+0.5f)/static_cast< float >(m_nImageH));
+        const CVector3d rvecX = m_uvecRight*(m_nFovXUnit*(nImageX+nSubX/2.0f+0.5f));
+        const CVector3d rvecY = m_uvecUp*(m_nFovYUnit*(nImageY+nSubY/2.0f+0.5f));
 
         // point on image plane
         const CVector3d rvecXY = rvecX+rvecY;
