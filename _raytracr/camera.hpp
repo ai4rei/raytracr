@@ -15,7 +15,6 @@ private:
     const CVector3d m_uvecRight;
     const CVector3d m_uvecUp;
     const CMatrix3d m_mtxW2C;
-    const float m_nFOVRatio;
     const float m_nFOVHeight;
     const float m_nFOVWidth;
     const float m_nFovXUnit;
@@ -31,9 +30,8 @@ public:
         , m_uvecRight(rvecLookAt.CrossProduct(rvecUp).UnitVector())
         , m_uvecUp(m_uvecRight.CrossProduct(rvecLookAt).UnitVector())  // align the up vector to the camera
         , m_mtxW2C(CMatrix3d().SetFromUpVector(m_uvecUp, m_uvecRight))  // world-to-camera coordinates transformation matrix
-        , m_nFOVRatio(static_cast< float >(nImageW)/static_cast< float >(nImageH))
         , m_nFOVHeight(tan(PI/180.0f*nFOV))
-        , m_nFOVWidth(m_nFOVHeight*m_nFOVRatio)
+        , m_nFOVWidth(m_nFOVHeight*float(nImageW)/float(nImageH))
         , m_nFovXUnit(m_nFOVWidth/float(nImageW))
         , m_nFovYUnit(m_nFOVHeight/float(nImageH))
         , m_rvecFOV0(CVector3d(-m_nFOVWidth/2.0f, -m_nFOVHeight/2.0f, 0.0f).MatrixProduct(m_mtxW2C))
