@@ -1,3 +1,4 @@
 os: windows
 language: cpp
 script: ./.travis.cmd
+before_script: ./.travis-deps.sh

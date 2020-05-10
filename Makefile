@@ -1,10 +1,10 @@
 LINK = link
 
-CPPFLAGS = -nologo -W3 -O2x -GF -EHsc -D_CRT_SECURE_NO_WARNINGS
+CPPFLAGS = -nologo -W3 -O2x -GF -EHsc -D_CRT_SECURE_NO_WARNINGS -I$(DXSDK)\Include
 LFLAGS = -nologo -release user32.lib gdi32.lib comctl32.lib
 RFLAGS = -nologo
 
-LDXFLAGS = ole32.lib d3d9.lib uuid.lib
+LDXFLAGS = -libpath:$(DXSDK)\Lib advapi32.lib ole32.lib d3d9.lib d3dx9.lib uuid.lib
 LGLFLAGS = opengl32.lib glu32.lib
 
 RTPATH = $(MAKEDIR)/_raytracr/
