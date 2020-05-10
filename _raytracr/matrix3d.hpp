@@ -32,7 +32,7 @@ public:
 
     CSelf& SetFromUpVector(const CVector3d& uvecUp, const CVector3d& uvecRight)
     {
-        const CVector3d uvecBack = uvecUp.CrossProduct(uvecRight).UnitVector();
+        const CVector3d uvecBack = uvecRight.CrossProduct(uvecUp).UnitVector();
 
         SetZero();
         SetIdentity();
