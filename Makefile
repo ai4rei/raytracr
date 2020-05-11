@@ -22,6 +22,15 @@ NOOUTPUT = 2> NUL > NUL
 !ERROR Failed to retrieve $(CC) version.
 !ENDIF
 
+!IFDEF DXSDK
+!IFNDEF DX8SDK
+DX8SDK = $(DXSDK)
+!ENDIF
+!IFNDEF DX9SDK
+DX9SDK = $(DXSDK)
+!ENDIF
+!ENDIF
+
 # Per-target configuration
 LDX8FLAGS = -libpath:$(DX8SDK)\Lib advapi32.lib ole32.lib d3d8.lib d3dx8.lib uuid.lib -nodefaultlib:libci.lib
 LDX9FLAGS = -libpath:$(DX9SDK)\Lib advapi32.lib ole32.lib d3d9.lib d3dx9.lib uuid.lib
