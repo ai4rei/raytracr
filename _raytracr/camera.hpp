@@ -28,7 +28,7 @@ public:
         , m_rvecLookAt(rvecLookAt)
         , m_uvecRight(rvecLookAt.CrossProduct(rvecUp).UnitVector())
         , m_uvecUp(m_uvecRight.CrossProduct(rvecLookAt).UnitVector())  // align the up vector to the camera
-        , m_nFovH(tan(PI/180.0f*nFOV))
+        , m_nFovH(tan(PI*nFOV/360.0f)*2.0f*rvecLookAt.Magnitude())
         , m_nFovW(m_nFovH*float(nImageW)/float(nImageH))
         , m_nFovXUnit(m_nFovW/float(nImageW))
         , m_nFovYUnit(m_nFovH/float(nImageH))
