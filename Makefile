@@ -6,8 +6,21 @@ CPPFLAGS = -nologo -W3 -O2x -GF -EHsc -D_CRT_SECURE_NO_WARNINGS -I$(DXSDK)\Inclu
 LFLAGS = -nologo -release user32.lib gdi32.lib comctl32.lib
 RFLAGS = -nologo
 
+# Dynamic configuration
+!IF [$(CC) -nologo -EP -P msvc\msvc_detect_version.cpp] == 0
+!INCLUDE msvc_detect_version.i
+!IF [DEL msvc_detect_version.i]
+!ENDIF
+!MESSAGE Detecting $(CC) version... $(CLVERSION)
+!ELSE
+!ERROR Failed to retrieve $(CC) version.
+!ENDIF
+
 # Per-target configuration
 LDXFLAGS = -libpath:$(DXSDK)\Lib advapi32.lib ole32.lib d3d9.lib d3dx9.lib uuid.lib
+!IF $(CLVERSION) >= 1900
+LDXFLAGS = $(LDXFLAGS) legacy_stdio_definitions.lib
+!ENDIF
 LGLFLAGS = opengl32.lib glu32.lib
 
 # Targets
