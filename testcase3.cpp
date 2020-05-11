@@ -101,7 +101,7 @@ public:
         }
 
         // Lights
-        AddLight(CreateLight(CreateVector3d(+0.0f, +9.0f, +0.0f), CreateColor(1.0f, 1.0f, 1.0f), 50.0f));
+        AddLight(CreateLight(CreateVector3d(+0.0f, +9.0f, +0.0f), CreateColor(1.0f, 1.0f, 1.0f), 50.0f, 0.0f, 0.1f, 0.0f));
 
         SetBounceDepth(2);
         SetCallback(&UpdateRenderProgressCB);

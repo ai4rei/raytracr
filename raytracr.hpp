@@ -135,7 +135,7 @@ public:
 
                 if(!ShadowHit)
                 {
-                    clrLight = clrLight+(Light.GetColor()*(1.0f-(min(rvecDirLight.Magnitude(), Light.GetIntensity())/Light.GetIntensity())));
+                    clrLight+= Light.GetAttenuatedColor(rvecDirLight.Magnitude());
                 }
             }
 
@@ -238,9 +238,9 @@ public:
         return CSphere(ovecOrigin, nRadius, clrColor);
     }
 
-    static CLight CreateLight(const CVector3d& ovecOrigin, const CColor& clrColor, const float nIntensity)
+    static CLight CreateLight(const CVector3d& ovecOrigin, const CColor& clrColor, const float nRange, const float nAtt0 = 1.0f, const float nAtt1 = 0.1f, const float nAtt2 = 0.01f)
     {
-        return CLight(ovecOrigin, clrColor, nIntensity);
+        return CLight(ovecOrigin, clrColor, nRange, nAtt0, nAtt1, nAtt2);
     }
 
     static CVector3d CreateVector3d(const float nX, const float nY, const float nZ)
