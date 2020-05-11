@@ -7,7 +7,13 @@ LFLAGS = -nologo -release user32.lib gdi32.lib comctl32.lib
 RFLAGS = -nologo
 
 # Dynamic configuration
-!IF [$(CC) -nologo -EP -P msvc\msvc_detect_version.cpp] == 0
+!IF [$(CC) -nologo -c 2> NUL > NUL] == 0
+NOOUTPUT = > NUL
+!ELSE
+NOOUTPUT = 2> NUL > NUL
+!ENDIF
+
+!IF [$(CC) -nologo -EP -P msvc\msvc_detect_version.cpp $(NOOUTPUT)] == 0
 !INCLUDE msvc_detect_version.i
 !IF [DEL msvc_detect_version.i]
 !ENDIF
