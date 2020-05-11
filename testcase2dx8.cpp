@@ -1,7 +1,7 @@
 #include <windows.h>
 #include <windowsx.h>
-#include <d3d9.h>
-#include <d3dx9.h>
+#include <d3d8.h>
+#include <d3dx8.h>
 
 #include "simplewnd.tpp"
 
@@ -33,7 +33,8 @@ private:
     typedef CSimpleWindow CSuper;
 
 protected:
-    IDirect3DDevice9* m_lpDD;
+    D3DFORMAT m_nBackBufferFormat;
+    IDirect3DDevice8* m_lpDD;
 
     ID3DXMesh* m_lpSphere1Mesh;
     ID3DXMesh* m_lpSphere01Mesh;
@@ -45,6 +46,7 @@ public:
 
     CTestWindow(HINSTANCE hInstance)
         : CSimpleWindow(hInstance, 640, 480, WS_VISIBLE|WS_POPUPWINDOW|WS_CAPTION|WS_MINIMIZEBOX)
+        , m_nBackBufferFormat(D3DFMT_UNKNOWN)
         , m_lpDD(nullptr)
         , m_lpSphere1Mesh(nullptr)
         , m_lpSphere01Mesh(nullptr)
@@ -80,7 +82,7 @@ public:
         }
 
         // R.AddLight(Raytracer::CreateLight(Raytracer::CreateVector3d(+9.0f, +9.0f, +0.0f), Raytracer::CreateColor(1.0f, 1.0f, 1.0f), 50.0f));
-        D3DLIGHT9 Li = { D3DLIGHT_POINT };
+        D3DLIGHT8 Li = { D3DLIGHT_POINT };
         Li.Diffuse =
         Li.Specular = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
         Li.Ambient = D3DXCOLOR(0.0f, 0.0f, 0.0f, 1.0f);
@@ -138,15 +140,25 @@ public:
     {
         if(m_lpDD==nullptr)
         {
-            IDirect3D9* lpD3D = Direct3DCreate9(D3D_SDK_VERSION);
+            IDirect3D8* lpD3D = Direct3DCreate8(D3D_SDK_VERSION);
 
             if(lpD3D==nullptr)
             {
                 return false;
             }
 
+            D3DDISPLAYMODE Dm = { 0 };
+
+            if(FAILED(lpD3D->GetAdapterDisplayMode(D3DADAPTER_DEFAULT, &Dm)))
+            {
+                return false;
+            }
+
+            m_nBackBufferFormat = Dm.Format;
+
             D3DPRESENT_PARAMETERS PP = { 0 };
 
+            PP.BackBufferFormat = m_nBackBufferFormat;
             PP.Windowed = TRUE;
             PP.SwapEffect = D3DSWAPEFFECT_FLIP;
             PP.EnableAutoDepthStencil = TRUE;
@@ -181,7 +193,7 @@ public:
         D3DXMatrixTranslation(&mtxWorld, ovecPosition.x, ovecPosition.y, ovecPosition.z);
         m_lpDD->SetTransform(D3DTS_WORLD, &mtxWorld);
 
-        D3DMATERIAL9 matMaterial = { 0 };
+        D3DMATERIAL8 matMaterial = { 0 };
 
         matMaterial.Diffuse = matMaterial.Ambient = clrMaterial;
         m_lpDD->SetMaterial(&matMaterial);
@@ -212,10 +224,10 @@ public:
                 { +100.0f, +0.0f, -100.0f, 0.0f, 1.0f, 0.0f },
                 { -100.0f, +0.0f, -100.0f, 0.0f, 1.0f, 0.0f },
             };
-            D3DMATERIAL9 matWhite = { 0 };
+            D3DMATERIAL8 matWhite = { 0 };
             matWhite.Diffuse = matWhite.Ambient = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
             m_lpDD->SetMaterial(&matWhite);
-            m_lpDD->SetFVF(D3DFVF_XYZ|D3DFVF_NORMAL);
+            m_lpDD->SetVertexShader(D3DFVF_XYZ|D3DFVF_NORMAL);
             m_lpDD->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, _countof(avtxFan)-2, &avtxFan, sizeof(avtxFan[0]));
 
             //R.AddObject(Raytracer::CreateSphere(Raytracer::CreateVector3d(+0.0f, +0.0f, +0.0f), 0.1f, Raytracer::CreateColor(1.0f, 0.0f, 0.0f)));
@@ -263,6 +275,7 @@ public:
         GetClientRect(hWnd, &rcWnd);
 
         D3DPRESENT_PARAMETERS PP = { 0 };
+        PP.BackBufferFormat = m_nBackBufferFormat;
         PP.Windowed = TRUE;
         PP.SwapEffect = D3DSWAPEFFECT_FLIP;
         PP.EnableAutoDepthStencil = TRUE;
