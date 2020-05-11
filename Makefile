@@ -24,6 +24,9 @@ NOOUTPUT = 2> NUL > NUL
 
 # Per-target configuration
 LDX8FLAGS = -libpath:$(DXSDK)\Lib advapi32.lib ole32.lib d3d8.lib d3dx8.lib uuid.lib -nodefaultlib:libci.lib
+!IF $(CCVERSION) >= 1900
+LDX8FLAGS = $(LDX8FLAGS) legacy_stdio_definitions.lib
+!ENDIF
 LGLFLAGS = opengl32.lib glu32.lib
 
 # Targets
