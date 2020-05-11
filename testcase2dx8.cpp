@@ -254,7 +254,7 @@ public:
         {
             if(CSuper::WndProcOnCreate(hWnd, lpCreateStruct))
             {// this has to come last, because it triggers onWindowPosChanged
-                SetWindowText(hWnd, "DirectX TestCase (press ESC to exit)");
+                SetWindowText(hWnd, "DirectX8 TestCase (press ESC to exit)");
                 return TRUE;
             }
         }
