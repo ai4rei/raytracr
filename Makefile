@@ -11,7 +11,7 @@ RFLAGS = -nologo
 !INCLUDE msvc_detect_version.i
 !IF [DEL msvc_detect_version.i]
 !ENDIF
-!MESSAGE Detecting $(CC) version... $(CCVERSION)
+!MESSAGE Detected $(CC) version: $(CCVERSION)
 !ELSE
 !ERROR Failed to retrieve $(CC) version.
 !ENDIF
