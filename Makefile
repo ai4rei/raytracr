@@ -11,14 +11,14 @@ RFLAGS = -nologo
 !INCLUDE msvc_detect_version.i
 !IF [DEL msvc_detect_version.i]
 !ENDIF
-!MESSAGE Detecting $(CC) version... $(CLVERSION)
+!MESSAGE Detecting $(CC) version... $(CCVERSION)
 !ELSE
 !ERROR Failed to retrieve $(CC) version.
 !ENDIF
 
 # Per-target configuration
 LDXFLAGS = -libpath:$(DXSDK)\Lib advapi32.lib ole32.lib d3d9.lib d3dx9.lib uuid.lib
-!IF $(CLVERSION) >= 1900
+!IF $(CCVERSION) >= 1900
 LDXFLAGS = $(LDXFLAGS) legacy_stdio_definitions.lib
 !ENDIF
 LGLFLAGS = opengl32.lib glu32.lib
