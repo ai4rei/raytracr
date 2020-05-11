@@ -15,6 +15,7 @@ private:
     typedef CSimpleWindow CSuper;
 
 protected:
+    SIZE m_LastWndSize;
 
 public:
     virtual ~CTestWindow()
@@ -23,6 +24,7 @@ public:
 
     CTestWindow(HINSTANCE hInstance)
         : CSimpleWindow(hInstance, 640, 480, WS_VISIBLE|WS_POPUPWINDOW|WS_CAPTION|WS_MINIMIZEBOX|WS_CLIPCHILDREN|WS_CLIPSIBLINGS)
+        , m_LastWndSize()
     {
     }
 
@@ -31,12 +33,17 @@ public:
         glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
 
         // R.AddObject(Raytracer::CreatePlane(Raytracer::CreateVector3d(+0.0f, +0.0f, +0.0f), Raytracer::CreateVector3d(+0.0f, +1.0f, +0.0f), Raytracer::CreateColor(1.0f, 1.0f, 1.0f)));
-        glBegin(GL_QUADS);
+        glPopMatrix();
+        glPushMatrix();
+        glBegin(GL_TRIANGLE_FAN);
             glColor3f(1.0f, 1.0f, 1.0f);
+            glNormal3f(+0.0f, +1.0f, +0.0f);
+            glVertex3f(  +0.0f, +0.0f,   +0.0f);
             glVertex3f(-100.0f, +0.0f, -100.0f);
             glVertex3f(-100.0f, +0.0f, +100.0f);
             glVertex3f(+100.0f, +0.0f, +100.0f);
             glVertex3f(+100.0f, +0.0f, -100.0f);
+            glVertex3f(-100.0f, +0.0f, -100.0f);
         glEnd();
 
         GLUquadricObj* lpQuadric = gluNewQuadric();
@@ -98,7 +105,8 @@ public:
             {
                 if(wglMakeCurrent(hDC, hGLRC))
                 {
-                    GLfloat aLightPos[] = { 1.0f, 1.0f, 0.0f, 0.0f };
+                    //R.AddLight(Raytracer::CreateLight(Raytracer::CreateVector3d(+9.0f, +9.0f, +0.0f), Raytracer::CreateColor(1.0f, 1.0f, 1.0f), 50.0f));
+                    GLfloat aLightPos[] = { 9.0f, 9.0f, 0.0f, 1.0f };
 
                     glMatrixMode(GL_MODELVIEW);
                     glLoadIdentity();
@@ -112,9 +120,13 @@ public:
                     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
                     glClearDepth(1.0f);
                     glLightfv(GL_LIGHT0, GL_POSITION, aLightPos);
+                    glLightf(GL_LIGHT0, GL_CONSTANT_ATTENUATION, 0.0f);
+                    glLightf(GL_LIGHT0, GL_LINEAR_ATTENUATION, 0.1f);
+                    glLightf(GL_LIGHT0, GL_QUADRATIC_ATTENUATION, 0.0f);
                     glEnable(GL_LIGHTING);
                     glEnable(GL_LIGHT0);
                     glEnable(GL_COLOR_MATERIAL);
+                    glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
                     glEnable(GL_DEPTH_TEST);
                     glDepthFunc(GL_LEQUAL);
 
@@ -164,11 +176,18 @@ public:
         RECT rcWnd;
 
         GetClientRect(hWnd, &rcWnd);
-        glMatrixMode(GL_PROJECTION);
-        glLoadIdentity();
-        gluPerspective(45.0f, float(rcWnd.right-rcWnd.left)/float(rcWnd.bottom-rcWnd.top), 1.0f, 100.0f);
-        glViewport(0, 0, rcWnd.right-rcWnd.left, rcWnd.bottom-rcWnd.top);
-        InvalidateRect(hWnd, NULL, FALSE);
+
+        if(m_LastWndSize.cx!=rcWnd.right-rcWnd.left || m_LastWndSize.cy!=rcWnd.bottom-rcWnd.top)
+        {
+            m_LastWndSize.cx = rcWnd.right-rcWnd.left;
+            m_LastWndSize.cy = rcWnd.bottom-rcWnd.top;
+
+            glMatrixMode(GL_PROJECTION);
+            glLoadIdentity();
+            gluPerspective(180.0f/4, float(m_LastWndSize.cx)/float(m_LastWndSize.cy), 1.0f, 100.0f);
+            glViewport(0, 0, m_LastWndSize.cx, m_LastWndSize.cy);
+            InvalidateRect(hWnd, NULL, FALSE);
+        }
 
         CSuper::WndProcOnWindowPosChanged(hWnd, lpWP);
     }
