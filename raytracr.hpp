@@ -130,6 +130,12 @@ public:
                 const CLight& Light = *m_aobjLights[uIdx];
 
                 const CVector3d rvecDirLight = Light.GetOrigin()-ovecHitPoint;
+
+                if(rvecDirLight.Magnitude()>Light.GetRange())
+                {// this light has no effect
+                    continue;
+                }
+
                 const CRay3d ShadowRay(ovecHitPoint, rvecDirLight.UnitVector());
                 const CHit3d ShadowHit = HitTest(ShadowRay, 0.001f, rvecDirLight.Magnitude(), true);
 
