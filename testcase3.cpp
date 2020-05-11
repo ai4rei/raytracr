@@ -212,7 +212,7 @@ public:
         ptRadial2.x = rcPie.left+(nPieWidth/2)+int((nPieWidth/2)*cos(nTwoAngle));
         ptRadial2.y = rcPie.top+(nPieHeight/2)+int((nPieHeight/2)*sin(nTwoAngle));
 
-        SaveDC(hDC);
+        if(SaveDC(hDC))
         {
             CSolidPen hpnPen(nPenWidth, clrStroke);
             SelectObject(hDC, hpnPen);
@@ -229,8 +229,9 @@ public:
             CSolidBrush hbrTop(RGB(GetRValue(clrBack)*3/2, GetGValue(clrBack)*3/2, GetBValue(clrBack)*3/2));
             SelectObject(hDC, hbrTop);
             Pie(hDC, rcPie.left, rcPie.top, rcPie.right, rcPie.bottom, ptRadial1.x, ptRadial1.y, ptRadial2.x, ptRadial2.y);
+
+            RestoreDC(hDC, -1);
         }
-        RestoreDC(hDC, -1);
     }
 
     static HBITMAP BitmapFromPixels2(const std::vector< CColor >& aclrPixels, const int nImageW, const int nImageH)
@@ -650,12 +651,13 @@ public:
 
                         if(hDC!=nullptr)
                         {
-                            SaveDC(hDC);
+                            if(SaveDC(hDC))
                             {
                                 SelectObject(hDC, m_hbmOutput);
                                 StretchBlt(Ps.hdc, 0, 0, rcWnd.right-rcWnd.left, rcWnd.bottom-rcWnd.top, hDC, 0, 0, bmInfo.bmWidth, bmInfo.bmHeight, SRCCOPY);
+
+                                RestoreDC(hDC, -1);
                             }
-                            RestoreDC(hDC, -1);
 
                             DeleteDC(hDC);
                         }
@@ -665,7 +667,7 @@ public:
 
                 if(m_bShowHelp)
                 {
-                    SaveDC(Ps.hdc);
+                    if(SaveDC(Ps.hdc))
                     {
                         char szHelpText[1024];
 
@@ -695,8 +697,9 @@ public:
                         SetBkMode(Ps.hdc, TRANSPARENT);
                         SelectObject(Ps.hdc, GetStockObject(SYSTEM_FIXED_FONT));
                         DrawTextEx(Ps.hdc, szHelpText, -1, &rcWnd, DT_WORDBREAK|DT_TOP|DT_LEFT, nullptr);
+
+                        RestoreDC(Ps.hdc, -1);
                     }
-                    RestoreDC(Ps.hdc, -1);
                 }
 
                 EndPaint(hWnd, &Ps);
