@@ -2,7 +2,7 @@
 LINK = link
 
 # Command configuration
-CPPFLAGS = -nologo -W3 -O2x -GF -EHsc -D_CRT_SECURE_NO_WARNINGS -I$(DXSDK)\Include
+CPPFLAGS = -nologo -W3 -O2x -GF -EHsc -D_CRT_SECURE_NO_WARNINGS -I$(DX9SDK)\Include
 LFLAGS = -nologo -release user32.lib gdi32.lib comctl32.lib
 RFLAGS = -nologo
 
@@ -23,7 +23,7 @@ NOOUTPUT = 2> NUL > NUL
 !ENDIF
 
 # Per-target configuration
-LDX9FLAGS = -libpath:$(DXSDK)\Lib advapi32.lib ole32.lib d3d9.lib d3dx9.lib uuid.lib
+LDX9FLAGS = -libpath:$(DX9SDK)\Lib advapi32.lib ole32.lib d3d9.lib d3dx9.lib uuid.lib
 !IF $(CCVERSION) >= 1900
 LDX9FLAGS = $(LDX9FLAGS) legacy_stdio_definitions.lib
 !ENDIF
