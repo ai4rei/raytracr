@@ -1,29 +1,16 @@
+# Command macros
 LINK = link
 
+# Command configuration
 CPPFLAGS = -nologo -W3 -O2x -GF -EHsc -D_CRT_SECURE_NO_WARNINGS -I$(DXSDK)\Include
 LFLAGS = -nologo -release user32.lib gdi32.lib comctl32.lib
 RFLAGS = -nologo
 
+# Per-target configuration
 LDXFLAGS = -libpath:$(DXSDK)\Lib advapi32.lib ole32.lib d3d9.lib d3dx9.lib uuid.lib
 LGLFLAGS = opengl32.lib glu32.lib
 
-RTPATH = $(MAKEDIR)/_raytracr/
-RTHEADERS = \
-    $(RTPATH)camera.hpp \
-    $(RTPATH)color.hpp \
-    $(RTPATH)hit3d.hpp \
-    $(RTPATH)light.hpp \
-    $(RTPATH)matrix.hpp \
-    $(RTPATH)matrix3d.hpp \
-    $(RTPATH)object.hpp \
-    $(RTPATH)plane.hpp \
-    $(RTPATH)plane3d.hpp \
-    $(RTPATH)ray3d.hpp \
-    $(RTPATH)sphere.hpp \
-    $(RTPATH)sphere3d.hpp \
-    $(RTPATH)triangle.hpp \
-    $(RTPATH)vector3d.hpp
-
+# Targets
 all : \
     testcase1.exe \
     testcase2.exe \
@@ -56,7 +43,21 @@ testcase1.cpp testcase2dx.cpp testcase2gl.cpp testcase2w.cpp testcase3.cpp : sim
 
 testcase3.cpp :  testcase3.h
 
-raytracr.hpp : $(RTHEADERS)
+raytracr.hpp : \
+    _raytracr\camera.hpp \
+    _raytracr\color.hpp \
+    _raytracr\hit3d.hpp \
+    _raytracr\light.hpp \
+    _raytracr\matrix.hpp \
+    _raytracr\matrix3d.hpp \
+    _raytracr\object.hpp \
+    _raytracr\plane.hpp \
+    _raytracr\plane3d.hpp \
+    _raytracr\ray3d.hpp \
+    _raytracr\sphere.hpp \
+    _raytracr\sphere3d.hpp \
+    _raytracr\triangle.hpp \
+    _raytracr\vector3d.hpp
 
 clean :
     for %%i in (testcase1 testcase2 testcase2dx testcase2gl testcase2w testcase3) do @for %%j in (exe obj res pdb) do @if exist %i.%j del %i.%j
