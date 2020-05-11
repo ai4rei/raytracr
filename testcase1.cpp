@@ -290,7 +290,7 @@ int __cdecl main(int nArgc, char** lppszArgv)
     //R.AddLight(Raytracer::CreateLight(Raytracer::CreateVector3d(+9.0f, +9.0f, +9.0f), Raytracer::CreateColor(0.0f, 0.0f, 1.0f), 50.0f, 0.0f, 0.1f, 0.0f));
 
     // Small lights
-    for(float nLightZ = +0.0f; nLightZ<+20.0f; nLightZ++)
+    for(float nLightZ = -20.0f; nLightZ<+1.0f; nLightZ++)
     {
         R.AddLight(Raytracer::CreateLight(Raytracer::CreateVector3d(-5.999f, +0.001f, nLightZ), Raytracer::CreateColor(1.0f, 1.0f, 0.0f), 1.0f, 0.0f, 20.0f));
     }
@@ -306,7 +306,7 @@ int __cdecl main(int nArgc, char** lppszArgv)
 
     puts("Rendering...");
 
-    const auto ovecEye = Raytracer::CreateVector3d(+0.0f, +1.0f, +10.0f);
+    const auto ovecEye = Raytracer::CreateVector3d(+0.0f, +1.0f, +12.0f);
     const auto rvecLookAt = Raytracer::CreateVector3d(+0.0f, +0.0f, -1.0f);
     const auto uvecUp = Raytracer::CreateVector3d(+0.0f, +1.0f, +0.0f);
     const auto mtxFront = Raytracer::CreateMatrix3d().SetIdentity().AddYRotation(PI/180.0f*0.0f);
