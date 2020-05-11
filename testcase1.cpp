@@ -289,6 +289,12 @@ int __cdecl main(int nArgc, char** lppszArgv)
     //R.AddLight(Raytracer::CreateLight(Raytracer::CreateVector3d(+9.0f, +9.0f, +0.0f), Raytracer::CreateColor(0.0f, 1.0f, 0.0f), 50.0f, 0.0f, 0.1f, 0.0f));
     //R.AddLight(Raytracer::CreateLight(Raytracer::CreateVector3d(+9.0f, +9.0f, +9.0f), Raytracer::CreateColor(0.0f, 0.0f, 1.0f), 50.0f, 0.0f, 0.1f, 0.0f));
 
+    // Small lights
+    for(float nLightZ = +0.0f; nLightZ<+20.0f; nLightZ++)
+    {
+        R.AddLight(Raytracer::CreateLight(Raytracer::CreateVector3d(-5.999f, +0.001f, nLightZ), Raytracer::CreateColor(1.0f, 1.0f, 0.0f), 1.0f, 0.0f, 20.0f));
+    }
+
     if(nArgc>2 && atoi(lppszArgv[1])>0 && atoi(lppszArgv[2])>0)
     {
         R.SetImageSize(atoi(lppszArgv[1])/2, atoi(lppszArgv[2])/2);
