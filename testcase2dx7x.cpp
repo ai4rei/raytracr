@@ -53,15 +53,11 @@ private:
     typedef CSimpleWindow CSuper;
 
 protected:
-    IDirectDraw7* m_lpDDraw;
+    ID3DXContext* m_lpDC;
     IDirect3DDevice7* m_lpDD;
-    IDirectDrawSurface7* m_lpDDSPrimary;
 
-    ID3DXSimpleShape* m_lpSphere1Mesh;
-    ID3DXSimpleShape* m_lpSphere01Mesh;
-
-    RECT m_rcClientCoords;
-    RECT m_rcScreenCoords;
+    ID3DXMesh* m_lpSphere1Mesh;
+    ID3DXMesh* m_lpSphere01Mesh;
 
 public:
     virtual ~CTestWindow()
@@ -70,13 +66,10 @@ public:
 
     CTestWindow(HINSTANCE hInstance)
         : CSimpleWindow(hInstance, 640, 480, WS_VISIBLE|WS_POPUPWINDOW|WS_CAPTION|WS_MINIMIZEBOX)
-        , m_lpDDraw(nullptr)
+        , m_lpDC(nullptr)
         , m_lpDD(nullptr)
-        , m_lpDDSPrimary(nullptr)
         , m_lpSphere1Mesh(nullptr)
         , m_lpSphere01Mesh(nullptr)
-        , m_rcClientCoords()
-        , m_rcScreenCoords()
     {
     }
 
@@ -97,9 +90,10 @@ public:
     {
         ReleaseCOM(&m_lpSphere01Mesh);
         ReleaseCOM(&m_lpSphere1Mesh);
-        ReleaseCOM(&m_lpDDSPrimary);
         ReleaseCOM(&m_lpDD);
-        ReleaseCOM(&m_lpDDraw);
+        ReleaseCOM(&m_lpDC);
+
+        D3DXUninitialize();
     }
 
     bool InitializeDevice()
@@ -151,20 +145,6 @@ public:
             return false;
         }
 
-        D3DVIEWPORT7 V = { 0 };
-
-        V.dwX = m_rcClientCoords.left;
-        V.dwY = m_rcClientCoords.top;
-        V.dwWidth = m_rcClientCoords.right;
-        V.dwHeight = m_rcClientCoords.bottom;
-        V.dvMinZ = 0.0;
-        V.dvMaxZ = 1.0;
-
-        if(FAILED(m_lpDD->SetViewport(&V)))
-        {
-            return false;
-        }
-
         if(FAILED(D3DXCreateSphere(m_lpDD, 1.0f, 20, 20, D3DX_DEFAULT, &m_lpSphere1Mesh)))
         {
             return false;
@@ -178,174 +158,21 @@ public:
         return true;
     }
 
-    HRESULT InitializePrimarySurface(IDirectDraw7* lpDD, HWND hWnd, IDirectDrawSurface7** lppDDSOut)
-    {
-        HRESULT hr = E_UNEXPECTED;
-        IDirectDrawSurface7* lpDDS = NULL;
-        DDSURFACEDESC2 Sd = { sizeof(Sd) };
-
-        lppDDSOut[0] = NULL;
-
-        Sd.dwFlags = DDSD_CAPS;
-        Sd.ddsCaps.dwCaps = DDSCAPS_PRIMARYSURFACE;
-
-        hr = lpDD->CreateSurface(&Sd, &lpDDS, NULL);
-
-        if(!FAILED(hr))
-        {
-            IDirectDrawClipper* lpClipper = NULL;
-
-            hr = lpDD->CreateClipper(0, &lpClipper, NULL);
-
-            if(!FAILED(hr))
-            {
-                hr = lpClipper->SetHWnd(0, hWnd);
-
-                if(!FAILED(hr))
-                {
-                    hr = lpDDS->SetClipper(lpClipper);
-
-                    if(!FAILED(hr))
-                    {
-                        lpDDS->AddRef();
-                        lppDDSOut[0] = lpDDS;
-                    }
-                }
-
-                lpClipper->Release();
-                lpClipper = NULL;
-            }
-
-            lpDDS->Release();
-            lpDDS = NULL;
-        }
-
-        return hr;
-    }
-
-    static HRESULT CALLBACK InitializeBackBufferZBufferCB(DDPIXELFORMAT* lpDDPixFmt, void* lpContext)
-    {
-        if(lpDDPixFmt->dwFlags==(DDPF_STENCILBUFFER|DDPF_ZBUFFER))
-        {
-            DDPIXELFORMAT* lpDDPixFmtOut = (DDPIXELFORMAT*)lpContext;
-
-            lpDDPixFmtOut[0] = lpDDPixFmt[0];
-
-            return D3DENUMRET_CANCEL;
-        }
-
-        return D3DENUMRET_OK;
-    }
-
-    HRESULT InitializeBackBuffer(IDirectDraw7* lpDD, HWND hWnd, IDirectDrawSurface7** lppDDSOut)
-    {
-        HRESULT hr = E_UNEXPECTED;
-        IDirectDrawSurface7* lpDDS = NULL;
-        DDSURFACEDESC2 Sd = { sizeof(Sd) };
-
-        lppDDSOut[0] = NULL;
-
-        GetClientRect(hWnd, &m_rcClientCoords);
-
-        m_rcScreenCoords = m_rcClientCoords;
-        MapWindowPoints(hWnd, NULL, (POINT*)&m_rcScreenCoords, sizeof(m_rcScreenCoords)/sizeof(POINT));
-
-        Sd.dwFlags = DDSD_CAPS|DDSD_WIDTH|DDSD_HEIGHT;
-        Sd.ddsCaps.dwCaps = DDSCAPS_3DDEVICE|DDSCAPS_OFFSCREENPLAIN;
-        Sd.dwWidth = m_rcClientCoords.right-m_rcClientCoords.left;
-        Sd.dwHeight = m_rcClientCoords.bottom-m_rcClientCoords.top;
-
-        hr = lpDD->CreateSurface(&Sd, &lpDDS, NULL);
-
-        if(!FAILED(hr))
-        {
-            IDirect3D7* lpD3D = NULL;
-
-            hr = lpDD->QueryInterface(IID_IDirect3D7, (void**)&lpD3D);
-
-            if(!FAILED(hr))
-            {
-                hr = lpD3D->EnumZBufferFormats(IID_IDirect3DHALDevice, &CSelf::InitializeBackBufferZBufferCB, &Sd.ddpfPixelFormat);
-
-                if(!FAILED(hr))
-                {
-                    IDirectDrawSurface7* lpDDSZBuffer = NULL;
-
-                    Sd.dwFlags = DDSD_CAPS|DDSD_WIDTH|DDSD_HEIGHT|DDSD_PIXELFORMAT;
-                    Sd.ddsCaps.dwCaps = DDSCAPS_ZBUFFER;
-                    // width and height is left over from previous call
-
-                    hr = lpDD->CreateSurface(&Sd, &lpDDSZBuffer, NULL);
-
-                    if(!FAILED(hr))
-                    {
-                        hr = lpDDS->AddAttachedSurface(lpDDSZBuffer);
-
-                        if(!FAILED(hr))
-                        {
-                            lpDDS->AddRef();
-                            lppDDSOut[0] = lpDDS;
-                        }
-
-                        lpDDSZBuffer->Release();
-                        lpDDSZBuffer = NULL;
-                    }
-                }
-
-                lpD3D->Release();
-                lpD3D = NULL;
-            }
-
-            lpDDS->Release();
-            lpDDS = NULL;
-        }
-
-        return hr;
-    }
-
     bool InitializeDirectX(HWND hWnd)
     {
-        if(m_lpDD==nullptr)
+        if(m_lpDC==nullptr)
         {
-            if(FAILED(DirectDrawCreateEx(NULL, (void**)&m_lpDDraw, IID_IDirectDraw7, NULL)))
+            if(FAILED(D3DXInitialize()))
             {
                 return false;
             }
 
-            if(FAILED(m_lpDDraw->SetCooperativeLevel(hWnd, DDSCL_NORMAL)))
+            if(FAILED(D3DXCreateContextEx(D3DX_DEFAULT, 0, hWnd, NULL, D3DX_DEFAULT, D3DX_DEFAULT, D3DX_DEFAULT, D3DX_DEFAULT, D3DX_DEFAULT, D3DX_DEFAULT, D3DX_DEFAULT, D3DX_DEFAULT, &m_lpDC)))
             {
                 return false;
             }
 
-            if(FAILED(InitializePrimarySurface(m_lpDDraw, hWnd, &m_lpDDSPrimary)))
-            {
-                return false;
-            }
-
-            IDirectDrawSurface7* lpDDSBackBuffer = NULL;
-
-            if(FAILED(InitializeBackBuffer(m_lpDDraw, hWnd, &lpDDSBackBuffer)))
-            {
-                return false;
-            }
-
-            IDirect3D7* lpD3D = NULL;
-
-            if(FAILED(m_lpDDraw->QueryInterface(IID_IDirect3D7, (void**)&lpD3D)))
-            {
-                lpDDSBackBuffer->Release();
-                return false;
-            }
-
-            HRESULT hr = lpD3D->CreateDevice(IID_IDirect3DHALDevice, lpDDSBackBuffer, &m_lpDD);
-
-            lpDDSBackBuffer->Release();  // should have kept a reference
-            lpD3D->Release();  // no longer needed
-
-            if(FAILED(hr))
-            {
-                return false;
-            }
+            m_lpDD = m_lpDC->GetD3DDevice();
 
             return InitializeDevice();
         }
@@ -418,15 +245,7 @@ public:
             m_lpDD->EndScene();
         }
 
-        IDirectDrawSurface7* lpDDSBackBuffer = NULL;
-
-        if(!FAILED(m_lpDD->GetRenderTarget(&lpDDSBackBuffer)))
-        {
-            m_lpDDSPrimary->Blt(&m_rcScreenCoords, lpDDSBackBuffer, &m_rcClientCoords, DDBLT_WAIT, NULL);
-
-            lpDDSBackBuffer->Release();
-            lpDDSBackBuffer = NULL;
-        }
+        m_lpDC->UpdateFrame(0);
     }
 
     virtual BOOL WndProcOnCreate(HWND hWnd, LPCREATESTRUCT lpCreateStruct)
@@ -435,7 +254,7 @@ public:
         {
             if(CSuper::WndProcOnCreate(hWnd, lpCreateStruct))
             {// this has to come last, because it triggers onWindowPosChanged
-                SetWindowText(hWnd, "DirectX7 TestCase (press ESC to exit)");
+                SetWindowText(hWnd, "DirectX7X TestCase (press ESC to exit)");
                 return TRUE;
             }
         }
@@ -457,7 +276,7 @@ public:
 
         if(!IsMinimized(hWnd))
         {
-            ReinitializeDirectX(hWnd);
+            m_lpDC->Resize(rcWnd.right-rcWnd.left, rcWnd.bottom-rcWnd.top);
 
             // NOTE: Compared to DX8/DX9, the aspect ratio is 1/x
             D3DXMATRIX mtxP;
