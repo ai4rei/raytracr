@@ -9,6 +9,6 @@ Originally an assignment from 2020-01-30, now just a playground for a future pro
 * Enter `nmake` and confirm with `ENTER`
 
 ## Screenshots
-![Screenshot of raytracr test case 1](http://nn.ai4rei.net/share/raytracr1.png)
-![Screenshot of raytracr test case 2](http://nn.ai4rei.net/share/raytracr2.png)
-![Screenshot of raytracr test case 3](http://nn.ai4rei.net/share/raytracr3.png)
+![Screenshot of raytracr test case 1](https://ai4rei.net/sites/nn/share/raytracr1.png)
+![Screenshot of raytracr test case 2](https://ai4rei.net/sites/nn/share/raytracr2.png)
+![Screenshot of raytracr test case 3](https://ai4rei.net/sites/nn/share/raytracr3.png)
