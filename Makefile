@@ -39,6 +39,7 @@ LDX7FLAGS = -libpath:$(DX7SDK)\Lib advapi32.lib ole32.lib ddraw.lib d3dx.lib dxg
 LDX8FLAGS = -libpath:$(DX8SDK)\Lib advapi32.lib ole32.lib d3d8.lib d3dx8.lib -nodefaultlib:libci.lib
 LDX9FLAGS = -libpath:$(DX9SDK)\Lib advapi32.lib ole32.lib d3d9.lib d3dx9.lib
 !IF $(CCVERSION) >= 1900
+LDX7FLAGS = $(LDX7FLAGS) legacy_stdio_definitions.lib
 LDX8FLAGS = $(LDX8FLAGS) legacy_stdio_definitions.lib
 LDX9FLAGS = $(LDX9FLAGS) legacy_stdio_definitions.lib
 !ENDIF
