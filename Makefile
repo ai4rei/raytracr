@@ -109,5 +109,8 @@ testcase3.cpp :  testcase3.h
 raytracr.hpp : _raytracr\*.hpp
 
 clean :
-    for %%i in (testcase1 testcase2 testcase2dx7 testcase2dx7x testcase2dx8 testcase2dx9 testcase2gl testcase2w testcase3) do @for %%j in (exe obj res pdb) do @if exist %i.%j del %i.%j
+    if exist testcase*.exe del testcase*.exe
+    if exist testcase*.obj del testcase*.obj
+    if exist testcase*.res del testcase*.res
+    if exist testcase*.pdb del testcase*.pdb
     if exist vc*.pdb del vc*.pdb
