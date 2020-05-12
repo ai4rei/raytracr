@@ -49,6 +49,7 @@ all : \
     testcase1.exe \
     testcase2.exe \
     testcase2dx7.exe \
+    testcase2dx7x.exe \
     testcase2dx8.exe \
     testcase2dx9.exe \
     testcase2gl.exe \
@@ -62,6 +63,9 @@ testcase2.exe : testcase2.obj
     $(LINK) $(LFLAGS) -out:$@ $**
 
 testcase2dx7.exe : testcase2dx7.obj
+    $(LINK) $(LFLAGS) $(LDX7FLAGS) -out:$@ $**
+
+testcase2dx7x.exe : testcase2dx7x.obj
     $(LINK) $(LFLAGS) $(LDX7FLAGS) -out:$@ $**
 
 testcase2dx8.exe : testcase2dx8.obj
@@ -81,12 +85,12 @@ testcase3.exe : testcase3.obj testcase3.res
 
 testcase1.cpp testcase2.cpp testcase2w.cpp testcase3.cpp : raytracr.hpp
 
-testcase1.cpp testcase2dx7.cpp testcase2dx8.cpp testcase2dx9.cpp testcase2gl.cpp testcase2w.cpp testcase3.cpp : simplewnd.tpp utility.hpp
+testcase1.cpp testcase2dx7.cpp testcase2dx7x.cpp testcase2dx8.cpp testcase2dx9.cpp testcase2gl.cpp testcase2w.cpp testcase3.cpp : simplewnd.tpp utility.hpp
 
 testcase3.cpp :  testcase3.h
 
 raytracr.hpp : _raytracr\*.hpp
 
 clean :
-    for %%i in (testcase1 testcase2 testcase2dx7 testcase2dx8 testcase2dx9 testcase2gl testcase2w testcase3) do @for %%j in (exe obj res pdb) do @if exist %i.%j del %i.%j
+    for %%i in (testcase1 testcase2 testcase2dx7 testcase2dx7x testcase2dx8 testcase2dx9 testcase2gl testcase2w testcase3) do @for %%j in (exe obj res pdb) do @if exist %i.%j del %i.%j
     if exist vc*.pdb del vc*.pdb
