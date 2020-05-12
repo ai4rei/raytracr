@@ -151,6 +151,7 @@ public:
 
             if(FAILED(lpD3D->GetAdapterDisplayMode(D3DADAPTER_DEFAULT, &Dm)))
             {
+                lpD3D->Release();
                 return false;
             }
 
