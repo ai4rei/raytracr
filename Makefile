@@ -2,7 +2,7 @@
 LINK = link
 
 # Command configuration
-CPPFLAGS = -nologo -W3 -O2x -GF -EHsc -D_CRT_SECURE_NO_WARNINGS -I$(DX7SDK)\Include -I$(DX8SDK)\Include -I$(DX9SDK)\Include
+CPPFLAGS = -nologo -W3 -O2x -GF -EHsc -D_CRT_SECURE_NO_WARNINGS
 LFLAGS = -nologo -release user32.lib gdi32.lib comctl32.lib
 RFLAGS = -nologo
 
@@ -34,6 +34,16 @@ DX9SDK = $(DXSDK)
 !ENDIF
 !ENDIF
 
+!IFDEF DX7SDK
+CPPFLAGS = $(CPPFLAGS) -I$(DX7SDK)\Include
+!ENDIF
+!IFDEF DX8SDK
+CPPFLAGS = $(CPPFLAGS) -I$(DX8SDK)\Include
+!ENDIF
+!IFDEF DX9SDK
+CPPFLAGS = $(CPPFLAGS) -I$(DX9SDK)\Include
+!ENDIF
+
 # Per-target configuration
 LDX7FLAGS = -libpath:$(DX7SDK)\Lib advapi32.lib ole32.lib ddraw.lib d3dx.lib dxguid.lib
 LDX8FLAGS = -libpath:$(DX8SDK)\Lib advapi32.lib ole32.lib d3d8.lib d3dx8.lib -nodefaultlib:libci.lib
@@ -49,10 +59,16 @@ LGLFLAGS = opengl32.lib glu32.lib
 all : \
     testcase1.exe \
     testcase2.exe \
+!IF "$(DX7SDK)" != ""
     testcase2dx7.exe \
     testcase2dx7x.exe \
+!ENDIF
+!IF "$(DX8SDK)" != ""
     testcase2dx8.exe \
+!ENDIF
+!IF "$(DX9SDK)" != ""
     testcase2dx9.exe \
+!ENDIF
     testcase2gl.exe \
     testcase2w.exe \
     testcase3.exe
