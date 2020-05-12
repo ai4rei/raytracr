@@ -33,8 +33,8 @@ private:
     typedef CSimpleWindow CSuper;
 
 protected:
-    D3DFORMAT m_nBackBufferFormat;
     IDirect3DDevice8* m_lpDD;
+    D3DFORMAT m_nBackBufferFormat;
 
     ID3DXMesh* m_lpSphere1Mesh;
     ID3DXMesh* m_lpSphere01Mesh;
@@ -211,7 +211,7 @@ public:
             D3DXMATRIX matWorld;
 
             //R.AddObject(Raytracer::CreatePlane(Raytracer::CreateVector3d(+0.0f, +0.0f, +0.0f), Raytracer::CreateVector3d(+0.0f, +1.0f, +0.0f), Raytracer::CreateColor(1.0f, 1.0f, 1.0f)));
-            const struct XYZ_N_VECTOR
+            struct XYZ_N_VECTOR
             {
                 float x, y, z;
                 float nx, ny, nz;
@@ -275,18 +275,21 @@ public:
 
         GetClientRect(hWnd, &rcWnd);
 
-        D3DPRESENT_PARAMETERS PP = { 0 };
-        PP.BackBufferFormat = m_nBackBufferFormat;
-        PP.Windowed = TRUE;
-        PP.SwapEffect = D3DSWAPEFFECT_FLIP;
-        PP.EnableAutoDepthStencil = TRUE;
-        PP.AutoDepthStencilFormat = D3DFMT_D16;
-        m_lpDD->Reset(&PP);
-        InitializeDevice();
+        if(!IsMinimized(hWnd))
+        {
+            D3DPRESENT_PARAMETERS PP = { 0 };
+            PP.BackBufferFormat = m_nBackBufferFormat;
+            PP.Windowed = TRUE;
+            PP.SwapEffect = D3DSWAPEFFECT_FLIP;
+            PP.EnableAutoDepthStencil = TRUE;
+            PP.AutoDepthStencilFormat = D3DFMT_D16;
+            m_lpDD->Reset(&PP);
+            InitializeDevice();
 
-        D3DXMATRIX mtxP;
-        D3DXMatrixPerspectiveFovLH(&mtxP, D3DX_PI/4, float(rcWnd.right-rcWnd.left)/float(rcWnd.bottom-rcWnd.top), 1.0f, 100.0f);
-        m_lpDD->SetTransform(D3DTS_PROJECTION, &mtxP);
+            D3DXMATRIX mtxP;
+            D3DXMatrixPerspectiveFovLH(&mtxP, D3DX_PI/4, float(rcWnd.right-rcWnd.left)/float(rcWnd.bottom-rcWnd.top), 1.0f, 100.0f);
+            m_lpDD->SetTransform(D3DTS_PROJECTION, &mtxP);
+        }
 
         CSuper::WndProcOnWindowPosChanged(hWnd, lpWP);
     }
