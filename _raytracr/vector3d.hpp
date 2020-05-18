@@ -177,7 +177,7 @@ public:
         //return DotProduct(vecOther.UnitVector())*vecOther.UnitVector();
         return vecOther*(DotProduct(vecOther)/vecOther.Magnitude2());
     }
-    
+
     CVector3d RejectionTo(const CSelf& vecOther) const
     {
         return *this-ProjectionTo(vecOther);

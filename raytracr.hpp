@@ -1,6 +1,8 @@
 #ifndef SNIPPETS_RAYTRACER_HPP
 #define SNIPPETS_RAYTRACER_HPP
 
+#include <vector>
+
 class Raytracer
 {
 public:
@@ -18,7 +20,7 @@ protected:
     #include "_raytracr/triangle.hpp"
     #include "_raytracr/plane.hpp"
     #include "_raytracr/sphere.hpp"
-    #include "_raytracr/light.hpp"  // diffuse, ambient, spot light
+    #include "_raytracr/light.hpp"
     #include "_raytracr/camera.hpp"
     #include "_raytracr/camera2.hpp"
 
