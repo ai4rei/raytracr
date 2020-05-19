@@ -71,7 +71,7 @@ public:
                 }
                 else
                 {
-                    return CHit3d(min(nDistance1, nDistance2), m_clrColor, GetSurfaceNormalForRayPoint(Ray, min(nDistance1, nDistance2)));
+                    return CHit3d(std::min(nDistance1, nDistance2), m_clrColor, GetSurfaceNormalForRayPoint(Ray, std::min(nDistance1, nDistance2)));
                 }
             }
         }

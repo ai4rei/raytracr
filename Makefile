@@ -2,7 +2,7 @@
 LINK = link
 
 # Command configuration
-CPPFLAGS = -nologo -W3 -O2x -GF -EHsc -D_CRT_SECURE_NO_WARNINGS
+CPPFLAGS = -nologo -W3 -O2x -GF -EHsc -D_CRT_SECURE_NO_WARNINGS -DNOMINMAX
 LFLAGS = -nologo -release user32.lib gdi32.lib comctl32.lib
 RFLAGS = -nologo
 

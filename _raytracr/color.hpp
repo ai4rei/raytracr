@@ -64,9 +64,9 @@ public:
         return CColor(1.0f-m_nR, 1.0f-m_nG, 1.0f-m_nB);
     }
 
-    float R() const { return max(0.0f, min(1.0f, m_nR)); }
-    float G() const { return max(0.0f, min(1.0f, m_nG)); }
-    float B() const { return max(0.0f, min(1.0f, m_nB)); }
+    float R() const { return std::max(0.0f, std::min(1.0f, m_nR)); }
+    float G() const { return std::max(0.0f, std::min(1.0f, m_nG)); }
+    float B() const { return std::max(0.0f, std::min(1.0f, m_nB)); }
 };
 
 #endif  /* SNIPPETS_RAYTRACER_COLOR_HPP */

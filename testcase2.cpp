@@ -1,31 +1,8 @@
-#include <cmath>
 #include <cstdio>
-#include <memory>
-#include <vector>
-
-template< typename T > const T& min(const T& One, const T& Two)
-{
-    if(One<Two)
-    {
-        return One;
-    }
-
-    return Two;
-}
-
-template< typename T > const T& max(const T& One, const T& Two)
-{
-    if(One>Two)
-    {
-        return One;
-    }
-
-    return Two;
-}
 
 #include "raytracr.hpp"
 
-int __cdecl main(int nArgc, char** lppszArgv)
+int main(int nArgc, char** lppszArgv)
 {
     Raytracer R;
 

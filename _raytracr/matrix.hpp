@@ -175,13 +175,14 @@ template< typename D, typename T, unsigned int N > class CBaseSquareMatrix
 private:
     //typedef CSquareMatrix< T, N > CSelf;
     typedef D CSelf;
+    typedef CBaseMatrix< D, T, N, N > CSuper;
 
 public:
     CSelf& SetIdentity()
     {
         for(unsigned int J = 0; J < N; J++)
         {
-            SetItem(J, J, 1);
+            CSuper::SetItem(J, J, 1);
         }
 
         return *static_cast< CSelf* >(this);
@@ -197,7 +198,7 @@ public:
             {
                 for(unsigned int R = 0; R < N; R++)
                 {
-                    mtxResult(I, J)+= operator()(I, R)*mtxOther(R, J);
+                    mtxResult(I, J)+= CSuper::operator()(I, R)*mtxOther(R, J);
                 }
             }
         }

@@ -1,6 +1,9 @@
 #ifndef SNIPPETS_RAYTRACER_HPP
 #define SNIPPETS_RAYTRACER_HPP
 
+#include <algorithm>
+#include <cmath>
+#include <memory>
 #include <vector>
 
 class Raytracer
