@@ -102,7 +102,7 @@ testcase3.exe : testcase3.obj testcase3.res
 
 testcase1.cpp testcase2.cpp testcase2w.cpp testcase3.cpp : raytracr.hpp
 
-testcase1.cpp testcase2dx7.cpp testcase2dx7x.cpp testcase2dx8.cpp testcase2dx9.cpp testcase2gl.cpp testcase2w.cpp testcase3.cpp : simplewnd.tpp utility.hpp
+testcase1.cpp testcase2dx7.cpp testcase2dx7x.cpp testcase2dx8.cpp testcase2dx9.cpp testcase2gl.cpp testcase2w.cpp testcase3.cpp : simplewnd.hpp utility.hpp
 
 testcase3.cpp :  testcase3.h
 

@@ -4,7 +4,7 @@
 #include <GL/gl.h>
 #include <GL/glu.h>
 
-#include "simplewnd.tpp"
+#include "simplewnd.hpp"
 #include "utility.hpp"
 
 class CTestWindow

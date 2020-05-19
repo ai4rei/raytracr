@@ -4,7 +4,7 @@
 #include <d3d.h>
 #include <d3dx.h>
 
-#include "simplewnd.tpp"
+#include "simplewnd.hpp"
 
 // DX9 -> DX7
 typedef ID3DXSimpleShape ID3DXMesh;

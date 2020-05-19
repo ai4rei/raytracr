@@ -3,7 +3,7 @@
 #include <d3d8.h>
 #include <d3dx8.h>
 
-#include "simplewnd.tpp"
+#include "simplewnd.hpp"
 
 class CCoInitialize
 {

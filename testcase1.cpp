@@ -8,7 +8,7 @@
 #include <windows.h>
 #include <windowsx.h>
 
-#include "simplewnd.tpp"
+#include "simplewnd.hpp"
 #include "utility.hpp"
 
 #include "raytracr.hpp"

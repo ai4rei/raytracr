@@ -1,3 +1,6 @@
+#ifndef RAYTRACR_SIMPLEWND_HPP
+#define RAYTRACR_SIMPLEWND_HPP
+
 class CSimpleWindow
 {
 private:
@@ -160,3 +163,5 @@ public:
         return EXIT_FAILURE;
     }
 };
+
+#endif  /* RAYTRACR_SIMPLEWND_HPP */
