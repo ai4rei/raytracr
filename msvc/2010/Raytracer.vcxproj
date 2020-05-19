@@ -10,6 +10,28 @@
       <Platform>Win32</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\raytracr.hpp" />
+    <ClInclude Include="..\..\simplewnd.hpp" />
+    <ClInclude Include="..\..\utility.hpp" />
+    <ClInclude Include="..\..\_raytracr\camera.hpp" />
+    <ClInclude Include="..\..\_raytracr\color.hpp" />
+    <ClInclude Include="..\..\_raytracr\hit3d.hpp" />
+    <ClInclude Include="..\..\_raytracr\light.hpp" />
+    <ClInclude Include="..\..\_raytracr\matrix.hpp" />
+    <ClInclude Include="..\..\_raytracr\matrix3d.hpp" />
+    <ClInclude Include="..\..\_raytracr\object.hpp" />
+    <ClInclude Include="..\..\_raytracr\plane.hpp" />
+    <ClInclude Include="..\..\_raytracr\plane3d.hpp" />
+    <ClInclude Include="..\..\_raytracr\ray3d.hpp" />
+    <ClInclude Include="..\..\_raytracr\sphere.hpp" />
+    <ClInclude Include="..\..\_raytracr\sphere3d.hpp" />
+    <ClInclude Include="..\..\_raytracr\triangle.hpp" />
+    <ClInclude Include="..\..\_raytracr\vector3d.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\testcase1.cpp" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <Keyword>Win32Proj</Keyword>
   </PropertyGroup>
@@ -40,7 +62,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
@@ -54,7 +76,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
@@ -67,23 +89,6 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClCompile Include="..\..\testcase.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="..\..\raytracr.hpp" />
-    <ClInclude Include="..\..\_raytracr\color.hpp" />
-    <ClInclude Include="..\..\_raytracr\intersection.hpp" />
-    <ClInclude Include="..\..\_raytracr\light.hpp" />
-    <ClInclude Include="..\..\_raytracr\matrix3d.hpp" />
-    <ClInclude Include="..\..\_raytracr\object.hpp" />
-    <ClInclude Include="..\..\_raytracr\plane.hpp" />
-    <ClInclude Include="..\..\_raytracr\plane3d.hpp" />
-    <ClInclude Include="..\..\_raytracr\sphere.hpp" />
-    <ClInclude Include="..\..\_raytracr\tracehit.hpp" />
-    <ClInclude Include="..\..\_raytracr\triangle.hpp" />
-    <ClInclude Include="..\..\_raytracr\vector3d.hpp" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
