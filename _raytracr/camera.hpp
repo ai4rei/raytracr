@@ -18,7 +18,6 @@ private:
     const float m_nFovW;
     const float m_nFovXUnit;
     const float m_nFovYUnit;
-    const CVector3d m_rvecFOV0;
     const CVector3d m_rvecLookAt0;
     const TYPE m_nType;
 
@@ -32,8 +31,7 @@ public:
         , m_nFovW(m_nFovH*float(nImageW)/float(nImageH))
         , m_nFovXUnit(m_nFovW/float(nImageW))
         , m_nFovYUnit(m_nFovH/float(nImageH))
-        , m_rvecFOV0(CVector3d(-m_nFovW/2.0f, -m_nFovH/2.0f, 0.0f).MatrixProduct(CMatrix3d().SetFromUpVector(m_uvecUp, m_uvecRight)))
-        , m_rvecLookAt0(rvecLookAt+m_rvecFOV0)
+        , m_rvecLookAt0(rvecLookAt+m_uvecRight*(-m_nFovW/2.0f)+m_uvecUp*(-m_nFovH/2.0f))
         , m_nType(nType)
     {
     }
@@ -56,19 +54,10 @@ public:
         const CVector3d rvecXY = rvecX+rvecY;
 
         // ray
-        const CVector3d rvecRay =
-            m_rvecLookAt0+rvecXY
-            //m_rvecLookAt
-            ;
+        const CVector3d rvecRay = m_rvecLookAt0+rvecXY;
         const CVector3d uvecRay = rvecRay.UnitVector();
 
-        // eye
-        const CVector3d ovecEye =
-            //m_ovecEye
-            m_ovecEye+m_rvecLookAt0+rvecXY
-            ;
-
-        return CRay3d(ovecEye, uvecRay);
+        return CRay3d(m_ovecEye, uvecRay);
     }
 };
 

@@ -6,6 +6,9 @@
 #include <memory>
 #include <vector>
 
+// Depending on the platform, double may be faster than float.
+// #define float double
+
 class Raytracer
 {
 public:
@@ -25,9 +28,6 @@ protected:
     #include "_raytracr/sphere.hpp"
     #include "_raytracr/light.hpp"
     #include "_raytracr/camera.hpp"
-    #include "_raytracr/camera2.hpp"
-
-    typedef CCamera CCameraType;
 
 protected:
     typedef std::vector< std::shared_ptr< CObject > > OBJECTVECTOR;
@@ -166,7 +166,7 @@ public:
         return ResultHit;
     }
 
-    CColor RenderColorAt(const CCameraType& Cam, const int nImageX, const int nImageY)
+    CColor RenderColorAt(const CCamera& Cam, const int nImageX, const int nImageY)
     {
         CColor clrHit(0, 0, 0);
 
@@ -198,7 +198,7 @@ public:
 
     void Render(void* const lpContext = nullptr)
     {
-        CCameraType Cam(m_ovecEye, m_rvecLookAt, m_rvecUp, CCameraType::TYPE_PERSPECTIVE, 45.0f, m_nImageW, m_nImageH);
+        CCamera Cam(m_ovecEye, m_rvecLookAt, m_rvecUp, CCamera::TYPE_PERSPECTIVE, 45.0f, m_nImageW, m_nImageH);
 
         // initialize pixel buffer
         m_aclrPixels.assign(m_nImageW*m_nImageH, CColor(0.0f, 0.0f, 0.0f));
