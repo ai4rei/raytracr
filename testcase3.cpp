@@ -80,10 +80,10 @@ public:
         // Objects
         AddObject(CreatePlane(CreateVector3d(+0.0f, +0.0f, +0.0f), CreateVector3d(+0.0f, +1.0f, +0.0f), CreateColor(1.0f, 1.0f, 1.0f)));
 
-        const float SF_RADIUS_MIN = 0.5f;
-        const float SF_RADIUS_INT = 0.5f;
-        const float SF_RADIUS_MAX = 1.5f;
-        const float SF_SPHERE_DST = 2.5f;
+        const float SF_RADIUS_MIN = 0.2f;
+        const float SF_RADIUS_INT = 0.2f;
+        const float SF_RADIUS_MAX = 1.4f;
+        const float SF_SPHERE_DST = SF_RADIUS_MAX*2.0f+0.5f;
         const int   SF_SPHERE_ROW = 10;
 
         srand(GetTickCount());
@@ -94,7 +94,7 @@ public:
             {
                 const float nPosX   = (nX-SF_SPHERE_ROW/2.0f+0.5f)*SF_SPHERE_DST;
                 const float nPosY   = (nY-SF_SPHERE_ROW/2.0f+0.5f)*SF_SPHERE_DST;
-                const float nRadius = SF_RADIUS_MIN+(rand()%(int(SF_RADIUS_MAX-SF_RADIUS_MIN)+1))*SF_RADIUS_INT;
+                const float nRadius = SF_RADIUS_MIN+(rand()%(int((SF_RADIUS_MAX-SF_RADIUS_MIN)/SF_RADIUS_INT)+1))*SF_RADIUS_INT;
 
                 AddObject(CreateSphere(CreateVector3d(nPosX, nRadius, nPosY), nRadius, CreateColor((rand()%100)/100.0f, (rand()%100)/100.0f, (rand()%100)/100.0f)));
             }
