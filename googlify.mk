@@ -1,7 +1,6 @@
 OUT_FILES = \
     google\raytracr.h \
     google\raytracr\camera.inc \
-    google\raytracr\camera2.inc \
     google\raytracr\color.inc \
     google\raytracr\hit3d.inc \
     google\raytracr\light.inc \
@@ -104,7 +103,7 @@ google\raytracr.h : raytracr.hpp
     quickxlt -wordonly "LIGHTVECTOR" "LightVector" $@
     quickxlt -wordonly "PIXELVECTOR" "PixelVector" $@
     quickxlt -wordonly "PROGRESSCB" "ProgressCallback" $@
-    quickxlt -wordonly "CCameraType::TYPE_PERSPECTIVE" "CCameraType::kTypePerspective" $@
+    quickxlt -wordonly "CCamera::TYPE_PERSPECTIVE" "CCamera::kTypePerspective" $@
 ## classes
     quickxlt -wordonly "CCamera" "Camera" $@
     quickxlt -wordonly "CCameraType" "CameraType" $@
@@ -175,56 +174,6 @@ google\raytracr\camera.inc : _raytracr\camera.hpp
     quickxlt -wordonly "CMatrix3d" "Matrix3d" $@
 ## misc
     quickxlt -wordonly SNIPPETS_RAYTRACER_CAMERA_HPP RAYTRACR_CAMERA_INC_ $@
-    quickxlt "    " "\t" $@
-    quickxlt "\r\n{" " {" $@
-    quickxlt "\r\n\t{" " {" $@
-    quickxlt "\r\n\t\t{" " {" $@
-    quickxlt "\r\n\t\t\t{" " {" $@
-    quickxlt "\r\n\t\t\t\t{" " {" $@
-    quickxlt "\r\n\t\t\t\t\t{" " {" $@
-    quickxlt "\t:" "    :" $@
-    quickxlt "\t," "    ," $@
-    quickxlt "\t" "  " $@
-
-google\raytracr\camera2.inc : _raytracr\camera2.hpp
-    copy $? $@ > nul
-## class member variables
-    quickxlt -wordonly "m_ovecEye" "eye_" $@
-    quickxlt -wordonly "m_rvecLookAt" "look_at_" $@
-    quickxlt -wordonly "m_uvecRight" "right_" $@
-    quickxlt -wordonly "m_uvecUp" "up_" $@
-    quickxlt -wordonly "m_nFovH" "fov_height_" $@
-    quickxlt -wordonly "m_nFovW" "fov_width_" $@
-    quickxlt -wordonly "m_nFovXUnit" "fov_x_unit_" $@
-    quickxlt -wordonly "m_nFovYUnit" "fov_y_unit_" $@
-    quickxlt -wordonly "m_nType" "type_" $@
-## arguments and local variables
-    quickxlt -wordonly "ovecEye" "eye" $@
-    quickxlt -wordonly "rvecLookAt" "look_at" $@
-    quickxlt -wordonly "rvecUp" "up" $@
-    quickxlt -wordonly "nType" "type" $@
-    quickxlt -wordonly "nFOV" "fov" $@
-    quickxlt -wordonly "nImageW" "image_width" $@
-    quickxlt -wordonly "nImageH" "image_height" $@
-    quickxlt -wordonly "nImageX" "image_x" $@
-    quickxlt -wordonly "nImageY" "image_y" $@
-    quickxlt -wordonly "nSubX" "sub_x" $@
-    quickxlt -wordonly "nSubY" "sub_y" $@
-    quickxlt -wordonly "rvecX" "x" $@
-    quickxlt -wordonly "rvecY" "y" $@
-    quickxlt -wordonly "rvecXY" "xy" $@
-    quickxlt -wordonly "rvecRay" "ray" $@
-    quickxlt -wordonly "uvecRay" "unit_ray" $@
-## type names
-    quickxlt -wordonly "TYPE_PERSPECTIVE" "kTypePerspective" $@
-    quickxlt -wordonly "TYPE" "Type" $@
-## classes
-    quickxlt -wordonly "CCamera2" "Camera2" $@
-    quickxlt -wordonly "CRay3d" "Ray3d" $@
-    quickxlt -wordonly "CVector3d" "Vector3d" $@
-    quickxlt -wordonly "CMatrix3d" "Matrix3d" $@
-## misc
-    quickxlt -wordonly SNIPPETS_RAYTRACER_CAMERA2_HPP RAYTRACR_CAMERA2_INC_ $@
     quickxlt "    " "\t" $@
     quickxlt "\r\n{" " {" $@
     quickxlt "\r\n\t{" " {" $@
