@@ -22,6 +22,10 @@ NOOUTPUT = 2> NUL > NUL
 !ERROR Failed to retrieve $(CC) version.
 !ENDIF
 
+!IF $(CCVERSION) <= 1400
+CPPFLAGS = $(CPPFLAGS) -Dnullptr=NULL
+!ENDIF
+
 !IFDEF DXSDK
 !IFNDEF DX7SDK
 DX7SDK = $(DXSDK)
